@@ -87,8 +87,12 @@ def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tup
 
 
 def _select_material_root_index(deviations: list[Deviation], cluster_window_us: int = 3_000_000) -> int | None:
+    """Find the earliest plausible subsystem failure followed by vehicle consequences."""
     core = {"power", "actuation", "attitude", "motion", "estimation"}
+    root_families = {"power", "actuation", "estimation"}
     for i, deviation in enumerate(deviations):
+        if _signal_family(deviation.signal) not in root_families:
+            continue
         end = deviation.timestamp_us + cluster_window_us
         families = {
             _signal_family(item.signal)
@@ -210,7 +214,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected for accuracy/error metrics; root requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected for accuracy/error metrics; root limited to power/estimation/actuation and requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "causal_links": "conservative temporal + signal-family heuristic",
         },
