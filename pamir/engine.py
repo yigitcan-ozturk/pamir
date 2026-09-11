@@ -74,13 +74,19 @@ def _magnitude_floor(signal: str, center: float) -> float:
 
 
 def _is_measured_actuation_root(signal: str) -> bool:
-    """Command outputs are evidence, not direct proof of an actuator failure.
-
-    Keep measured actuation telemetry (for example ESC/RPM signals) eligible as roots,
-    while treating PX4 actuator command topics as downstream control evidence.
-    """
+    """Command outputs are evidence, not direct proof of an actuator failure."""
     s = signal.lower()
     return "actuator_motors.control" not in s and "actuator_outputs.output" not in s
+
+
+def _is_power_root(signal: str) -> bool:
+    """Power roots must represent degradation, not normal demand changes.
+
+    Battery current draw rises normally during takeoff and maneuvering. Keep current in
+    the evidence chain, but require voltage/remaining/cell-health style telemetry for a
+    power root until a dedicated electrical-load model exists.
+    """
+    return "current" not in signal.lower()
 
 
 def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tuple[str, str | None]:
@@ -104,13 +110,16 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
     """Find the earliest plausible subsystem failure followed by vehicle consequences.
 
     Estimation can be a root only when it is upstream of actuation, not a response to a
-    maneuver. Commanded actuator outputs remain chain evidence, while only measured
-    actuation telemetry is eligible as an actuator root.
+    maneuver. Commanded actuator outputs and normal current demand remain evidence rather
+    than root proof.
     """
     core = {"power", "actuation", "attitude", "motion", "estimation"}
     for i, deviation in enumerate(deviations):
         family = _signal_family(deviation.signal)
         if family not in {"power", "actuation", "estimation"}:
+            continue
+
+        if family == "power" and not _is_power_root(deviation.signal):
             continue
 
         if family == "actuation":
@@ -139,7 +148,11 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
 
     if deviations:
         first = deviations[0]
-        if _signal_family(first.signal) == "power" and first.confidence >= 0.9:
+        if (
+            _signal_family(first.signal) == "power"
+            and _is_power_root(first.signal)
+            and first.confidence >= 0.9
+        ):
             return 0
     return None
 
@@ -261,7 +274,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected; estimation must precede actuation; actuator command outputs are evidence but not root proof; material root requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected; estimation must precede actuation; actuator commands and raw current demand are evidence rather than root proof; material root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
             "causal_links": "conservative temporal + signal-family heuristic",
