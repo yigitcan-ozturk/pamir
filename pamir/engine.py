@@ -73,6 +73,16 @@ def _magnitude_floor(signal: str, center: float) -> float:
     return base
 
 
+def _is_measured_actuation_root(signal: str) -> bool:
+    """Command outputs are evidence, not direct proof of an actuator failure.
+
+    Keep measured actuation telemetry (for example ESC/RPM signals) eligible as roots,
+    while treating PX4 actuator command topics as downstream control evidence.
+    """
+    s = signal.lower()
+    return "actuator_motors.control" not in s and "actuator_outputs.output" not in s
+
+
 def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tuple[str, str | None]:
     dt = child.timestamp_us - parent.timestamp_us
     if dt <= 0 or dt > causal_window_us:
@@ -94,8 +104,8 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
     """Find the earliest plausible subsystem failure followed by vehicle consequences.
 
     Estimation can be a root only when it is upstream of actuation, not a response to a
-    maneuver. Actuation-only roots require higher detector confidence because normal
-    spin-up and controller transients otherwise resemble failures around zero baselines.
+    maneuver. Commanded actuator outputs remain chain evidence, while only measured
+    actuation telemetry is eligible as an actuator root.
     """
     core = {"power", "actuation", "attitude", "motion", "estimation"}
     for i, deviation in enumerate(deviations):
@@ -103,8 +113,11 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
         if family not in {"power", "actuation", "estimation"}:
             continue
 
-        if family == "actuation" and deviation.confidence < 0.8:
-            continue
+        if family == "actuation":
+            if not _is_measured_actuation_root(deviation.signal):
+                continue
+            if deviation.confidence < 0.8:
+                continue
 
         if family == "estimation":
             recent_actuation = any(
@@ -248,7 +261,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected; estimation must precede actuation; low-confidence actuator transients are not roots; material root requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected; estimation must precede actuation; actuator command outputs are evidence but not root proof; material root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
             "causal_links": "conservative temporal + signal-family heuristic",
