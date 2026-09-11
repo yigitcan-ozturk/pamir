@@ -9,7 +9,6 @@ def _mad(values: list[float], center: float) -> float:
 
 
 def _confidence(score: float, threshold: float) -> float:
-    # Smoothly saturates toward 1.0 as a deviation exceeds the threshold.
     x = max(0.0, score - threshold)
     return round(min(0.999, 0.5 + 0.5 * (1.0 - exp(-x / 3.0))), 3)
 
@@ -30,12 +29,6 @@ def _signal_family(signal: str) -> str:
 
 
 def _is_root_candidate(signal: str) -> bool:
-    """Keep commanded/categorical state changes from becoming root anomalies.
-
-    Setpoints are operator/controller intent, not measured failures. Likewise, common
-    enum/flag/counter fields change discretely during normal flight and are retained in
-    the ULog for context rather than scored as robust-baseline deviations.
-    """
     s = signal.lower()
     excluded = (
         "setpoint",
@@ -72,6 +65,32 @@ def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tup
     return "followed_by", parent.signal
 
 
+def _select_material_root_index(deviations: list[Deviation], cluster_window_us: int = 3_000_000) -> int | None:
+    """Select the earliest deviation that develops into a material failure cluster.
+
+    A root candidate must be followed within the cluster window by anomalous motion and
+    at least three core signal families overall. This suppresses normal command/takeoff
+    transitions that create isolated actuator or estimator excursions without a
+    downstream vehicle-motion consequence.
+    """
+    core = {"power", "actuation", "attitude", "motion", "estimation"}
+    for i, deviation in enumerate(deviations):
+        end = deviation.timestamp_us + cluster_window_us
+        families = {
+            _signal_family(item.signal)
+            for item in deviations[i:]
+            if item.timestamp_us <= end
+        } & core
+        if "motion" in families and len(families) >= 3:
+            return i
+
+    if deviations:
+        first = deviations[0]
+        if _signal_family(first.signal) == "power" and first.confidence >= 0.9:
+            return 0
+    return None
+
+
 def detect_deviations(
     samples: list[Sample],
     *,
@@ -83,12 +102,7 @@ def detect_deviations(
     evidence_after_us: int = 750_000,
     causal_window_us: int = 3_000_000,
 ) -> list[Deviation]:
-    """Detect each signal's first meaningful deviation using a rolling robust baseline.
-
-    The baseline uses only recent history preceding each candidate point. History is
-    time-bounded and sample-capped so high-rate real ULogs remain deterministic and
-    fast without changing the detector's robust median/MAD semantics.
-    """
+    """Detect each signal's first meaningful deviation using a rolling robust baseline."""
     series: dict[str, list[Sample]] = defaultdict(list)
     for sample in sorted(samples, key=lambda s: s.timestamp_us):
         series[sample.signal].append(sample)
@@ -160,19 +174,30 @@ def detect_deviations(
 
 def build_report(samples: list[Sample], source: str) -> dict:
     deviations = detect_deviations(samples)
-    first = deviations[0].to_dict() if deviations else None
-    chain = [d.to_dict() for d in deviations[:10]]
+    root_index = _select_material_root_index(deviations)
+    selected = deviations[root_index:] if root_index is not None else []
+    first = selected[0].to_dict() if selected else None
+    if first is not None:
+        first["relation"] = None
+        first["parent_signal"] = None
+
+    chain = [d.to_dict() for d in selected[:10]]
+    if chain:
+        chain[0]["relation"] = None
+        chain[0]["parent_signal"] = None
+
     return {
         "pamir_version": "0.1.0",
         "source": source,
         "sample_count": len(samples),
         "signals_analyzed": len({s.signal for s in samples}),
+        "raw_deviation_count": len(deviations),
         "root_event": first,
         "first_deviation": first,
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal)",
-            "root_candidate_policy": "measured continuous telemetry; command setpoints and common categorical state fields excluded",
+            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "causal_links": "conservative temporal + signal-family heuristic",
         },
