@@ -1,4 +1,5 @@
 import json
+from math import isfinite
 from pathlib import Path
 from .model import Sample
 
@@ -50,10 +51,13 @@ def load_ulog(path: str | Path) -> list[Sample]:
                     continue
             except TypeError:
                 continue
-            signal = f"{dataset.name}.{field}"
+            topic = dataset.name if dataset.multi_id == 0 else f"{dataset.name}[{dataset.multi_id}]"
+            signal = f"{topic}.{field}"
             for ts, value in zip(timestamps, values):
                 try:
-                    out.append(Sample(int(ts), signal, float(value)))
+                    number = float(value)
+                    if isfinite(number) and int(ts) >= 0:
+                        out.append(Sample(int(ts), signal, number))
                 except (TypeError, ValueError):
                     continue
     return out

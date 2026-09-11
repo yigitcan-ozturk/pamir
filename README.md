@@ -56,7 +56,7 @@ Benchmark cases are listed in `benchmarks/px4_public_incidents.json` and current
 
 ## v0.1 forensic method
 
-The original fixed first-20-samples baseline has been removed. Each signal is now evaluated against recent telemetry history using a rolling robust median/MAD baseline. This avoids coupling anomaly detection to a particular topic sampling rate and follows changing flight phases more safely than a fixed startup baseline.
+The original fixed first-20-samples baseline has been removed. Each signal is now evaluated against recent telemetry history using a rolling robust median/MAD baseline. The history is limited to 10 seconds and 250 samples, with at least 30 prior observations. This remains sampling-rate dependent; flight-phase transitions are not yet modeled.
 
 Each detected deviation contains:
 
@@ -114,6 +114,36 @@ v0.1 is considered complete when:
 3. root-event ordering is consistent with the published incident narrative on the incident set,
 4. the successful control case has materially fewer/less-severe false positives,
 5. tests and GitHub Actions pass on the final validation branch.
+
+## Validation status (2026-09-11)
+
+**Not merge-ready.** A successful parser run is not incident validation.
+The prior CI printed comparison results without enforcing them. The validator
+now fails on missing required Flight Review sources, invalid evidence/ordering,
+and a material failure chain in the portable non-crash control. Full acceptance
+also remains blocked on reviewed, timestamped incident narrative annotations;
+the script explicitly records this as unverified.
+
+Three real binary ULogs were downloaded and analyzed. Five original Flight
+Review cases return HTTP 403 from both the local environment and GitHub Actions.
+The portable pair still produces startup actuator anomalies in both flights.
+Raising a global threshold to fit this pair is not an accepted fix.
+
+Reports now include the actual samples within each observed evidence window.
+`confidence` is an **uncalibrated anomaly-strength score**, not a probability that
+the proposed cause is correct. Simultaneous events cannot receive `likely_caused`.
+Separate PX4 instances keep separate signal names, and non-finite ULog values are
+excluded. Portable downloads are SHA-256 pinned, including cached files.
+
+```bash
+python -m pytest -q
+python scripts/download_px4_benchmarks.py
+python scripts/validate_px4_benchmarks.py  # strict full acceptance; currently fails
+```
+
+`--portable-only` explicitly narrows source coverage for diagnosis, but still
+checks the control gate and does not certify v0.1 completion. See
+`benchmarks/VALIDATION.md` for measured results and remaining work.
 
 ## Safety boundary
 

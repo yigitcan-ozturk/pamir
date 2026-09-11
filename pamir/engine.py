@@ -1,5 +1,5 @@
 from collections import defaultdict, deque
-from math import exp
+from math import exp, isfinite
 from statistics import median
 from .model import Sample, Deviation
 
@@ -15,6 +15,8 @@ def _confidence(score: float, threshold: float) -> float:
 
 def _signal_family(signal: str) -> str:
     s = signal.lower()
+    if "estimator" in s or "innovation" in s or "mag" in s:
+        return "estimation"
     if "battery" in s or "voltage" in s or "current" in s:
         return "power"
     if "actuator" in s or "motor" in s or "output" in s or "thrust" in s:
@@ -23,8 +25,6 @@ def _signal_family(signal: str) -> str:
         return "attitude"
     if "position" in s or "alt" in s or "velocity" in s or "gps" in s:
         return "motion"
-    if "estimator" in s or "innovation" in s or "mag" in s:
-        return "estimation"
     return "other"
 
 
@@ -32,6 +32,10 @@ def _is_root_candidate(signal: str) -> bool:
     s = signal.lower()
     excluded = (
         "setpoint",
+        "timestamp",
+        "_integral_dt",
+        ".device_id",
+        ".noutputs",
         ".nav_state",
         ".arming_state",
         ".hil_state",
@@ -71,7 +75,7 @@ def _magnitude_floor(signal: str, center: float) -> float:
 
 def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tuple[str, str | None]:
     dt = child.timestamp_us - parent.timestamp_us
-    if dt < 0 or dt > causal_window_us:
+    if dt <= 0 or dt > causal_window_us:
         return "followed_by", parent.signal
 
     transitions = {
@@ -141,7 +145,8 @@ def detect_deviations(
     """Detect each signal's first meaningful deviation using a rolling robust baseline."""
     series: dict[str, list[Sample]] = defaultdict(list)
     for sample in sorted(samples, key=lambda s: s.timestamp_us):
-        series[sample.signal].append(sample)
+        if sample.timestamp_us >= 0 and isfinite(sample.value):
+            series[sample.signal].append(sample)
 
     raw: list[Deviation] = []
     for signal, points in series.items():
@@ -171,8 +176,8 @@ def detect_deviations(
                             baseline=center,
                             score=round(score, 3),
                             confidence=_confidence(score, threshold),
-                            evidence_start_us=max(0, point.timestamp_us - evidence_before_us),
-                            evidence_end_us=point.timestamp_us + evidence_after_us,
+                            evidence_start_us=max(points[0].timestamp_us, point.timestamp_us - evidence_before_us),
+                            evidence_end_us=min(points[-1].timestamp_us, point.timestamp_us + evidence_after_us),
                             reason="rolling_robust_baseline_deviation",
                         )
                     )
@@ -221,7 +226,18 @@ def build_report(samples: list[Sample], source: str) -> dict:
         chain[0]["relation"] = None
         chain[0]["parent_signal"] = None
 
+    evidence = {}
+    for event in chain:
+        points = [s for s in samples if s.signal == event["signal"]
+                  and event["evidence_start_us"] <= s.timestamp_us <= event["evidence_end_us"]
+                  and isfinite(s.value)]
+        points.sort(key=lambda s: s.timestamp_us)
+        evidence[event["signal"]] = [
+            {"timestamp_us": s.timestamp_us, "value": s.value} for s in points
+        ]
+
     return {
+        "evidence": evidence,
         "pamir_version": "0.1.0",
         "source": source,
         "sample_count": len(samples),
@@ -234,6 +250,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
             "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected; estimation must precede actuation; low-confidence actuator transients are not roots; material root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
+            "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
             "causal_links": "conservative temporal + signal-family heuristic",
         },
         "conclusion": "deviation_detected" if first else "no_deviation_detected",

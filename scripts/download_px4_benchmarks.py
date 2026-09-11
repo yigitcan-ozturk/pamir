@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+from hashlib import sha256
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -37,9 +38,19 @@ def download(url: str) -> bytes:
         return response.read()
 
 
+PINNED_SHA256 = {
+    "github-indoor-crash-2025": "7ea3869991912d9f2e264b53bebf3afc30e8b6595fd9837d76cf8e24cc7b0179",
+    "github-indoor-control-2025": "6288e117e86b4e4365f833e55137b5285db12a7f1339063783f7ce76971f26e5",
+    "px4-pyulog-sample": "81952e6059bc095717e7911c010e07f85749d6b04d332a5ffc51575a3fd0a558",
+}
+
+
 def validate_ulog(data: bytes, label: str) -> bytes:
-    if not data.startswith(b"ULog"):
+    if len(data) < 16 or not data.startswith(b"ULog\x01\x12\x35"):
         raise RuntimeError(f"{label}: response is not a ULog file")
+    expected = PINNED_SHA256.get(label)
+    if expected and sha256(data).hexdigest() != expected:
+        raise RuntimeError(f"{label}: SHA-256 mismatch")
     return data
 
 
@@ -51,7 +62,8 @@ def main() -> None:
     for case in payload["cases"]:
         destination = OUT / f"{case['id']}.ulg"
         if destination.exists() and destination.stat().st_size > 0:
-            print(f"skip {destination.name} (already present)")
+            validate_ulog(destination.read_bytes(), destination.stem)
+            print(f"skip {destination.name} (already verified)")
             continue
 
         print(f"download {case['id']}")
@@ -67,7 +79,8 @@ def main() -> None:
     for case_id, url in PORTABLE_CASES:
         destination = OUT / f"{case_id}.ulg"
         if destination.exists() and destination.stat().st_size > 0:
-            print(f"skip {destination.name} (already present)")
+            validate_ulog(destination.read_bytes(), destination.stem)
+            print(f"skip {destination.name} (already verified)")
             continue
         print(f"download {case_id}")
         data = validate_ulog(download(url), case_id)
@@ -81,6 +94,8 @@ def main() -> None:
         print("download pinned PX4/pyulog sample")
         fallback.write_bytes(validate_ulog(download(PYULOG_SAMPLE), "px4-pyulog-sample"))
         print(f"  -> {fallback} ({fallback.stat().st_size} bytes)")
+
+    validate_ulog(fallback.read_bytes(), "px4-pyulog-sample")
 
     if blocked:
         print("NOTICE: Flight Review blocked incident downloads for: " + ", ".join(blocked))
