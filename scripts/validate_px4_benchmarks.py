@@ -11,40 +11,68 @@ DATA = ROOT / "benchmarks" / "data"
 OUT = ROOT / "benchmarks" / "reports"
 
 
+def analyze(path: Path, metadata: dict) -> dict:
+    samples = load(path)
+    if not samples:
+        raise RuntimeError(f"{path.name}: parsed zero telemetry samples")
+    report = build_report(samples, str(path))
+    report.update(metadata)
+    output = OUT / f"{path.stem}.json"
+    output.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(
+        f"{path.stem}: samples={report['sample_count']} "
+        f"signals={report['signals_analyzed']} conclusion={report['conclusion']}"
+    )
+    return report
+
+
 def main() -> None:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     OUT.mkdir(parents=True, exist_ok=True)
     summary = []
+    missing_incidents = []
 
     for case in manifest["cases"]:
         path = DATA / f"{case['id']}.ulg"
         if not path.exists():
-            raise FileNotFoundError(f"missing benchmark log: {path}")
-
-        samples = load(path)
-        report = build_report(samples, str(path))
-        report["benchmark_case"] = case["id"]
-        report["benchmark_kind"] = case["kind"]
-        report["known_narrative"] = case["known_narrative"]
-        report["validation_goal"] = case["validation_goal"]
-
-        output = OUT / f"{case['id']}.json"
-        output.write_text(json.dumps(report, indent=2), encoding="utf-8")
-        summary.append({
-            "id": case["id"],
-            "kind": case["kind"],
-            "samples": report["sample_count"],
-            "signals": report["signals_analyzed"],
-            "conclusion": report["conclusion"],
-            "root_event": report["root_event"],
+            missing_incidents.append(case["id"])
+            print(f"SKIP source-unavailable: {case['id']}")
+            continue
+        report = analyze(path, {
+            "benchmark_case": case["id"],
+            "benchmark_kind": case["kind"],
+            "known_narrative": case["known_narrative"],
+            "validation_goal": case["validation_goal"],
         })
-        print(
-            f"{case['id']}: samples={report['sample_count']} "
-            f"signals={report['signals_analyzed']} conclusion={report['conclusion']}"
-        )
+        summary.append({
+            "id": case["id"], "kind": case["kind"],
+            "samples": report["sample_count"], "signals": report["signals_analyzed"],
+            "conclusion": report["conclusion"], "root_event": report["root_event"],
+        })
 
-    (OUT / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    print(f"validated {len(summary)} public PX4 benchmark logs")
+    fallback = DATA / "px4-pyulog-sample.ulg"
+    if not fallback.exists():
+        raise FileNotFoundError("missing pinned public PX4/pyulog ULog fallback")
+    report = analyze(fallback, {
+        "benchmark_case": "px4-pyulog-sample",
+        "benchmark_kind": "parser-control",
+        "validation_goal": "Prove real binary PX4 ULog ingestion and forensic pipeline execution.",
+    })
+    summary.append({
+        "id": "px4-pyulog-sample", "kind": "parser-control",
+        "samples": report["sample_count"], "signals": report["signals_analyzed"],
+        "conclusion": report["conclusion"], "root_event": report["root_event"],
+    })
+
+    payload = {
+        "validated": summary,
+        "incident_sources_unavailable": missing_incidents,
+        "incident_validation_complete": len(missing_incidents) == 0,
+    }
+    (OUT / "summary.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    print(f"validated {len(summary)} available public PX4 ULog(s)")
+    if missing_incidents:
+        print("INCIDENT VALIDATION GATE OPEN: source access unavailable for " + ", ".join(missing_incidents))
 
 
 if __name__ == "__main__":
