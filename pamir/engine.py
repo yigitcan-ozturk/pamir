@@ -87,12 +87,30 @@ def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tup
 
 
 def _select_material_root_index(deviations: list[Deviation], cluster_window_us: int = 3_000_000) -> int | None:
-    """Find the earliest plausible subsystem failure followed by vehicle consequences."""
+    """Find the earliest plausible subsystem failure followed by vehicle consequences.
+
+    Estimation can be a root only when it is upstream of actuation, not a response to a
+    maneuver. Actuation-only roots require higher detector confidence because normal
+    spin-up and controller transients otherwise resemble failures around zero baselines.
+    """
     core = {"power", "actuation", "attitude", "motion", "estimation"}
-    root_families = {"power", "actuation", "estimation"}
     for i, deviation in enumerate(deviations):
-        if _signal_family(deviation.signal) not in root_families:
+        family = _signal_family(deviation.signal)
+        if family not in {"power", "actuation", "estimation"}:
             continue
+
+        if family == "actuation" and deviation.confidence < 0.8:
+            continue
+
+        if family == "estimation":
+            recent_actuation = any(
+                _signal_family(previous.signal) == "actuation"
+                and 0 <= deviation.timestamp_us - previous.timestamp_us <= 2_000_000
+                for previous in deviations[:i]
+            )
+            if recent_actuation:
+                continue
+
         end = deviation.timestamp_us + cluster_window_us
         families = {
             _signal_family(item.signal)
@@ -214,7 +232,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected for accuracy/error metrics; root limited to power/estimation/actuation and requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected; estimation must precede actuation; low-confidence actuator transients are not roots; material root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "causal_links": "conservative temporal + signal-family heuristic",
         },
