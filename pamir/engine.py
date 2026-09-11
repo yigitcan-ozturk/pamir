@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, deque
 from math import exp
 from statistics import median
 from .model import Sample, Deviation
@@ -52,15 +52,16 @@ def detect_deviations(
     threshold: float = 6.0,
     min_baseline_points: int = 30,
     baseline_window_us: int = 10_000_000,
+    max_baseline_points: int = 250,
     evidence_before_us: int = 500_000,
     evidence_after_us: int = 750_000,
     causal_window_us: int = 3_000_000,
 ) -> list[Deviation]:
     """Detect each signal's first meaningful deviation using a rolling robust baseline.
 
-    Unlike the original fixed first-N-samples baseline, the baseline is built from
-    recent history immediately preceding each candidate point. This makes the
-    detector usable across ULog topics with different sampling rates and flight phases.
+    The baseline uses only recent history preceding each candidate point. History is
+    time-bounded and sample-capped so high-rate real ULogs remain deterministic and
+    fast without changing the detector's robust median/MAD semantics.
     """
     series: dict[str, list[Sample]] = defaultdict(list)
     for sample in sorted(samples, key=lambda s: s.timestamp_us):
@@ -68,10 +69,11 @@ def detect_deviations(
 
     raw: list[Deviation] = []
     for signal, points in series.items():
-        history: list[Sample] = []
+        history: deque[Sample] = deque()
         for point in points:
             cutoff = point.timestamp_us - baseline_window_us
-            history = [h for h in history if h.timestamp_us >= cutoff]
+            while history and history[0].timestamp_us < cutoff:
+                history.popleft()
 
             if len(history) >= min_baseline_points:
                 values = [h.value for h in history]
@@ -99,6 +101,8 @@ def detect_deviations(
                     break
 
             history.append(point)
+            while len(history) > max_baseline_points:
+                history.popleft()
 
     ordered = sorted(raw, key=lambda d: d.timestamp_us)
     linked: list[Deviation] = []
@@ -138,7 +142,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
         "first_deviation": first,
         "failure_chain": chain,
         "method": {
-            "baseline": "rolling median/MAD",
+            "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal)",
             "evidence_window": "-0.5s/+0.75s",
             "causal_links": "conservative temporal + signal-family heuristic",
         },
