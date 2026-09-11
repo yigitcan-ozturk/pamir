@@ -15,6 +15,21 @@ PYULOG_SAMPLE = (
     "ffbe3755d903e93797a89fb4fce26e0c0420a42f/test/sample.ulg"
 )
 
+# Portable real-world incident/control pair attached directly to a public GitHub
+# issue. The files are ULog binaries with an extra .txt suffix only because of
+# GitHub attachment rules. This pair keeps incident validation reproducible in CI
+# even when logs.px4.io returns HTTP 403 to cloud runners.
+PORTABLE_CASES = (
+    (
+        "github-indoor-crash-2025",
+        "https://github.com/user-attachments/files/23960520/crashed_log_6_2025-11-23-21-01-00.ulg.txt",
+    ),
+    (
+        "github-indoor-control-2025",
+        "https://github.com/user-attachments/files/23960519/not_crashed_log_1_2025-11-23-20-26-38.ulg.txt",
+    ),
+)
+
 
 def download(url: str) -> bytes:
     request = Request(url, headers={"User-Agent": "Mozilla/5.0 PAMIR-v0.1-benchmark"})
@@ -49,6 +64,16 @@ def main() -> None:
         destination.write_bytes(data)
         print(f"  -> {destination} ({len(data)} bytes)")
 
+    for case_id, url in PORTABLE_CASES:
+        destination = OUT / f"{case_id}.ulg"
+        if destination.exists() and destination.stat().st_size > 0:
+            print(f"skip {destination.name} (already present)")
+            continue
+        print(f"download {case_id}")
+        data = validate_ulog(download(url), case_id)
+        destination.write_bytes(data)
+        print(f"  -> {destination} ({len(data)} bytes)")
+
     # Always download a source-pinned public ULog from PX4/pyulog. This is not
     # an incident oracle; it validates real binary ULog transport + parsing.
     fallback = OUT / "px4-pyulog-sample.ulg"
@@ -59,7 +84,7 @@ def main() -> None:
 
     if blocked:
         print("NOTICE: Flight Review blocked incident downloads for: " + ", ".join(blocked))
-        print("CI will validate the pinned public PX4 ULog; incident narrative validation remains gated until source access is available.")
+        print("CI will still validate the portable public GitHub incident/control pair plus the pinned PX4 ULog sample.")
 
 
 if __name__ == "__main__":
