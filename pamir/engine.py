@@ -65,7 +65,7 @@ def _magnitude_floor(signal: str, center: float) -> float:
     if "actuator_motors.control" in s:
         return max(base, 0.005)
     if "actuator_outputs.output" in s:
-        return max(base, abs(center) * 0.02, 1.0)
+        return max(base, abs(center) * 0.05, 5.0)
     return base
 
 
