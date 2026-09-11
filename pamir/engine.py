@@ -29,6 +29,32 @@ def _signal_family(signal: str) -> str:
     return "other"
 
 
+def _is_root_candidate(signal: str) -> bool:
+    """Keep commanded/categorical state changes from becoming root anomalies.
+
+    Setpoints are operator/controller intent, not measured failures. Likewise, common
+    enum/flag/counter fields change discretely during normal flight and are retained in
+    the ULog for context rather than scored as robust-baseline deviations.
+    """
+    s = signal.lower()
+    excluded = (
+        "setpoint",
+        ".nav_state",
+        ".arming_state",
+        ".hil_state",
+        ".failsafe",
+        "_counter",
+        "_flags",
+        ".failure_detector_status",
+        ".rc_signal_lost",
+        ".data_link_lost",
+        ".is_rotary_wing",
+        ".is_vtol",
+        ".in_transition",
+    )
+    return not any(term in s for term in excluded)
+
+
 def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tuple[str, str | None]:
     dt = child.timestamp_us - parent.timestamp_us
     if dt < 0 or dt > causal_window_us:
@@ -69,6 +95,9 @@ def detect_deviations(
 
     raw: list[Deviation] = []
     for signal, points in series.items():
+        if not _is_root_candidate(signal):
+            continue
+
         history: deque[Sample] = deque()
         for point in points:
             cutoff = point.timestamp_us - baseline_window_us
@@ -143,6 +172,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal)",
+            "root_candidate_policy": "measured continuous telemetry; command setpoints and common categorical state fields excluded",
             "evidence_window": "-0.5s/+0.75s",
             "causal_links": "conservative temporal + signal-family heuristic",
         },
