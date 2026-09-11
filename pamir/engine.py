@@ -58,6 +58,17 @@ def _direction_is_material(signal: str, value: float, baseline: float) -> bool:
     return True
 
 
+def _magnitude_floor(signal: str, center: float) -> float:
+    """Prevent near-zero baselines and ordinary actuator jitter from exploding scores."""
+    s = signal.lower()
+    base = max(1e-6, abs(center) * 0.005)
+    if "actuator_motors.control" in s:
+        return max(base, 0.005)
+    if "actuator_outputs.output" in s:
+        return max(base, abs(center) * 0.02, 1.0)
+    return base
+
+
 def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tuple[str, str | None]:
     dt = child.timestamp_us - parent.timestamp_us
     if dt < 0 or dt > causal_window_us:
@@ -126,8 +137,7 @@ def detect_deviations(
                 center = median(values)
                 mad = _mad(values, center)
                 robust_scale = 1.4826 * mad
-                magnitude_floor = max(1e-6, abs(center) * 0.005)
-                scale = max(robust_scale, magnitude_floor)
+                scale = max(robust_scale, _magnitude_floor(signal, center))
                 score = abs(point.value - center) / scale
 
                 if score >= threshold and _direction_is_material(signal, point.value, center):
@@ -199,7 +209,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
         "first_deviation": first,
         "failure_chain": chain,
         "method": {
-            "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0)",
+            "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
             "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected for accuracy/error metrics; root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "causal_links": "conservative temporal + signal-family heuristic",
