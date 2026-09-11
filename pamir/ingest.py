@@ -2,11 +2,22 @@ import json
 from pathlib import Path
 from .model import Sample
 
+# v0.1 keeps a focused topic set, but it must include the telemetry families
+# needed to reconstruct actuator -> attitude -> motion failure chains.
 DEFAULT_TOPICS = {
     "battery_status",
     "vehicle_gps_position",
+    "vehicle_global_position",
+    "vehicle_local_position",
     "vehicle_status",
+    "vehicle_attitude",
+    "vehicle_attitude_setpoint",
+    "vehicle_angular_velocity",
+    "vehicle_rates_setpoint",
+    "actuator_outputs",
+    "actuator_motors",
     "estimator_status",
+    "estimator_innovations",
     "sensor_combined",
 }
 
