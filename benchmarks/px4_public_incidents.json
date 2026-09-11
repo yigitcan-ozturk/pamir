@@ -1,0 +1,56 @@
+{
+  "dataset": "PAMIR PX4 public incident benchmark v0.1",
+  "source_policy": "Only publicly shared PX4 Flight Review logs with an accompanying public incident narrative are included.",
+  "cases": [
+    {
+      "id": "motor-stop-fatal-crash-2020",
+      "log_id": "d751eae7-7008-4029-b6d8-03aedc09b722",
+      "kind": "incident",
+      "plot_url": "https://logs.px4.io/plot_app?log=d751eae7-7008-4029-b6d8-03aedc09b722",
+      "download_url": "https://logs.px4.io/download?log=d751eae7-7008-4029-b6d8-03aedc09b722",
+      "source_url": "https://discuss.px4.io/t/motor-stop-during-flight/17540",
+      "known_narrative": "Motor stopped during flight; recurrence led to a fatal crash. Discussion also notes magnetometer publishing/failover anomalies.",
+      "validation_goal": "PAMIR should place the earliest material control/sensor deviation before downstream attitude/position loss."
+    },
+    {
+      "id": "mission-termination-crash-2019",
+      "log_id": "58c4945f-0f23-437d-80ac-7b35774d5d4a",
+      "kind": "incident",
+      "plot_url": "https://logs.px4.io/plot_app?log=58c4945f-0f23-437d-80ac-7b35774d5d4a",
+      "download_url": "https://logs.px4.io/download?log=58c4945f-0f23-437d-80ac-7b35774d5d4a",
+      "source_url": "https://discuss.px4.io/t/px4-mission-mode-crash/10847",
+      "known_narrative": "Mission flight entered flight termination after datalink/GPS-lost logic; pilot takeover did not recover motors.",
+      "validation_goal": "PAMIR should identify the first telemetry deviation preceding flight termination and preserve event ordering."
+    },
+    {
+      "id": "vtol-return-mode-crash-2024",
+      "log_id": "f2a737ec-4436-4806-92e6-f8fc320d4b4c",
+      "kind": "incident",
+      "plot_url": "https://logs.px4.io/plot_app?log=f2a737ec-4436-4806-92e6-f8fc320d4b4c",
+      "download_url": "https://logs.px4.io/download?log=f2a737ec-4436-4806-92e6-f8fc320d4b4c",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/23823",
+      "known_narrative": "Hybrid VTOL exited offboard into failsafe return; fixed-wing motor RPM remained constant and the vehicle crashed.",
+      "validation_goal": "PAMIR should distinguish actuator/control anomalies from subsequent trajectory deviation."
+    },
+    {
+      "id": "mag-switch-spin-crash-2023",
+      "log_id": "5a129e78-ebf0-4ae1-a331-69c0af8ec51a",
+      "kind": "incident",
+      "plot_url": "https://logs.px4.io/plot_app?log=5a129e78-ebf0-4ae1-a331-69c0af8ec51a",
+      "download_url": "https://logs.px4.io/download?log=5a129e78-ebf0-4ae1-a331-69c0af8ec51a",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/21544",
+      "known_narrative": "Hexacopter began spinning in position mode; issue discussion focuses on magnetometer switching/heading behavior.",
+      "validation_goal": "PAMIR should surface estimation/heading deviation before attitude and motion consequences when present."
+    },
+    {
+      "id": "mission-success-control-2019",
+      "log_id": "451a989b-fe1b-481a-a137-3a40666ac277",
+      "kind": "control",
+      "plot_url": "https://logs.px4.io/plot_app?log=451a989b-fe1b-481a-a137-3a40666ac277",
+      "download_url": "https://logs.px4.io/download?log=451a989b-fe1b-481a-a137-3a40666ac277",
+      "source_url": "https://discuss.px4.io/t/px4-mission-mode-crash/10847",
+      "known_narrative": "Successful mission-mode flight on the same platform with a datalink.",
+      "validation_goal": "Control false-positive rate should remain materially lower than incident cases."
+    }
+  ]
+}
