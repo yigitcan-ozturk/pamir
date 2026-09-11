@@ -24,6 +24,21 @@ def test_report_no_deviation():
     assert report["first_deviation"] is None
 
 
+def test_accuracy_improvement_is_not_treated_as_failure():
+    samples = [Sample(i * 100_000, "estimator_status.pos_horiz_accuracy", 0.05) for i in range(40)]
+    samples += [Sample(4_000_000, "estimator_status.pos_horiz_accuracy", 0.02)]
+    deviations = detect_deviations(samples)
+    assert not deviations
+
+
+def test_accuracy_degradation_is_detected():
+    samples = [Sample(i * 100_000, "estimator_status.pos_vert_accuracy", 0.10) for i in range(40)]
+    samples += [Sample(4_000_000, "estimator_status.pos_vert_accuracy", 0.30)]
+    deviations = detect_deviations(samples)
+    assert deviations
+    assert deviations[0].signal == "estimator_status.pos_vert_accuracy"
+
+
 def test_failure_chain_marks_likely_causal_transition():
     samples = []
     for i in range(40):
