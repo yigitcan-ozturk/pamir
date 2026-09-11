@@ -97,7 +97,7 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
 def detect_deviations(
     samples: list[Sample],
     *,
-    threshold: float = 6.0,
+    threshold: float = 7.0,
     min_baseline_points: int = 30,
     baseline_window_us: int = 10_000_000,
     max_baseline_points: int = 250,
@@ -199,7 +199,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
         "first_deviation": first,
         "failure_chain": chain,
         "method": {
-            "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal)",
+            "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0)",
             "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected for accuracy/error metrics; root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "causal_links": "conservative temporal + signal-family heuristic",
