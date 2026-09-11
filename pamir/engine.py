@@ -48,6 +48,16 @@ def _is_root_candidate(signal: str) -> bool:
     return not any(term in s for term in excluded)
 
 
+def _direction_is_material(signal: str, value: float, baseline: float) -> bool:
+    """Respect signal semantics when only one direction represents degradation."""
+    s = signal.lower()
+    if "pos_horiz_accuracy" in s or "pos_vert_accuracy" in s or "test_ratio" in s:
+        return value > baseline
+    if "tracking_error" in s:
+        return abs(value) > abs(baseline)
+    return True
+
+
 def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tuple[str, str | None]:
     dt = child.timestamp_us - parent.timestamp_us
     if dt < 0 or dt > causal_window_us:
@@ -66,13 +76,6 @@ def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tup
 
 
 def _select_material_root_index(deviations: list[Deviation], cluster_window_us: int = 3_000_000) -> int | None:
-    """Select the earliest deviation that develops into a material failure cluster.
-
-    A root candidate must be followed within the cluster window by anomalous motion and
-    at least three core signal families overall. This suppresses normal command/takeoff
-    transitions that create isolated actuator or estimator excursions without a
-    downstream vehicle-motion consequence.
-    """
     core = {"power", "actuation", "attitude", "motion", "estimation"}
     for i, deviation in enumerate(deviations):
         end = deviation.timestamp_us + cluster_window_us
@@ -127,7 +130,7 @@ def detect_deviations(
                 scale = max(robust_scale, magnitude_floor)
                 score = abs(point.value - center) / scale
 
-                if score >= threshold:
+                if score >= threshold and _direction_is_material(signal, point.value, center):
                     raw.append(
                         Deviation(
                             timestamp_us=point.timestamp_us,
@@ -197,7 +200,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal)",
-            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; root requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected for accuracy/error metrics; root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "causal_links": "conservative temporal + signal-family heuristic",
         },
