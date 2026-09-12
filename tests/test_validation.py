@@ -11,6 +11,7 @@ from scripts.validate_px4_benchmarks import (
     validate_report,
     compare_pair,
     validate_causal_timestamps,
+    _family,
 )
 
 
@@ -68,6 +69,11 @@ def test_timestamp_causal_validation_requires_strict_downstream_order():
     reversed_report = deepcopy(report)
     reversed_report['failure_chain'][1]['timestamp_us'] = 900_000
     assert validate_causal_timestamps(reversed_report, metadata)
+
+
+def test_validator_classifies_rate_setpoint_root_as_control_family():
+    assert _family('vehicle_rates_setpoint.pitch') == 'control'
+    assert _family('vehicle_attitude_setpoint.q_d[0]') == 'control'
 
 
 def test_healthy_battery_demand_and_soc_depletion_are_not_failure_roots():
