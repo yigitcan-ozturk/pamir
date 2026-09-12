@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import json
+from collections import defaultdict, deque
 from math import isfinite
 from pathlib import Path
+from statistics import median
 
 from pamir.engine import build_report, detect_deviations
 from pamir.ingest import load
@@ -66,6 +68,51 @@ def _event_time(event) -> int:
     return event["timestamp_us"] if isinstance(event, dict) else event.timestamp_us
 
 
+def _actuator_drop_diagnostics(samples: list) -> list[dict]:
+    """Expose measured largest output drops without changing benchmark pass/fail."""
+    series = defaultdict(list)
+    arm = []
+    for sample in samples:
+        s = sample.signal.lower()
+        if ("actuator_outputs" in s and ".output[" in s) or ("actuator_motors" in s and ".control[" in s):
+            series[sample.signal].append(sample)
+        elif s.endswith("vehicle_status.arming_state") or s == "vehicle_status.arming_state":
+            arm.append(sample)
+    arm.sort(key=lambda item: item.timestamp_us)
+
+    def armed_at(t: int):
+        state = None
+        for item in arm:
+            if item.timestamp_us > t:
+                break
+            state = item.value
+        return state
+
+    rows = []
+    for signal, points in series.items():
+        points.sort(key=lambda item: item.timestamp_us)
+        history = deque(maxlen=20)
+        best = None
+        for point in points:
+            if len(history) >= 10:
+                baseline = median(history)
+                drop = baseline - point.value
+                if best is None or drop > best["drop"]:
+                    best = {
+                        "signal": signal,
+                        "timestamp_us": point.timestamp_us,
+                        "value": point.value,
+                        "rolling_median": baseline,
+                        "drop": drop,
+                        "arming_state": armed_at(point.timestamp_us),
+                    }
+            history.append(point.value)
+        if best and best["drop"] > 0:
+            rows.append(best)
+    rows.sort(key=lambda row: row["drop"], reverse=True)
+    return rows[:20]
+
+
 def compare_pair(crash: dict, control: dict) -> list[str]:
     errors = []
     if crash.get("root_event") is None:
@@ -115,10 +162,8 @@ def analyze(path: Path, metadata: dict) -> tuple[dict, list]:
     report = build_report(samples, str(path), deviations=deviations)
     report.update(metadata)
     report["validation_errors"] = validate_report(report, samples)
-    # Persist the complete anomaly trace used by timestamp validation. This is not a
-    # second detector or a relaxed path: it is the exact ordered detector output and
-    # makes failed benchmark cases independently reviewable from the CI artifact.
     report["validation_deviations"] = [deviation.to_dict() for deviation in deviations]
+    report["actuator_drop_diagnostics"] = _actuator_drop_diagnostics(samples)
     output = OUT / f"{path.stem}.json"
     output.write_text(json.dumps(report, indent=2), encoding="utf-8")
     root = report["root_event"]
