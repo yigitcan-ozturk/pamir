@@ -5,7 +5,7 @@
 > **Tell me what failed first — and prove it.**
 
 <p align="center">
-  <img src="docs/pamir-readme-hero.svg" alt="PAMIR v0.1 autonomous incident reconstruction pipeline and validation summary" width="100%" />
+  <img src="https://raw.githubusercontent.com/yigitcan-ozturk/pamir/main/docs/pamir-readme-hero.svg" alt="PAMIR v0.1 autonomous incident reconstruction pipeline and validation summary" width="100%" />
 </p>
 
 PAMIR is an offline forensic analysis engine for autonomous-system telemetry. It reconstructs an incident timeline, identifies the **earliest material root event**, and preserves the timestamped evidence showing what happened next.
