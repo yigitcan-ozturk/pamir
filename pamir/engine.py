@@ -59,6 +59,8 @@ def _direction_is_material(signal: str, value: float, baseline: float) -> bool:
         return value > baseline
     if "tracking_error" in s:
         return abs(value) > abs(baseline)
+    if "voltage" in s:
+        return value < baseline
     return True
 
 
@@ -80,13 +82,13 @@ def _is_measured_actuation_root(signal: str) -> bool:
 
 
 def _is_power_root(signal: str) -> bool:
-    """Power roots must represent degradation, not normal demand changes.
+    """Only direct voltage degradation is eligible as a v0.1 power root.
 
-    Battery current draw rises normally during takeoff and maneuvering. Keep current in
-    the evidence chain, but require voltage/remaining/cell-health style telemetry for a
-    power root until a dedicated electrical-load model exists.
+    Current draw changes with commanded load and state-of-charge/remaining normally
+    decreases through a healthy flight. They stay available as evidence, but neither is
+    sufficient root-cause proof without a dedicated electrical-load/discharge model.
     """
-    return "current" not in signal.lower()
+    return "voltage" in signal.lower()
 
 
 def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tuple[str, str | None]:
@@ -110,8 +112,8 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
     """Find the earliest plausible subsystem failure followed by vehicle consequences.
 
     Estimation can be a root only when it is upstream of actuation, not a response to a
-    maneuver. Commanded actuator outputs and normal current demand remain evidence rather
-    than root proof.
+    maneuver. Commanded actuator outputs, current demand and normal SOC depletion remain
+    evidence rather than root proof.
     """
     core = {"power", "actuation", "attitude", "motion", "estimation"}
     for i, deviation in enumerate(deviations):
@@ -274,7 +276,7 @@ def build_report(samples: list[Sample], source: str) -> dict:
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected; estimation must precede actuation; actuator commands and raw current demand are evidence rather than root proof; material root requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected; estimation must precede actuation; actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; v0.1 power roots require voltage degradation; material root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
             "causal_links": "conservative temporal + signal-family heuristic",
