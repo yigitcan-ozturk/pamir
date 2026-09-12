@@ -101,12 +101,18 @@ def test_subthreshold_px4_test_ratio_is_not_material_anomaly():
     assert build_report(samples, 'healthy-estimator')['root_event'] is None
 
 
-def test_healthy_estimator_accuracy_region_is_not_material_anomaly():
+def test_healthy_estimator_accuracy_change_is_visible_but_cannot_root_failure():
     horizontal = [Sample(i * 100_000, 'estimator_status.pos_horiz_accuracy', 0.33) for i in range(40)]
     horizontal.append(Sample(4_000_000, 'estimator_status.pos_horiz_accuracy', 0.80))
     vertical = [Sample(i * 100_000, 'estimator_status.pos_vert_accuracy', 0.40) for i in range(40)]
     vertical.append(Sample(4_000_000, 'estimator_status.pos_vert_accuracy', 1.80))
-    assert detect_deviations(horizontal + vertical) == []
+    samples = horizontal + vertical
+    deviations = detect_deviations(samples)
+    assert {deviation.signal for deviation in deviations} == {
+        'estimator_status.pos_horiz_accuracy',
+        'estimator_status.pos_vert_accuracy',
+    }
+    assert build_report(samples, 'healthy-accuracy', deviations=deviations)['root_event'] is None
 
 
 def test_estimator_state_covariance_validity_and_reset_fields_are_not_anomalies():
