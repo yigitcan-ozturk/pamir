@@ -31,29 +31,15 @@ def _signal_family(signal: str) -> str:
 def _is_root_candidate(signal: str) -> bool:
     s = signal.lower()
     excluded = (
-        "setpoint",
-        "timestamp",
-        "_integral_dt",
-        ".device_id",
-        ".noutputs",
-        ".nav_state",
-        ".arming_state",
-        ".hil_state",
-        ".failsafe",
-        "_counter",
-        "_flags",
-        ".failure_detector_status",
-        ".rc_signal_lost",
-        ".data_link_lost",
-        ".is_rotary_wing",
-        ".is_vtol",
-        ".in_transition",
+        "setpoint", "timestamp", "_integral_dt", ".device_id", ".noutputs",
+        ".nav_state", ".arming_state", ".hil_state", ".failsafe", "_counter",
+        "_flags", ".failure_detector_status", ".rc_signal_lost", ".data_link_lost",
+        ".is_rotary_wing", ".is_vtol", ".in_transition",
     )
     return not any(term in s for term in excluded)
 
 
 def _direction_is_material(signal: str, value: float, baseline: float) -> bool:
-    """Respect signal semantics when only one direction represents degradation."""
     s = signal.lower()
     if "pos_horiz_accuracy" in s or "pos_vert_accuracy" in s or "test_ratio" in s:
         return value > baseline
@@ -65,7 +51,6 @@ def _direction_is_material(signal: str, value: float, baseline: float) -> bool:
 
 
 def _magnitude_floor(signal: str, center: float) -> float:
-    """Prevent near-zero baselines and ordinary actuator jitter from exploding scores."""
     s = signal.lower()
     base = max(1e-6, abs(center) * 0.005)
     if "actuator_motors.control" in s:
@@ -76,18 +61,11 @@ def _magnitude_floor(signal: str, center: float) -> float:
 
 
 def _is_measured_actuation_root(signal: str) -> bool:
-    """Command outputs are evidence, not direct proof of an actuator failure."""
     s = signal.lower()
     return "actuator_motors.control" not in s and "actuator_outputs.output" not in s
 
 
 def _is_power_root(signal: str) -> bool:
-    """Only direct voltage degradation is eligible as a v0.1 power root.
-
-    Current draw changes with commanded load and state-of-charge/remaining normally
-    decreases through a healthy flight. They stay available as evidence, but neither is
-    sufficient root-cause proof without a dedicated electrical-load/discharge model.
-    """
     return "voltage" in signal.lower()
 
 
@@ -95,12 +73,9 @@ def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tup
     dt = child.timestamp_us - parent.timestamp_us
     if dt <= 0 or dt > causal_window_us:
         return "followed_by", parent.signal
-
     transitions = {
-        ("power", "actuation"),
-        ("actuation", "attitude"),
-        ("attitude", "motion"),
-        ("estimation", "attitude"),
+        ("power", "actuation"), ("actuation", "attitude"),
+        ("attitude", "motion"), ("estimation", "attitude"),
         ("estimation", "motion"),
     }
     if (_signal_family(parent.signal), _signal_family(child.signal)) in transitions:
@@ -109,27 +84,16 @@ def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tup
 
 
 def _select_material_root_index(deviations: list[Deviation], cluster_window_us: int = 3_000_000) -> int | None:
-    """Find the earliest plausible subsystem failure followed by vehicle consequences.
-
-    Estimation can be a root only when it is upstream of actuation, not a response to a
-    maneuver. Commanded actuator outputs, current demand and normal SOC depletion remain
-    evidence rather than root proof.
-    """
     core = {"power", "actuation", "attitude", "motion", "estimation"}
     for i, deviation in enumerate(deviations):
         family = _signal_family(deviation.signal)
         if family not in {"power", "actuation", "estimation"}:
             continue
-
         if family == "power" and not _is_power_root(deviation.signal):
             continue
-
         if family == "actuation":
-            if not _is_measured_actuation_root(deviation.signal):
+            if not _is_measured_actuation_root(deviation.signal) or deviation.confidence < 0.8:
                 continue
-            if deviation.confidence < 0.8:
-                continue
-
         if family == "estimation":
             recent_actuation = any(
                 _signal_family(previous.signal) == "actuation"
@@ -138,7 +102,6 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
             )
             if recent_actuation:
                 continue
-
         end = deviation.timestamp_us + cluster_window_us
         families = {
             _signal_family(item.signal)
@@ -147,27 +110,17 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
         } & core
         if "motion" in families and len(families) >= 3:
             return i
-
     if deviations:
         first = deviations[0]
-        if (
-            _signal_family(first.signal) == "power"
-            and _is_power_root(first.signal)
-            and first.confidence >= 0.9
-        ):
+        if _signal_family(first.signal) == "power" and _is_power_root(first.signal) and first.confidence >= 0.9:
             return 0
     return None
 
 
 def detect_deviations(
-    samples: list[Sample],
-    *,
-    threshold: float = 7.0,
-    min_baseline_points: int = 30,
-    baseline_window_us: int = 10_000_000,
-    max_baseline_points: int = 250,
-    evidence_before_us: int = 500_000,
-    evidence_after_us: int = 750_000,
+    samples: list[Sample], *, threshold: float = 7.0, min_baseline_points: int = 30,
+    baseline_window_us: int = 10_000_000, max_baseline_points: int = 250,
+    evidence_before_us: int = 500_000, evidence_after_us: int = 750_000,
     causal_window_us: int = 3_000_000,
 ) -> list[Deviation]:
     """Detect each signal's first meaningful deviation using a rolling robust baseline."""
@@ -180,37 +133,27 @@ def detect_deviations(
     for signal, points in series.items():
         if not _is_root_candidate(signal):
             continue
-
         history: deque[Sample] = deque()
         for point in points:
             cutoff = point.timestamp_us - baseline_window_us
             while history and history[0].timestamp_us < cutoff:
                 history.popleft()
-
             if len(history) >= min_baseline_points:
                 values = [h.value for h in history]
                 center = median(values)
                 mad = _mad(values, center)
-                robust_scale = 1.4826 * mad
-                scale = max(robust_scale, _magnitude_floor(signal, center))
+                scale = max(1.4826 * mad, _magnitude_floor(signal, center))
                 score = abs(point.value - center) / scale
-
                 if score >= threshold and _direction_is_material(signal, point.value, center):
-                    raw.append(
-                        Deviation(
-                            timestamp_us=point.timestamp_us,
-                            signal=signal,
-                            value=point.value,
-                            baseline=center,
-                            score=round(score, 3),
-                            confidence=_confidence(score, threshold),
-                            evidence_start_us=max(points[0].timestamp_us, point.timestamp_us - evidence_before_us),
-                            evidence_end_us=min(points[-1].timestamp_us, point.timestamp_us + evidence_after_us),
-                            reason="rolling_robust_baseline_deviation",
-                        )
-                    )
+                    raw.append(Deviation(
+                        timestamp_us=point.timestamp_us, signal=signal, value=point.value,
+                        baseline=center, score=round(score, 3),
+                        confidence=_confidence(score, threshold),
+                        evidence_start_us=max(points[0].timestamp_us, point.timestamp_us - evidence_before_us),
+                        evidence_end_us=min(points[-1].timestamp_us, point.timestamp_us + evidence_after_us),
+                        reason="rolling_robust_baseline_deviation",
+                    ))
                     break
-
             history.append(point)
             while len(history) > max_baseline_points:
                 history.popleft()
@@ -222,26 +165,20 @@ def detect_deviations(
             linked.append(deviation)
             continue
         relation, parent = _relation(linked[-1], deviation, causal_window_us)
-        linked.append(
-            Deviation(
-                timestamp_us=deviation.timestamp_us,
-                signal=deviation.signal,
-                value=deviation.value,
-                baseline=deviation.baseline,
-                score=deviation.score,
-                confidence=deviation.confidence,
-                evidence_start_us=deviation.evidence_start_us,
-                evidence_end_us=deviation.evidence_end_us,
-                reason=deviation.reason,
-                relation=relation,
-                parent_signal=parent,
-            )
-        )
+        linked.append(Deviation(
+            timestamp_us=deviation.timestamp_us, signal=deviation.signal,
+            value=deviation.value, baseline=deviation.baseline, score=deviation.score,
+            confidence=deviation.confidence, evidence_start_us=deviation.evidence_start_us,
+            evidence_end_us=deviation.evidence_end_us, reason=deviation.reason,
+            relation=relation, parent_signal=parent,
+        ))
     return linked
 
 
-def build_report(samples: list[Sample], source: str) -> dict:
-    deviations = detect_deviations(samples)
+def build_report(samples: list[Sample], source: str, *, deviations: list[Deviation] | None = None) -> dict:
+    """Build a forensic report, optionally reusing a precomputed deviation pass."""
+    if deviations is None:
+        deviations = detect_deviations(samples)
     root_index = _select_material_root_index(deviations)
     selected = deviations[root_index:] if root_index is not None else []
     first = selected[0].to_dict() if selected else None
@@ -256,9 +193,12 @@ def build_report(samples: list[Sample], source: str) -> dict:
 
     evidence = {}
     for event in chain:
-        points = [s for s in samples if s.signal == event["signal"]
-                  and event["evidence_start_us"] <= s.timestamp_us <= event["evidence_end_us"]
-                  and isfinite(s.value)]
+        points = [
+            s for s in samples
+            if s.signal == event["signal"]
+            and event["evidence_start_us"] <= s.timestamp_us <= event["evidence_end_us"]
+            and isfinite(s.value)
+        ]
         points.sort(key=lambda s: s.timestamp_us)
         evidence[event["signal"]] = [
             {"timestamp_us": s.timestamp_us, "value": s.value} for s in points
