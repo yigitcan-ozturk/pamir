@@ -14,7 +14,6 @@ OUT = ROOT / "benchmarks" / "reports"
 
 
 def validate_report(report: dict, samples: list) -> list[str]:
-    """Check actual observations, not only serializable report shape."""
     errors = []
     chain = report["failure_chain"]
     if report["root_event"] != (chain[0] if chain else None):
@@ -68,7 +67,6 @@ def _event_time(event) -> int:
 
 
 def compare_pair(crash: dict, control: dict) -> list[str]:
-    """Hard incident/control discrimination gate only."""
     errors = []
     if crash.get("root_event") is None:
         errors.append("incident has no material root")
@@ -78,13 +76,6 @@ def compare_pair(crash: dict, control: dict) -> list[str]:
 
 
 def validate_causal_timestamps(report: dict, metadata: dict, deviations: list | None = None) -> list[str]:
-    """Validate narrative semantics against the actual ULog clock.
-
-    The report is intentionally presentation-truncated to ten events. Validation is not:
-    it scans all detected deviations after the selected root, so a pass cannot be created
-    by hiding later counter-evidence or by requiring a consequence to fit inside the
-    presentation slice.
-    """
     errors = []
     root = report.get("root_event")
     if root is None:
@@ -98,20 +89,12 @@ def validate_causal_timestamps(report: dict, metadata: dict, deviations: list | 
     root_t = root["timestamp_us"]
     causal_window_us = int(metadata.get("causal_window_us", 3_000_000))
     source_events = deviations if deviations is not None else report.get("failure_chain", [])[1:]
-    downstream = [
-        event for event in source_events
-        if root_t < _event_time(event) <= root_t + causal_window_us
-    ]
+    downstream = [event for event in source_events if root_t < _event_time(event) <= root_t + causal_window_us]
     downstream_families = {_family(_event_signal(event)) for event in downstream}
     for required in metadata.get("required_downstream_families", []):
         if required not in downstream_families:
-            errors.append(
-                f"missing strictly downstream {required} evidence within {causal_window_us}us"
-            )
+            errors.append(f"missing strictly downstream {required} evidence within {causal_window_us}us")
 
-    # The published chain itself must remain monotonic and every likely-caused edge must
-    # be strictly forward in time. validate_report checks the same invariant against the
-    # underlying observation; keeping it here makes causal validation self-contained.
     previous = root
     for event in report.get("failure_chain", [])[1:]:
         if event["timestamp_us"] < previous["timestamp_us"]:
@@ -129,7 +112,7 @@ def analyze(path: Path, metadata: dict) -> tuple[dict, list]:
     if not samples:
         raise RuntimeError(f"{path.name}: parsed zero telemetry samples")
     deviations = detect_deviations(samples)
-    report = build_report(samples, str(path))
+    report = build_report(samples, str(path), deviations=deviations)
     report.update(metadata)
     report["validation_errors"] = validate_report(report, samples)
     output = OUT / f"{path.stem}.json"
@@ -148,13 +131,9 @@ def analyze(path: Path, metadata: dict) -> tuple[dict, list]:
 def summary_row(case: dict, report: dict, causal_errors: list[str]) -> dict:
     root = report["root_event"]
     return {
-        "id": case["id"],
-        "kind": case["kind"],
-        "source_url": case.get("source_url"),
-        "samples": report["sample_count"],
-        "signals": report["signals_analyzed"],
-        "conclusion": report["conclusion"],
-        "root_event": root,
+        "id": case["id"], "kind": case["kind"], "source_url": case.get("source_url"),
+        "samples": report["sample_count"], "signals": report["signals_analyzed"],
+        "conclusion": report["conclusion"], "root_event": root,
         "root_confidence": root["confidence"] if root else 0.0,
         "root_score": root["score"] if root else 0.0,
         "chain_length": len(report["failure_chain"]),
@@ -181,11 +160,9 @@ def main() -> None:
         if not path.exists():
             errors.append(f"required benchmark ULog missing: {case['id']}")
             continue
-
         report, deviations = analyze(path, case)
         reports[case["id"]] = report
         case_errors = list(report["validation_errors"])
-
         if case["kind"] == "incident":
             if report["root_event"] is None:
                 case_errors.append("incident has no material root")
@@ -196,19 +173,13 @@ def main() -> None:
                 case_errors.append("healthy/control log has a material failure chain")
         else:
             case_errors.append(f"unknown benchmark kind: {case['kind']}")
-
         errors.extend(f"{case['id']}: {error}" for error in case_errors)
         summary.append(summary_row(case, report, case_errors))
 
-    # Preserve the pair-level regression API and explicitly check the original matched
-    # indoor incident/control pair in addition to the generic per-case gates.
     if "github-indoor-crash-2025" in reports and "github-indoor-control-2025" in reports:
         errors.extend(
             "github-indoor-pair: " + error
-            for error in compare_pair(
-                reports["github-indoor-crash-2025"],
-                reports["github-indoor-control-2025"],
-            )
+            for error in compare_pair(reports["github-indoor-crash-2025"], reports["github-indoor-control-2025"])
         )
 
     fallback = DATA / "px4-pyulog-sample.ulg"
@@ -216,40 +187,26 @@ def main() -> None:
         errors.append("missing pinned public PX4/pyulog parser sample")
     else:
         parser_case = {
-            "id": "px4-pyulog-sample",
-            "kind": "parser-control",
+            "id": "px4-pyulog-sample", "kind": "parser-control",
             "validation_goal": "Prove real binary PX4 ULog ingestion and forensic pipeline execution.",
         }
         parser_report, _ = analyze(fallback, parser_case)
-        errors.extend(
-            f"px4-pyulog-sample: {error}" for error in parser_report["validation_errors"]
-        )
+        errors.extend(f"px4-pyulog-sample: {error}" for error in parser_report["validation_errors"])
 
-    # Legacy logs.px4.io corpus is retained for additional manual coverage, but external
-    # HTTP 403 on that service cannot substitute for or invalidate the required corpus.
     legacy = json.loads(LEGACY_MANIFEST.read_text(encoding="utf-8"))
-    unavailable_legacy = [
-        case["id"] for case in legacy["cases"]
-        if not (DATA / f"{case['id']}.ulg").exists()
-    ]
+    unavailable_legacy = [case["id"] for case in legacy["cases"] if not (DATA / f"{case['id']}.ulg").exists()]
 
     passed = not errors
     payload = {
-        "v0_1_complete": passed,
-        "validation_passed": passed,
-        "validation_errors": errors,
-        "required_incident_count": len(incidents),
-        "required_control_count": len(controls),
-        "validated": summary,
+        "v0_1_complete": passed, "validation_passed": passed,
+        "validation_errors": errors, "required_incident_count": len(incidents),
+        "required_control_count": len(controls), "validated": summary,
         "legacy_flight_review_sources_unavailable": unavailable_legacy,
         "legacy_flight_review_note": "Extended corpus only; the v0.1 gate uses directly accessible public GitHub ULogs.",
     }
     (OUT / "summary.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
-    print(
-        f"required corpus: {len(incidents)} incident(s), {len(controls)} control(s), "
-        f"validated={len(summary)}"
-    )
+    print(f"required corpus: {len(incidents)} incident(s), {len(controls)} control(s), validated={len(summary)}")
     if unavailable_legacy:
         print("OPTIONAL Flight Review corpus unavailable: " + ", ".join(unavailable_legacy))
     if errors:
