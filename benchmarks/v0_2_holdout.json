@@ -1,0 +1,7 @@
+{
+  "dataset": "PAMIR v0.2 public holdout corpus",
+  "role": "generalization_holdout_only",
+  "policy": "Holdout cases must be public, SHA-256 pinned before first scoring, and must not be used for detector threshold tuning or confidence calibration. Ambiguous labels are review_only and excluded from hard pass/fail scoring.",
+  "status": "acquisition_in_progress",
+  "cases": []
+}
