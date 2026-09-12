@@ -63,8 +63,19 @@ def test_sensitivity_analysis_exposes_root_instability_instead_of_hiding_it():
 
 
 def test_variant_only_root_is_retained_as_unstable_candidate_not_material_root():
-    samples = [Sample(i * 100_000, "battery.voltage", 12.0) for i in range(40)]
-    samples.append(Sample(4_000_000, "battery.voltage", 11.5))
+    samples = []
+    for i in range(40):
+        ts = i * 100_000
+        samples.extend([
+            Sample(ts, "battery.voltage", 12.0),
+            Sample(ts, "vehicle.attitude.roll", 1.0),
+            Sample(ts, "vehicle.position.altitude", 100.0),
+        ])
+    samples.extend([
+        Sample(4_000_000, "battery.voltage", 11.5),
+        Sample(4_200_000, "vehicle.attitude.roll", 1.04),
+        Sample(4_400_000, "vehicle.position.altitude", 96.0),
+    ])
     variants = (
         DetectorVariant("baseline", threshold=10.0),
         DetectorVariant("sensitive", threshold=6.5),
@@ -74,6 +85,7 @@ def test_variant_only_root_is_retained_as_unstable_candidate_not_material_root()
 
     assert result["baseline_root"] is None
     assert result["runs"][1]["root_event"] is not None
+    assert result["runs"][1]["root_event"]["signal"] == "battery.voltage"
     assert result["candidate_root_variants"] == ["sensitive"]
     assert result["qualified_material_root"] is None
     assert result["status"] == "unstable_root_emergence"
