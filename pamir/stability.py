@@ -57,6 +57,12 @@ def measure_root_stability(
     This utility is intentionally outside the v0.1 detector. It does not tune or
     mutate detector defaults; it replays the same samples through explicitly named
     variants and reports whether the selected forensic root is preserved.
+
+    v0.2 distinguishes a raw candidate root from a qualified material root. A root
+    is qualified only when the frozen baseline selects it and every bounded replay
+    preserves the same signal/reason within the timestamp tolerance. Candidate
+    emergence is retained in the report as instability; it is never silently
+    promoted to a causal/material claim merely because one perturbation selected it.
     """
     if not variants:
         raise ValueError("at least one detector variant is required")
@@ -94,17 +100,23 @@ def measure_root_stability(
             matching += 1
 
     ratio = matching / len(runs)
+    candidate_root_variants = [run["variant"] for run in runs if run["root_event"] is not None]
+    qualified_material_root = baseline if baseline is not None and matching == len(runs) else None
+
     if baseline is None:
         status = "stable_no_root" if matching == len(runs) else "unstable_root_emergence"
     else:
         status = "stable" if matching == len(runs) else "unstable"
 
     return {
-        "schema_version": "0.2-root-stability-v1",
+        "schema_version": "0.2-root-stability-v2",
         "source": source,
         "variant_count": len(runs),
         "timestamp_tolerance_us": timestamp_tolerance_us,
         "baseline_root": baseline,
+        "qualified_material_root": qualified_material_root,
+        "qualification_policy": "baseline root must be preserved by every bounded detector variant",
+        "candidate_root_variants": candidate_root_variants,
         "matching_variant_count": matching,
         "stability_ratio": round(ratio, 3),
         "status": status,
