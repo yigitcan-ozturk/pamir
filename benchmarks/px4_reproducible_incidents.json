@@ -15,15 +15,14 @@
       "required_downstream_families": ["motion"]
     },
     {
-      "id": "follow-me-crash-2020",
+      "id": "single-motor-output-zero-crash-2025",
       "kind": "incident",
-      "download_url": "https://github.com/PX4/Firmware/files/4938814/16_38_51.zip",
+      "download_url": "https://github.com/user-attachments/files/22921252/log_264_2025-10-14-09-39-50.zip",
       "transport": "zip",
-      "sha256": "c8dff2e30ab023d062863986e13b587a7d91ebf3140450aa92064c1d5d30ea73",
-      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/15363",
-      "known_narrative": "After switching an X-Class quadcopter to Follow Me, it climbed rapidly, received a hard yaw/pitch command, lost stability and fell from the sky.",
-      "validation_goal": "Identify a material upstream telemetry deviation that strictly precedes attitude/motion consequences.",
-      "required_downstream_families": ["attitude", "motion"]
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/25762",
+      "known_narrative": "A physical quadrotor developed one motor output at zero while the other motors continued operating; the vehicle spun and crashed.",
+      "validation_goal": "Detect a material telemetry root that precedes the spin/crash motion consequence.",
+      "required_downstream_families": ["motion"]
     },
     {
       "id": "position-mode-crash-2023",
@@ -48,14 +47,13 @@
       "required_downstream_families": ["attitude", "motion"]
     },
     {
-      "id": "hexacopter-drop-crash-2021",
+      "id": "tailsitter-output-reset-crash-2018",
       "kind": "incident",
-      "download_url": "https://github.com/PX4/PX4-Autopilot/files/6616402/log_21_2021-6-3-10-35-52.zip",
+      "download_url": "https://github.com/PX4/Firmware/files/2430408/log_89_2018-9-27-14-07-46.zip",
       "transport": "zip",
-      "sha256": "d55d2877373925394ceac0088611bf51c17f066571d5f8cb3605f47c5a5d852e",
-      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/17732",
-      "known_narrative": "Hexacopter suddenly dropped from the sky as if power/control stopped; the crash log contains an attitude-control low-stack warning and no normal ground-contact/disarm sequence.",
-      "validation_goal": "Find a material root before the observed loss-of-flight motion consequence.",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/10598",
+      "known_narrative": "A physical tailsitter transitioned to fixed-wing mode, all control outputs reset to zero, RC control was lost and the aircraft dropped like a brick and crashed.",
+      "validation_goal": "Detect a material telemetry root that precedes loss-of-control motion consequences.",
       "required_downstream_families": ["motion"]
     },
     {
