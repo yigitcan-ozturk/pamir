@@ -3,17 +3,5 @@
   "role": "generalization_holdout_only",
   "policy": "Holdout cases must be public, SHA-256 pinned before first scoring, and must not be used for detector threshold tuning or confidence calibration. Ambiguous labels are review_only and excluded from hard pass/fail scoring.",
   "status": "acquisition_in_progress",
-  "cases": [
-    {
-      "id": "px4-17732-hexacopter-drop-2021",
-      "kind": "review_only",
-      "source_issue": "https://github.com/PX4/PX4-Autopilot/issues/17732",
-      "source_log": "https://github.com/PX4/PX4-Autopilot/files/6616402/log_21_2021-6-3-10-35-52.zip",
-      "label": "review_only",
-      "reason": "Public real-flight drop event with unresolved causal attribution; reserved for independent generalization review only.",
-      "sha256": null,
-      "pin_status": "pending_sha256",
-      "scoring_status": "blocked_until_sha256_pinned"
-    }
-  ]
+  "cases": []
 }
