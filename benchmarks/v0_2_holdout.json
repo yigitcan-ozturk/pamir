@@ -6,6 +6,7 @@
   "cases": [
     {
       "id": "px4-17732-hexacopter-drop-2021",
+      "kind": "review_only",
       "source_issue": "https://github.com/PX4/PX4-Autopilot/issues/17732",
       "source_log": "https://github.com/PX4/PX4-Autopilot/files/6616402/log_21_2021-6-3-10-35-52.zip",
       "label": "review_only",
