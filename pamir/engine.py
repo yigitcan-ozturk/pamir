@@ -42,18 +42,12 @@ def _is_root_candidate(signal: str) -> bool:
 
 
 def _direction_is_material(signal: str, value: float, baseline: float) -> bool:
-    """Apply domain semantics before treating a robust-baseline crossing as degradation."""
+    """Apply direction/normalized-gate semantics at anomaly-detection time."""
     s = signal.lower()
     if "test_ratio" in s:
-        # PX4 EKF innovation ratios are normalized against their acceptance gate.
         return value > 1.0
-    if "pos_horiz_accuracy" in s:
-        # PX4 Flight Review treats <1 m horizontal accuracy as good; avoid turning
-        # centimetre-scale changes inside that healthy region into failure roots.
-        return value > max(baseline, 1.0)
-    if "pos_vert_accuracy" in s:
-        # PX4 Flight Review treats <2 m vertical accuracy as good.
-        return value > max(baseline, 2.0)
+    if "pos_horiz_accuracy" in s or "pos_vert_accuracy" in s:
+        return value > baseline
     if "tracking_error" in s:
         return abs(value) > abs(baseline)
     if "voltage" in s:
@@ -84,6 +78,22 @@ def _is_power_root(signal: str) -> bool:
     return "voltage" in signal.lower()
 
 
+def _is_material_estimation_root(deviation: Deviation) -> bool:
+    """Separate detector anomalies from failures material enough to anchor a root.
+
+    PX4 Flight Review considers horizontal accuracy below 1 m and vertical accuracy
+    below 2 m good. Changes inside that healthy range remain recorded as anomalies but
+    cannot anchor a failure chain. EKF test ratios are already filtered at >1.0 during
+    detection, which corresponds to exceeding the innovation acceptance limit.
+    """
+    s = deviation.signal.lower()
+    if "pos_horiz_accuracy" in s:
+        return deviation.value > 1.0
+    if "pos_vert_accuracy" in s:
+        return deviation.value > 2.0
+    return True
+
+
 def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tuple[str, str | None]:
     dt = child.timestamp_us - parent.timestamp_us
     if dt <= 0 or dt > causal_window_us:
@@ -110,6 +120,8 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
             if not _is_measured_actuation_root(deviation.signal) or deviation.confidence < 0.8:
                 continue
         if family == "estimation":
+            if not _is_material_estimation_root(deviation):
+                continue
             recent_actuation = any(
                 _signal_family(previous.signal) == "actuation"
                 and 0 <= deviation.timestamp_us - previous.timestamp_us <= 2_000_000
@@ -231,7 +243,7 @@ def build_report(samples: list[Sample], source: str, *, deviations: list[Deviati
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry only; estimator state/covariance arrays, validity/reset fields, command/categorical transitions, actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; PX4 estimator test ratios become material only above 1.0; horizontal/vertical estimator accuracy must leave the <1 m/<2 m healthy region before becoming material; v0.1 power roots require voltage degradation; material root requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry only; estimator state/covariance arrays, validity/reset fields, command/categorical transitions, actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; PX4 estimator test ratios become detector anomalies only above 1.0; accuracy changes remain visible as anomalies but cannot root a failure while horizontal/vertical accuracy remains in the <1 m/<2 m healthy region; v0.1 power roots require voltage degradation; material root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
             "causal_links": "conservative temporal + signal-family heuristic",
