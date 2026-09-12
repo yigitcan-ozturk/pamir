@@ -73,6 +73,7 @@ def measure_root_stability(
             "parameters": variant.detector_kwargs(),
             "root_event": root,
             "root_identity": list(_root_identity(root)) if root is not None else None,
+            "failure_chain": report["failure_chain"],
         })
 
     baseline = runs[0]["root_event"]
