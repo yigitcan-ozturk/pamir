@@ -7,6 +7,7 @@
 ## **Tell me what failed first — and prove it.**
 
 **Offline PX4 telemetry forensics · Root-event reconstruction · Timestamped evidence**
+![PAMIR v0.1 forensic telemetry dashboard](docs/pamir-readme-dashboard.jpg)
 
 | **5 / 5** | **3 / 3** | **PASS** | **SHA256** |
 |:---:|:---:|:---:|:---:|
