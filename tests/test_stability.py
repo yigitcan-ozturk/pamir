@@ -32,8 +32,19 @@ def test_healthy_control_reports_stable_no_root():
 
 
 def test_sensitivity_analysis_exposes_root_instability_instead_of_hiding_it():
-    samples = [Sample(i * 100_000, "battery.voltage", 12.0) for i in range(40)]
-    samples.append(Sample(4_000_000, "battery.voltage", 11.5))
+    samples = []
+    for i in range(40):
+        ts = i * 100_000
+        samples.extend([
+            Sample(ts, "battery.voltage", 12.0),
+            Sample(ts, "vehicle.attitude.roll", 0.0),
+            Sample(ts, "vehicle.position.altitude", 100.0),
+        ])
+    samples.extend([
+        Sample(4_000_000, "battery.voltage", 11.5),
+        Sample(4_200_000, "vehicle.attitude.roll", 0.7),
+        Sample(4_400_000, "vehicle.position.altitude", 85.0),
+    ])
     variants = (
         DetectorVariant("baseline", threshold=7.0),
         DetectorVariant("strict", threshold=10.0),
@@ -42,6 +53,7 @@ def test_sensitivity_analysis_exposes_root_instability_instead_of_hiding_it():
     result = measure_root_stability(samples, "borderline", variants=variants)
 
     assert result["baseline_root"] is not None
+    assert result["baseline_root"]["signal"] == "battery.voltage"
     assert result["runs"][1]["root_event"] is None
     assert result["status"] == "unstable"
     assert result["stability_ratio"] == 0.5
