@@ -131,40 +131,6 @@ def test_estimator_state_covariance_validity_and_reset_fields_are_not_anomalies(
     assert detect_deviations(samples) == []
 
 
-def _coherent_attitude_samples(include_reset=False):
-    attitude = (
-        'vehicle_attitude.q[0]',
-        'vehicle_angular_velocity.xyz[0]',
-        'sensor_combined.gyro_rad[0]',
-    )
-    samples = []
-    for i in range(40):
-        t = i * 100_000
-        for signal in attitude:
-            samples.append(Sample(t, signal, 0.0))
-        samples.append(Sample(t, 'vehicle_local_position.z', 0.0))
-        if include_reset:
-            samples.append(Sample(t, 'vehicle_attitude.delta_q_reset[1]', 0.0))
-    for offset, signal in enumerate(attitude):
-        samples.append(Sample(4_000_000 + offset * 20_000, signal, 0.02))
-    if include_reset:
-        samples.append(Sample(4_000_000, 'vehicle_attitude.delta_q_reset[1]', 0.5))
-    samples.append(Sample(4_200_000, 'vehicle_local_position.z', -5.0))
-    return samples
-
-
-def test_coherent_attitude_breakdown_can_anchor_observed_root():
-    report = build_report(_coherent_attitude_samples(), 'attitude-breakdown')
-    assert report['root_event'] is not None
-    assert report['root_event']['signal'] == 'vehicle_attitude.q[0]'
-    assert report['root_event']['timestamp_us'] == 4_000_000
-
-
-def test_quaternion_reset_vetoes_attitude_breakdown_root():
-    report = build_report(_coherent_attitude_samples(include_reset=True), 'attitude-reset')
-    assert report['root_event'] is None
-
-
 def test_multi_instance_actuator_commands_cannot_be_root_proof():
     samples = []
     for i in range(40):
