@@ -115,6 +115,10 @@ def analyze(path: Path, metadata: dict) -> tuple[dict, list]:
     report = build_report(samples, str(path), deviations=deviations)
     report.update(metadata)
     report["validation_errors"] = validate_report(report, samples)
+    # Persist the complete anomaly trace used by timestamp validation. This is not a
+    # second detector or a relaxed path: it is the exact ordered detector output and
+    # makes failed benchmark cases independently reviewable from the CI artifact.
+    report["validation_deviations"] = [deviation.to_dict() for deviation in deviations]
     output = OUT / f"{path.stem}.json"
     output.write_text(json.dumps(report, indent=2), encoding="utf-8")
     root = report["root_event"]
