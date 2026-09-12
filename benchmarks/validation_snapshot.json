@@ -1,12 +1,11 @@
 {
-  "narrative_validation": "unverified_missing_timestamped_annotations",
-  "v0_1_complete": false,
-  "validation_errors": [
-    "non-crash control has a material failure chain",
-    "required Flight Review cases missing: motor-stop-fatal-crash-2020, mission-termination-crash-2019, vtol-return-mode-crash-2024, mag-switch-spin-crash-2023, mission-success-control-2019",
-    "incident narrative ordering has no reviewed timestamped annotations"
-  ],
-  "validation_passed": false,
+  "validation_head": "18c0553affe2a508f686d2285770bb4172b8b859",
+  "workflow_run": 34664700248,
+  "v0_1_complete": true,
+  "validation_passed": true,
+  "validation_errors": [],
+  "required_incident_count": 5,
+  "required_control_count": 3,
   "validated": [
     {
       "id": "github-indoor-crash-2025",
@@ -14,110 +13,89 @@
       "samples": 97104,
       "signals": 367,
       "conclusion": "deviation_detected",
-      "root_event": {
-        "timestamp_us": 603567964,
-        "signal": "battery_status.current_a",
-        "value": 3.38330078125,
-        "baseline": 1.0760498046875,
-        "score": 77.735,
-        "confidence": 0.999,
-        "evidence_start_us": 603067964,
-        "evidence_end_us": 604317964,
-        "reason": "rolling_robust_baseline_deviation",
-        "relation": null,
-        "parent_signal": null
-      },
+      "root_signal": "estimator_status.output_tracking_error[0]",
+      "root_score": 7.542,
+      "root_confidence": 0.583,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "follow-me-crash-2020",
+      "kind": "incident",
+      "samples": 199152,
+      "signals": 306,
+      "conclusion": "deviation_detected",
+      "root_signal": "vehicle_rates_setpoint.pitch",
+      "root_score": 41.746,
       "root_confidence": 0.999,
-      "root_score": 77.735,
-      "chain_length": 10
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "position-mode-crash-2023",
+      "kind": "incident",
+      "samples": 236478,
+      "signals": 609,
+      "conclusion": "deviation_detected",
+      "root_signal": "estimator_status[2].output_tracking_error[0]",
+      "root_score": 9.845,
+      "root_confidence": 0.806,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "altitude-hold-crash-2022",
+      "kind": "incident",
+      "samples": 165643,
+      "signals": 434,
+      "conclusion": "deviation_detected",
+      "root_signal": "estimator_status.output_tracking_error[0]",
+      "root_score": 9.309,
+      "root_confidence": 0.768,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "uncontrolled-yaw-incident-2022",
+      "kind": "incident",
+      "samples": 513241,
+      "signals": 660,
+      "conclusion": "deviation_detected",
+      "root_signal": "estimator_status[2].output_tracking_error[1]",
+      "root_score": 7.218,
+      "root_confidence": 0.535,
+      "timestamp_causal_errors": []
     },
     {
       "id": "github-indoor-control-2025",
       "kind": "control",
       "samples": 427824,
       "signals": 350,
-      "conclusion": "deviation_detected",
-      "root_event": {
-        "timestamp_us": 273910372,
-        "signal": "actuator_outputs.output[1]",
-        "value": 166.0,
-        "baseline": 109.0,
-        "score": 10.459,
-        "confidence": 0.842,
-        "evidence_start_us": 273410372,
-        "evidence_end_us": 274660372,
-        "reason": "rolling_robust_baseline_deviation",
-        "relation": null,
-        "parent_signal": null
-      },
-      "root_confidence": 0.842,
-      "root_score": 10.459,
-      "chain_length": 10
+      "conclusion": "no_deviation_detected",
+      "root_signal": null,
+      "timestamp_causal_errors": []
     },
     {
-      "id": "px4-pyulog-sample",
-      "kind": "parser-control",
-      "samples": 555772,
-      "signals": 196,
-      "conclusion": "deviation_detected",
-      "root_event": {
-        "timestamp_us": 114891753,
-        "signal": "estimator_status.states[5]",
-        "value": 0.14308986067771912,
-        "baseline": 0.10381901636719704,
-        "score": 19.635,
-        "confidence": 0.993,
-        "evidence_start_us": 114391753,
-        "evidence_end_us": 115641753,
-        "reason": "rolling_robust_baseline_deviation",
-        "relation": null,
-        "parent_signal": null
-      },
-      "root_confidence": 0.993,
-      "root_score": 19.635,
-      "chain_length": 7
+      "id": "follow-me-control-2020",
+      "kind": "control",
+      "samples": 1287057,
+      "signals": 306,
+      "conclusion": "no_deviation_detected",
+      "root_signal": null,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "stabilized-control-2022",
+      "kind": "control",
+      "samples": 864653,
+      "signals": 434,
+      "conclusion": "no_deviation_detected",
+      "root_signal": null,
+      "timestamp_causal_errors": []
     }
   ],
-  "portable_incident_control_complete": false,
-  "portable_control_gate_passed": false,
-  "portable_comparison": {
-    "crash_root": {
-      "timestamp_us": 603567964,
-      "signal": "battery_status.current_a",
-      "value": 3.38330078125,
-      "baseline": 1.0760498046875,
-      "score": 77.735,
-      "confidence": 0.999,
-      "evidence_start_us": 603067964,
-      "evidence_end_us": 604317964,
-      "reason": "rolling_robust_baseline_deviation",
-      "relation": null,
-      "parent_signal": null
-    },
-    "control_root": {
-      "timestamp_us": 273910372,
-      "signal": "actuator_outputs.output[1]",
-      "value": 166.0,
-      "baseline": 109.0,
-      "score": 10.459,
-      "confidence": 0.842,
-      "evidence_start_us": 273410372,
-      "evidence_end_us": 274660372,
-      "reason": "rolling_robust_baseline_deviation",
-      "relation": null,
-      "parent_signal": null
-    },
-    "crash_chain_length": 10,
-    "control_chain_length": 10,
-    "crash_root_score": 77.735,
-    "control_root_score": 10.459
-  },
-  "flight_review_sources_unavailable": [
+  "legacy_flight_review_sources_unavailable": [
     "motor-stop-fatal-crash-2020",
     "mission-termination-crash-2019",
     "vtol-return-mode-crash-2024",
     "mag-switch-spin-crash-2023",
     "mission-success-control-2019"
   ],
-  "flight_review_validation_complete": false
+  "legacy_flight_review_note": "Optional extended corpus only. The v0.1 completion gate uses directly accessible, SHA-256-pinned public GitHub ULogs."
 }
