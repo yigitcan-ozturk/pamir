@@ -29,7 +29,6 @@ def _signal_family(signal: str) -> str:
 
 
 def _is_root_candidate(signal: str) -> bool:
-    """Return whether a signal is continuous telemetry suitable for anomaly detection."""
     s = signal.lower()
     excluded = (
         "setpoint", "timestamp", "_integral_dt", ".device_id", ".noutputs",
@@ -42,7 +41,6 @@ def _is_root_candidate(signal: str) -> bool:
 
 
 def _direction_is_material(signal: str, value: float, baseline: float) -> bool:
-    """Apply direction/normalized-gate semantics at anomaly-detection time."""
     s = signal.lower()
     if "test_ratio" in s:
         return value > 1.0
@@ -79,7 +77,6 @@ def _is_power_root(signal: str) -> bool:
 
 
 def _is_material_estimation_root(deviation: Deviation) -> bool:
-    """Separate detector anomalies from failures material enough to anchor a root."""
     s = deviation.signal.lower()
     if ".vibe[" in s or s.endswith(".vibe"):
         return False
@@ -108,7 +105,7 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
     core = {"power", "actuation", "attitude", "motion", "estimation"}
     for i, deviation in enumerate(deviations):
         family = _signal_family(deviation.signal)
-        if family not in {"power", "actuation", "estimation"}:
+        if family not in {"power", "actuation", "estimation", "attitude"}:
             continue
         if family == "power" and not _is_power_root(deviation.signal):
             continue
@@ -125,13 +122,33 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
             )
             if recent_actuation:
                 continue
+        if family == "attitude":
+            if deviation.confidence < 0.70:
+                continue
+            t = deviation.timestamp_us
+            reset_nearby = any(
+                "delta_q_reset" in item.signal.lower()
+                and abs(item.timestamp_us - t) <= 200_000
+                for item in deviations
+            )
+            if reset_nearby:
+                continue
+            attitude_signals = {
+                item.signal for item in deviations[i:]
+                if t <= item.timestamp_us <= t + 500_000
+                and _signal_family(item.signal) == "attitude"
+                and "delta_q_reset" not in item.signal.lower()
+            }
+            if len(attitude_signals) < 3:
+                continue
         end = deviation.timestamp_us + cluster_window_us
         families = {
             _signal_family(item.signal)
             for item in deviations[i:]
             if item.timestamp_us <= end
         } & core
-        if "motion" in families and len(families) >= 3:
+        required_family_count = 2 if family == "attitude" else 3
+        if "motion" in families and len(families) >= required_family_count:
             return i
     if deviations:
         first = deviations[0]
@@ -146,7 +163,6 @@ def detect_deviations(
     evidence_before_us: int = 500_000, evidence_after_us: int = 750_000,
     causal_window_us: int = 3_000_000,
 ) -> list[Deviation]:
-    """Detect each signal's first meaningful deviation using a rolling robust baseline."""
     series: dict[str, list[Sample]] = defaultdict(list)
     for sample in sorted(samples, key=lambda s: s.timestamp_us):
         if sample.timestamp_us >= 0 and isfinite(sample.value):
@@ -199,7 +215,6 @@ def detect_deviations(
 
 
 def build_report(samples: list[Sample], source: str, *, deviations: list[Deviation] | None = None) -> dict:
-    """Build a forensic report, optionally reusing a precomputed deviation pass."""
     if deviations is None:
         deviations = detect_deviations(samples)
     root_index = _select_material_root_index(deviations)
@@ -239,7 +254,7 @@ def build_report(samples: list[Sample], source: str, *, deviations: list[Deviati
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry only; estimator state/covariance arrays, validity/reset fields, command/categorical transitions, actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; PX4 estimator test ratios become detector anomalies only above 1.0; accuracy changes remain visible as anomalies but cannot root a failure while horizontal/vertical accuracy remains in the <1 m/<2 m healthy region; PX4 vibration metrics remain evidence but cannot independently anchor a failure root; v0.1 power roots require voltage degradation; material root requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry only; estimator state/covariance arrays, validity/reset fields, command/categorical transitions, actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; PX4 estimator test ratios become detector anomalies only above 1.0; accuracy changes remain visible as anomalies but cannot root a failure while horizontal/vertical accuracy remains in the <1 m/<2 m healthy region; PX4 vibration metrics remain evidence but cannot independently anchor a failure root; coherent attitude onset requires confidence >=0.70, three independent attitude signals within 0.5s, no simultaneous quaternion reset, and downstream motion within 3s",
             "evidence_window": "-0.5s/+0.75s",
             "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
             "causal_links": "conservative temporal + signal-family heuristic",
