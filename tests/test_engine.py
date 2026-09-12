@@ -71,6 +71,50 @@ def test_failure_chain_marks_likely_causal_transition():
     assert chain[3]["relation"] == "likely_caused"
 
 
+def test_multi_axis_rate_command_discontinuity_can_root_before_attitude_and_motion():
+    samples = []
+    for i in range(40):
+        ts = i * 100_000
+        samples.extend([
+            Sample(ts, "vehicle_rates_setpoint.roll", 0.0),
+            Sample(ts, "vehicle_rates_setpoint.pitch", 0.0),
+            Sample(ts, "vehicle_rates_setpoint.yaw", 0.0),
+            Sample(ts, "vehicle_attitude.q[1]", 0.0),
+            Sample(ts, "vehicle_local_position.vx", 0.0),
+        ])
+    samples.extend([
+        Sample(4_000_000, "vehicle_rates_setpoint.roll", 1.4),
+        Sample(4_050_000, "vehicle_rates_setpoint.pitch", -1.2),
+        Sample(4_100_000, "vehicle_rates_setpoint.yaw", 0.1),
+        Sample(4_300_000, "vehicle_attitude.q[1]", 0.6),
+        Sample(4_500_000, "vehicle_local_position.vx", 8.0),
+    ])
+    report = build_report(samples, "control-discontinuity")
+    assert report["root_event"] is not None
+    assert report["root_event"]["reason"] == "multi_axis_rate_command_discontinuity"
+    assert report["root_event"]["signal"] in {
+        "vehicle_rates_setpoint.roll", "vehicle_rates_setpoint.pitch"
+    }
+
+
+def test_single_axis_rate_command_change_is_not_root_proof():
+    samples = []
+    for i in range(40):
+        ts = i * 100_000
+        samples.extend([
+            Sample(ts, "vehicle_rates_setpoint.roll", 0.0),
+            Sample(ts, "vehicle_rates_setpoint.pitch", 0.0),
+            Sample(ts, "vehicle_attitude.q[1]", 0.0),
+            Sample(ts, "vehicle_local_position.vx", 0.0),
+        ])
+    samples.extend([
+        Sample(4_000_000, "vehicle_rates_setpoint.roll", 1.5),
+        Sample(4_300_000, "vehicle_attitude.q[1]", 0.6),
+        Sample(4_500_000, "vehicle_local_position.vx", 8.0),
+    ])
+    assert build_report(samples, "single-axis-command")["root_event"] is None
+
+
 def test_simultaneous_events_are_not_causal():
     from pamir.engine import _relation
     from pamir.model import Deviation
@@ -94,3 +138,4 @@ def test_timing_metadata_is_not_a_root_candidate():
 def test_estimator_position_accuracy_is_estimation_family():
     from pamir.engine import _signal_family
     assert _signal_family("estimator_status.pos_vert_accuracy") == "estimation"
+    assert _signal_family("vehicle_rates_setpoint.roll") == "control"
