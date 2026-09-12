@@ -1,12 +1,24 @@
 import json
+from math import isfinite
 from pathlib import Path
 from .model import Sample
 
+# v0.1 keeps a focused topic set, but it must include the telemetry families
+# needed to reconstruct actuator -> attitude -> motion failure chains.
 DEFAULT_TOPICS = {
     "battery_status",
     "vehicle_gps_position",
+    "vehicle_global_position",
+    "vehicle_local_position",
     "vehicle_status",
+    "vehicle_attitude",
+    "vehicle_attitude_setpoint",
+    "vehicle_angular_velocity",
+    "vehicle_rates_setpoint",
+    "actuator_outputs",
+    "actuator_motors",
     "estimator_status",
+    "estimator_innovations",
     "sensor_combined",
 }
 
@@ -39,10 +51,13 @@ def load_ulog(path: str | Path) -> list[Sample]:
                     continue
             except TypeError:
                 continue
-            signal = f"{dataset.name}.{field}"
+            topic = dataset.name if dataset.multi_id == 0 else f"{dataset.name}[{dataset.multi_id}]"
+            signal = f"{topic}.{field}"
             for ts, value in zip(timestamps, values):
                 try:
-                    out.append(Sample(int(ts), signal, float(value)))
+                    number = float(value)
+                    if isfinite(number) and int(ts) >= 0:
+                        out.append(Sample(int(ts), signal, number))
                 except (TypeError, ValueError):
                     continue
     return out

@@ -1,0 +1,101 @@
+{
+  "validation_head": "18c0553affe2a508f686d2285770bb4172b8b859",
+  "workflow_run": 34664700248,
+  "v0_1_complete": true,
+  "validation_passed": true,
+  "validation_errors": [],
+  "required_incident_count": 5,
+  "required_control_count": 3,
+  "validated": [
+    {
+      "id": "github-indoor-crash-2025",
+      "kind": "incident",
+      "samples": 97104,
+      "signals": 367,
+      "conclusion": "deviation_detected",
+      "root_signal": "estimator_status.output_tracking_error[0]",
+      "root_score": 7.542,
+      "root_confidence": 0.583,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "follow-me-crash-2020",
+      "kind": "incident",
+      "samples": 199152,
+      "signals": 306,
+      "conclusion": "deviation_detected",
+      "root_signal": "vehicle_rates_setpoint.pitch",
+      "root_score": 41.746,
+      "root_confidence": 0.999,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "position-mode-crash-2023",
+      "kind": "incident",
+      "samples": 236478,
+      "signals": 609,
+      "conclusion": "deviation_detected",
+      "root_signal": "estimator_status[2].output_tracking_error[0]",
+      "root_score": 9.845,
+      "root_confidence": 0.806,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "altitude-hold-crash-2022",
+      "kind": "incident",
+      "samples": 165643,
+      "signals": 434,
+      "conclusion": "deviation_detected",
+      "root_signal": "estimator_status.output_tracking_error[0]",
+      "root_score": 9.309,
+      "root_confidence": 0.768,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "uncontrolled-yaw-incident-2022",
+      "kind": "incident",
+      "samples": 513241,
+      "signals": 660,
+      "conclusion": "deviation_detected",
+      "root_signal": "estimator_status[2].output_tracking_error[1]",
+      "root_score": 7.218,
+      "root_confidence": 0.535,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "github-indoor-control-2025",
+      "kind": "control",
+      "samples": 427824,
+      "signals": 350,
+      "conclusion": "no_deviation_detected",
+      "root_signal": null,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "follow-me-control-2020",
+      "kind": "control",
+      "samples": 1287057,
+      "signals": 306,
+      "conclusion": "no_deviation_detected",
+      "root_signal": null,
+      "timestamp_causal_errors": []
+    },
+    {
+      "id": "stabilized-control-2022",
+      "kind": "control",
+      "samples": 864653,
+      "signals": 434,
+      "conclusion": "no_deviation_detected",
+      "root_signal": null,
+      "timestamp_causal_errors": []
+    }
+  ],
+  "legacy_flight_review_sources_unavailable": [
+    "motor-stop-fatal-crash-2020",
+    "mission-termination-crash-2019",
+    "vtol-return-mode-crash-2024",
+    "mag-switch-spin-crash-2023",
+    "mission-success-control-2019"
+  ],
+  "legacy_flight_review_note": "Optional extended corpus only. The v0.1 completion gate uses directly accessible, SHA-256-pinned public GitHub ULogs."
+}
