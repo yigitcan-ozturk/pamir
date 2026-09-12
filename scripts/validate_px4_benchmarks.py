@@ -1,33 +1,16 @@
 #!/usr/bin/env python3
-import argparse
 import json
 from math import isfinite
 from pathlib import Path
 
-from pamir.engine import build_report
+from pamir.engine import build_report, detect_deviations
 from pamir.ingest import load
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = ROOT / "benchmarks" / "px4_public_incidents.json"
+REPRO_MANIFEST = ROOT / "benchmarks" / "px4_reproducible_incidents.json"
+LEGACY_MANIFEST = ROOT / "benchmarks" / "px4_public_incidents.json"
 DATA = ROOT / "benchmarks" / "data"
 OUT = ROOT / "benchmarks" / "reports"
-
-PORTABLE_CASES = (
-    {
-        "id": "github-indoor-crash-2025",
-        "kind": "incident",
-        "known_narrative": "Indoor offboard takeoff attempt drifted diagonally and crashed into a wall; the public issue reports rapidly degrading position/attitude estimates.",
-        "validation_goal": "Surface an upstream estimation degradation before downstream vehicle-motion consequences.",
-        "expected_root_family": "estimation",
-        "required_downstream_families": ["attitude", "motion"],
-    },
-    {
-        "id": "github-indoor-control-2025",
-        "kind": "control",
-        "known_narrative": "Companion public ULog from the same hardware/testing context that did not crash.",
-        "validation_goal": "The control must not receive a material failure root/chain.",
-    },
-)
 
 
 def validate_report(report: dict, samples: list) -> list[str]:
@@ -76,6 +59,14 @@ def _family(signal: str) -> str:
     return "other"
 
 
+def _event_signal(event) -> str:
+    return event["signal"] if isinstance(event, dict) else event.signal
+
+
+def _event_time(event) -> int:
+    return event["timestamp_us"] if isinstance(event, dict) else event.timestamp_us
+
+
 def compare_pair(crash: dict, control: dict) -> list[str]:
     """Hard incident/control discrimination gate only."""
     errors = []
@@ -86,13 +77,13 @@ def compare_pair(crash: dict, control: dict) -> list[str]:
     return errors
 
 
-def validate_causal_timestamps(report: dict, metadata: dict) -> list[str]:
-    """Validate predeclared narrative semantics against telemetry timestamps.
+def validate_causal_timestamps(report: dict, metadata: dict, deviations: list | None = None) -> list[str]:
+    """Validate narrative semantics against the actual ULog clock.
 
-    This does not claim calibrated causation. It requires the inferred root to be in the
-    expected family and strictly precede the requested downstream consequences in the
-    actual ULog clock. Any `likely_caused` edge must also be strictly ordered and inside
-    the engine's three-second causal window.
+    The report is intentionally presentation-truncated to ten events. Validation is not:
+    it scans all detected deviations after the selected root, so a pass cannot be created
+    by hiding later counter-evidence or by requiring a consequence to fit inside the
+    presentation slice.
     """
     errors = []
     root = report.get("root_event")
@@ -100,18 +91,27 @@ def validate_causal_timestamps(report: dict, metadata: dict) -> list[str]:
         return ["incident has no timestamped root event"]
 
     expected_root = metadata.get("expected_root_family")
-    if expected_root and _family(root["signal"]) != expected_root:
-        errors.append(
-            f"root family {_family(root['signal'])} does not match expected {expected_root}"
-        )
+    root_family = _family(root["signal"])
+    if expected_root and root_family != expected_root:
+        errors.append(f"root family {root_family} does not match expected {expected_root}")
 
     root_t = root["timestamp_us"]
-    downstream = [event for event in report.get("failure_chain", [])[1:] if event["timestamp_us"] > root_t]
-    downstream_families = {_family(event["signal"]) for event in downstream}
+    causal_window_us = int(metadata.get("causal_window_us", 3_000_000))
+    source_events = deviations if deviations is not None else report.get("failure_chain", [])[1:]
+    downstream = [
+        event for event in source_events
+        if root_t < _event_time(event) <= root_t + causal_window_us
+    ]
+    downstream_families = {_family(_event_signal(event)) for event in downstream}
     for required in metadata.get("required_downstream_families", []):
         if required not in downstream_families:
-            errors.append(f"missing strictly downstream {required} evidence")
+            errors.append(
+                f"missing strictly downstream {required} evidence within {causal_window_us}us"
+            )
 
+    # The published chain itself must remain monotonic and every likely-caused edge must
+    # be strictly forward in time. validate_report checks the same invariant against the
+    # underlying observation; keeping it here makes causal validation self-contained.
     previous = root
     for event in report.get("failure_chain", [])[1:]:
         if event["timestamp_us"] < previous["timestamp_us"]:
@@ -124,10 +124,11 @@ def validate_causal_timestamps(report: dict, metadata: dict) -> list[str]:
     return errors
 
 
-def analyze(path: Path, metadata: dict) -> dict:
+def analyze(path: Path, metadata: dict) -> tuple[dict, list]:
     samples = load(path)
     if not samples:
         raise RuntimeError(f"{path.name}: parsed zero telemetry samples")
+    deviations = detect_deviations(samples)
     report = build_report(samples, str(path))
     report.update(metadata)
     report["validation_errors"] = validate_report(report, samples)
@@ -137,18 +138,19 @@ def analyze(path: Path, metadata: dict) -> dict:
     root_label = root["signal"] if root else "none"
     root_conf = root["confidence"] if root else 0.0
     print(
-        f"{path.stem}: samples={report['sample_count']} "
-        f"signals={report['signals_analyzed']} conclusion={report['conclusion']} "
+        f"{path.stem}: samples={report['sample_count']} signals={report['signals_analyzed']} "
+        f"raw_deviations={len(deviations)} conclusion={report['conclusion']} "
         f"root={root_label} confidence={root_conf} chain={len(report['failure_chain'])}"
     )
-    return report
+    return report, deviations
 
 
-def summary_row(case_id: str, kind: str, report: dict) -> dict:
+def summary_row(case: dict, report: dict, causal_errors: list[str]) -> dict:
     root = report["root_event"]
     return {
-        "id": case_id,
-        "kind": kind,
+        "id": case["id"],
+        "kind": case["kind"],
+        "source_url": case.get("source_url"),
         "samples": report["sample_count"],
         "signals": report["signals_analyzed"],
         "conclusion": report["conclusion"],
@@ -156,109 +158,100 @@ def summary_row(case_id: str, kind: str, report: dict) -> dict:
         "root_confidence": root["confidence"] if root else 0.0,
         "root_score": root["score"] if root else 0.0,
         "chain_length": len(report["failure_chain"]),
+        "timestamp_causal_errors": causal_errors,
     }
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--require-flight-review",
-        action="store_true",
-        help="Also require the legacy logs.px4.io cases; cloud CI commonly receives HTTP 403 from that external service.",
-    )
-    args = parser.parse_args()
-
-    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    manifest = json.loads(REPRO_MANIFEST.read_text(encoding="utf-8"))
     OUT.mkdir(parents=True, exist_ok=True)
-    summary = []
-    missing_flight_review = []
     errors = []
+    summary = []
+    reports = {}
+
+    incidents = [case for case in manifest["cases"] if case["kind"] == "incident"]
+    controls = [case for case in manifest["cases"] if case["kind"] == "control"]
+    if len(incidents) < 5:
+        errors.append(f"benchmark corpus has only {len(incidents)} incidents; five required")
+    if not controls:
+        errors.append("benchmark corpus has no healthy/control cases")
 
     for case in manifest["cases"]:
         path = DATA / f"{case['id']}.ulg"
         if not path.exists():
-            missing_flight_review.append(case["id"])
-            print(f"SKIP external-source-unavailable: {case['id']}")
+            errors.append(f"required benchmark ULog missing: {case['id']}")
             continue
-        report = analyze(path, {
-            "benchmark_case": case["id"],
-            "benchmark_kind": case["kind"],
-            "known_narrative": case["known_narrative"],
-            "validation_goal": case["validation_goal"],
-        })
-        errors.extend(report["validation_errors"])
-        summary.append(summary_row(case["id"], case["kind"], report))
 
-    portable_reports = {}
-    portable_metadata = {case["id"]: case for case in PORTABLE_CASES}
-    for case in PORTABLE_CASES:
-        path = DATA / f"{case['id']}.ulg"
-        if not path.exists():
-            raise FileNotFoundError(f"missing portable benchmark ULog: {case['id']}")
-        report = analyze(path, case)
-        portable_reports[case["id"]] = report
-        errors.extend(report["validation_errors"])
-        summary.append(summary_row(case["id"], case["kind"], report))
+        report, deviations = analyze(path, case)
+        reports[case["id"]] = report
+        case_errors = list(report["validation_errors"])
+
+        if case["kind"] == "incident":
+            if report["root_event"] is None:
+                case_errors.append("incident has no material root")
+            else:
+                case_errors.extend(validate_causal_timestamps(report, case, deviations))
+        elif case["kind"] == "control":
+            if report["root_event"] is not None:
+                case_errors.append("healthy/control log has a material failure chain")
+        else:
+            case_errors.append(f"unknown benchmark kind: {case['kind']}")
+
+        errors.extend(f"{case['id']}: {error}" for error in case_errors)
+        summary.append(summary_row(case, report, case_errors))
+
+    # Preserve the pair-level regression API and explicitly check the original matched
+    # indoor incident/control pair in addition to the generic per-case gates.
+    if "github-indoor-crash-2025" in reports and "github-indoor-control-2025" in reports:
+        errors.extend(
+            "github-indoor-pair: " + error
+            for error in compare_pair(
+                reports["github-indoor-crash-2025"],
+                reports["github-indoor-control-2025"],
+            )
+        )
 
     fallback = DATA / "px4-pyulog-sample.ulg"
     if not fallback.exists():
-        raise FileNotFoundError("missing pinned public PX4/pyulog ULog fallback")
-    parser_report = analyze(fallback, {
-        "benchmark_case": "px4-pyulog-sample",
-        "benchmark_kind": "parser-control",
-        "validation_goal": "Prove real binary PX4 ULog ingestion and forensic pipeline execution.",
-    })
-    errors.extend(parser_report["validation_errors"])
-    summary.append(summary_row("px4-pyulog-sample", "parser-control", parser_report))
+        errors.append("missing pinned public PX4/pyulog parser sample")
+    else:
+        parser_case = {
+            "id": "px4-pyulog-sample",
+            "kind": "parser-control",
+            "validation_goal": "Prove real binary PX4 ULog ingestion and forensic pipeline execution.",
+        }
+        parser_report, _ = analyze(fallback, parser_case)
+        errors.extend(
+            f"px4-pyulog-sample: {error}" for error in parser_report["validation_errors"]
+        )
 
-    crash = portable_reports["github-indoor-crash-2025"]
-    control = portable_reports["github-indoor-control-2025"]
-    pair_errors = compare_pair(crash, control)
-    causal_errors = validate_causal_timestamps(
-        crash, portable_metadata["github-indoor-crash-2025"]
-    )
-    errors.extend(pair_errors)
-    errors.extend(causal_errors)
-
-    if args.require_flight_review and missing_flight_review:
-        errors.append("required Flight Review cases missing: " + ", ".join(missing_flight_review))
-
-    portable_comparison = {
-        "crash_root": crash["root_event"],
-        "control_root": control["root_event"],
-        "crash_chain_length": len(crash["failure_chain"]),
-        "control_chain_length": len(control["failure_chain"]),
-        "crash_root_score": crash["root_event"]["score"] if crash["root_event"] else 0.0,
-        "control_root_score": control["root_event"]["score"] if control["root_event"] else 0.0,
-    }
+    # Legacy logs.px4.io corpus is retained for additional manual coverage, but external
+    # HTTP 403 on that service cannot substitute for or invalidate the required corpus.
+    legacy = json.loads(LEGACY_MANIFEST.read_text(encoding="utf-8"))
+    unavailable_legacy = [
+        case["id"] for case in legacy["cases"]
+        if not (DATA / f"{case['id']}.ulg").exists()
+    ]
 
     passed = not errors
     payload = {
         "v0_1_complete": passed,
         "validation_passed": passed,
         "validation_errors": errors,
-        "timestamp_causal_validation": "passed" if not causal_errors else "failed",
-        "timestamp_causal_errors": causal_errors,
+        "required_incident_count": len(incidents),
+        "required_control_count": len(controls),
         "validated": summary,
-        "portable_incident_control_complete": not pair_errors and not causal_errors,
-        "portable_control_gate_passed": control["root_event"] is None,
-        "portable_comparison": portable_comparison,
-        "flight_review_sources_unavailable": missing_flight_review,
-        "flight_review_validation_complete": len(missing_flight_review) == 0,
-        "flight_review_note": "Legacy Flight Review cases remain an extended corpus; v0.1 merge gate is moving to five reproducible public incident ULogs hosted on accessible sources.",
+        "legacy_flight_review_sources_unavailable": unavailable_legacy,
+        "legacy_flight_review_note": "Extended corpus only; the v0.1 gate uses directly accessible public GitHub ULogs.",
     }
     (OUT / "summary.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
-    print(f"validated {len(summary)} public PX4 ULog(s)")
     print(
-        "PORTABLE INCIDENT/CONTROL: "
-        f"crash_root_score={portable_comparison['crash_root_score']} "
-        f"control_root_score={portable_comparison['control_root_score']} "
-        f"crash_chain={portable_comparison['crash_chain_length']} "
-        f"control_chain={portable_comparison['control_chain_length']}"
+        f"required corpus: {len(incidents)} incident(s), {len(controls)} control(s), "
+        f"validated={len(summary)}"
     )
-    if missing_flight_review:
-        print("OPTIONAL FLIGHT REVIEW CORPUS UNAVAILABLE FROM RUNNER (external 403): " + ", ".join(missing_flight_review))
+    if unavailable_legacy:
+        print("OPTIONAL Flight Review corpus unavailable: " + ", ".join(unavailable_legacy))
     if errors:
         raise SystemExit("VALIDATION FAILED: " + "; ".join(errors))
     print("PAMIR v0.1 REPRODUCIBLE VALIDATION GATE PASSED")
