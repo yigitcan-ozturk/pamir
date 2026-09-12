@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from pamir.engine import build_report, _confidence
+from pamir.engine import build_report, detect_deviations, _confidence
 from pamir.ingest import load_ulog
 from pamir.model import Sample
 from scripts.download_px4_benchmarks import validate_ulog
@@ -92,6 +92,48 @@ def test_voltage_collapse_remains_eligible_power_root():
     samples.append(Sample(4_000_000, 'battery.voltage', 8.0))
     report = build_report(samples, 'voltage-collapse')
     assert report['root_event']['signal'] == 'battery.voltage'
+
+
+def test_subthreshold_px4_test_ratio_is_not_material_anomaly():
+    samples = [Sample(i * 100_000, 'estimator_status.pos_test_ratio', 0.006) for i in range(40)]
+    samples.append(Sample(4_000_000, 'estimator_status.pos_test_ratio', 0.04))
+    deviations = detect_deviations(samples)
+    assert deviations == []
+    assert build_report(samples, 'healthy-estimator')['root_event'] is None
+
+
+def test_estimator_state_covariance_validity_and_reset_fields_are_not_anomalies():
+    excluded_signals = (
+        'estimator_status.states[20]',
+        'estimator_status.covariances[3]',
+        'vehicle_local_position.xy_valid',
+        'vehicle_local_position.reset_count',
+    )
+    samples = []
+    for i in range(40):
+        for signal in excluded_signals:
+            samples.append(Sample(i * 100_000, signal, 0.0))
+    for signal in excluded_signals:
+        samples.append(Sample(4_000_000, signal, 100.0))
+    assert detect_deviations(samples) == []
+
+
+def test_multi_instance_actuator_commands_cannot_be_root_proof():
+    samples = []
+    for i in range(40):
+        t = i * 100_000
+        samples.extend([
+            Sample(t, 'actuator_outputs[2].output[3]', 1000.0),
+            Sample(t, 'vehicle_attitude.q[0]', 1.0),
+            Sample(t, 'vehicle_local_position.z', 0.0),
+        ])
+    samples.extend([
+        Sample(4_000_000, 'actuator_outputs[2].output[3]', 1800.0),
+        Sample(4_100_000, 'vehicle_attitude.q[0]', 0.5),
+        Sample(4_200_000, 'vehicle_local_position.z', -10.0),
+    ])
+    report = build_report(samples, 'command-transition')
+    assert report['root_event'] is None
 
 
 def test_confidence_is_monotonic_bounded_heuristic():
