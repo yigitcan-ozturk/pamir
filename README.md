@@ -1,8 +1,28 @@
+<div align="center">
+
 # PAMIR
 
 ### Post-Mission Autonomous Incident Reconstruction
 
-> **Tell me what failed first — and prove it.**
+## **Tell me what failed first — and prove it.**
+
+**Offline PX4 telemetry forensics · Root-event reconstruction · Timestamped evidence**
+
+| **5 / 5** | **3 / 3** | **PASS** | **SHA256** |
+|:---:|:---:|:---:|:---:|
+| Public incidents | Healthy controls | Timestamp validation | Pinned inputs |
+
+**v0.1 · VALIDATED BASELINE · LOCAL / OFFLINE**
+
+</div>
+
+---
+
+PAMIR is an offline forensic analysis engine for autonomous-system telemetry. It reconstructs an incident timeline, identifies the **earliest material root event**, and preserves timestamped evidence showing what happened next.
+
+> **Not just “what looks abnormal?” — PAMIR asks which defensible material event came first.**
+
+## Forensic pipeline
 
 ```mermaid
 flowchart LR
@@ -15,8 +35,6 @@ flowchart LR
     D -.-> H[Evidence window]
 ```
 
-PAMIR is an offline forensic analysis engine for autonomous-system telemetry. It reconstructs an incident timeline, identifies the **earliest material root event**, and preserves timestamped evidence showing what happened next.
-
 ## v0.1 — validated baseline
 
 | Validation | Result |
@@ -27,14 +45,14 @@ PAMIR is an offline forensic analysis engine for autonomous-system telemetry. It
 | Benchmark inputs | **SHA256 pinned** |
 | Operation | **Local / offline** |
 
-Detailed results: [`benchmarks/VALIDATION.md`](benchmarks/VALIDATION.md)
+Detailed measured results: [`benchmarks/VALIDATION.md`](benchmarks/VALIDATION.md)
 
 ## What PAMIR answers
 
-1. **What failed first?**
-2. **When did it happen?**
-3. **What happened next?**
-4. **What evidence supports the conclusion?**
+1. **What failed first?** — earliest material root event.
+2. **When did it happen?** — source telemetry timestamp.
+3. **What happened next?** — strictly ordered incident evidence.
+4. **What supports the conclusion?** — replayable evidence around each deviation.
 
 ```text
 ROOT EVENT
