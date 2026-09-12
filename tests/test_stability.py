@@ -13,9 +13,10 @@ def _battery_drop_fixture() -> list[Sample]:
 def test_material_root_is_stable_across_default_bounded_variants():
     result = measure_root_stability(_battery_drop_fixture(), "battery-drop")
 
-    assert result["schema_version"] == "0.2-root-stability-v1"
+    assert result["schema_version"] == "0.2-root-stability-v2"
     assert result["baseline_root"] is not None
     assert result["baseline_root"]["signal"] == "battery.voltage"
+    assert result["qualified_material_root"] == result["baseline_root"]
     assert result["status"] == "stable"
     assert result["stability_ratio"] == 1.0
     assert result["matching_variant_count"] == result["variant_count"]
@@ -27,6 +28,7 @@ def test_healthy_control_reports_stable_no_root():
     result = measure_root_stability(samples, "healthy-control")
 
     assert result["baseline_root"] is None
+    assert result["qualified_material_root"] is None
     assert result["status"] == "stable_no_root"
     assert result["stability_ratio"] == 1.0
 
@@ -55,8 +57,26 @@ def test_sensitivity_analysis_exposes_root_instability_instead_of_hiding_it():
     assert result["baseline_root"] is not None
     assert result["baseline_root"]["signal"] == "battery.voltage"
     assert result["runs"][1]["root_event"] is None
+    assert result["qualified_material_root"] is None
     assert result["status"] == "unstable"
     assert result["stability_ratio"] == 0.5
+
+
+def test_variant_only_root_is_retained_as_unstable_candidate_not_material_root():
+    samples = [Sample(i * 100_000, "battery.voltage", 12.0) for i in range(40)]
+    samples.append(Sample(4_000_000, "battery.voltage", 11.5))
+    variants = (
+        DetectorVariant("baseline", threshold=10.0),
+        DetectorVariant("sensitive", threshold=6.5),
+    )
+
+    result = measure_root_stability(samples, "candidate-emergence", variants=variants)
+
+    assert result["baseline_root"] is None
+    assert result["runs"][1]["root_event"] is not None
+    assert result["candidate_root_variants"] == ["sensitive"]
+    assert result["qualified_material_root"] is None
+    assert result["status"] == "unstable_root_emergence"
 
 
 def test_stability_requires_at_least_one_variant():
