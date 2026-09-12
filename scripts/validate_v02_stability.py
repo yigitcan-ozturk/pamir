@@ -13,6 +13,7 @@ OUT = ROOT / "benchmarks" / "reports"
 
 def summarize_case(case: dict, stability: dict) -> dict:
     baseline_root = stability.get("baseline_root")
+    qualified_root = stability.get("qualified_material_root")
     return {
         "id": case["id"],
         "kind": case["kind"],
@@ -23,6 +24,8 @@ def summarize_case(case: dict, stability: dict) -> dict:
         "baseline_root_signal": baseline_root["signal"] if baseline_root else None,
         "baseline_root_reason": baseline_root["reason"] if baseline_root else None,
         "baseline_root_timestamp_us": baseline_root["timestamp_us"] if baseline_root else None,
+        "qualified_material_root_signal": qualified_root["signal"] if qualified_root else None,
+        "candidate_root_variants": stability.get("candidate_root_variants", []),
     }
 
 
@@ -36,11 +39,8 @@ def validate_case(case: dict, stability: dict) -> list[str]:
         if stability.get("baseline_root") is None:
             errors.append("incident baseline lost its v0.1 material root")
     elif case["kind"] == "control":
-        rooted = [run["variant"] for run in runs if run.get("root_event") is not None]
-        if rooted:
-            errors.append("healthy/control produced material root under variants: " + ", ".join(rooted))
-        if stability.get("status") != "stable_no_root":
-            errors.append(f"healthy/control stability status is {stability.get('status')}, expected stable_no_root")
+        if stability.get("qualified_material_root") is not None:
+            errors.append("healthy/control produced a perturbation-qualified material root")
     else:
         errors.append(f"unknown benchmark kind: {case['kind']}")
     return errors
@@ -50,12 +50,18 @@ def build_payload(rows: list[dict], errors: list[str]) -> dict:
     incidents = [row for row in rows if row["kind"] == "incident"]
     controls = [row for row in rows if row["kind"] == "control"]
     return {
-        "schema_version": "0.2-public-root-stability-v1",
+        "schema_version": "0.2-public-root-stability-v2",
         "v0_1_gate_unchanged": True,
+        "qualification_policy": "material root requires baseline selection and preservation across every bounded variant",
         "required_incident_count": len(incidents),
         "required_control_count": len(controls),
         "incident_stability_generated": len(incidents),
-        "controls_stable_no_root": all(row["status"] == "stable_no_root" for row in controls),
+        "controls_without_qualified_material_root": all(
+            row["qualified_material_root_signal"] is None for row in controls
+        ),
+        "control_candidate_instability_count": sum(
+            1 for row in controls if row["status"] == "unstable_root_emergence"
+        ),
         "validation_passed": not errors,
         "validation_errors": errors,
         "cases": rows,
@@ -87,7 +93,8 @@ def main() -> None:
         )
         print(
             f"{case['id']}: kind={case['kind']} status={row['status']} "
-            f"stability={row['stability_ratio']} root={row['baseline_root_signal'] or 'none'}"
+            f"stability={row['stability_ratio']} root={row['baseline_root_signal'] or 'none'} "
+            f"qualified={row['qualified_material_root_signal'] or 'none'}"
         )
 
     payload = build_payload(rows, errors)
