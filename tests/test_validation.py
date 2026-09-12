@@ -97,9 +97,16 @@ def test_voltage_collapse_remains_eligible_power_root():
 def test_subthreshold_px4_test_ratio_is_not_material_anomaly():
     samples = [Sample(i * 100_000, 'estimator_status.pos_test_ratio', 0.006) for i in range(40)]
     samples.append(Sample(4_000_000, 'estimator_status.pos_test_ratio', 0.04))
-    deviations = detect_deviations(samples)
-    assert deviations == []
+    assert detect_deviations(samples) == []
     assert build_report(samples, 'healthy-estimator')['root_event'] is None
+
+
+def test_healthy_estimator_accuracy_region_is_not_material_anomaly():
+    horizontal = [Sample(i * 100_000, 'estimator_status.pos_horiz_accuracy', 0.33) for i in range(40)]
+    horizontal.append(Sample(4_000_000, 'estimator_status.pos_horiz_accuracy', 0.80))
+    vertical = [Sample(i * 100_000, 'estimator_status.pos_vert_accuracy', 0.40) for i in range(40)]
+    vertical.append(Sample(4_000_000, 'estimator_status.pos_vert_accuracy', 1.80))
+    assert detect_deviations(horizontal + vertical) == []
 
 
 def test_estimator_state_covariance_validity_and_reset_fields_are_not_anomalies():
