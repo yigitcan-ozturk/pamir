@@ -29,19 +29,30 @@ def _signal_family(signal: str) -> str:
 
 
 def _is_root_candidate(signal: str) -> bool:
+    """Return whether a signal is continuous telemetry suitable for anomaly detection.
+
+    PX4 state/covariance arrays, validity booleans and reset counters are useful context,
+    but their discrete transitions are not evidence of a physical failure by themselves.
+    """
     s = signal.lower()
     excluded = (
         "setpoint", "timestamp", "_integral_dt", ".device_id", ".noutputs",
         ".nav_state", ".arming_state", ".hil_state", ".failsafe", "_counter",
-        "_flags", ".failure_detector_status", ".rc_signal_lost", ".data_link_lost",
-        ".is_rotary_wing", ".is_vtol", ".in_transition",
+        "reset_count", "_flags", ".failure_detector_status", ".rc_signal_lost",
+        ".data_link_lost", ".is_rotary_wing", ".is_vtol", ".in_transition",
+        "states[", "covariances[", "_valid", ".valid",
     )
     return not any(term in s for term in excluded)
 
 
 def _direction_is_material(signal: str, value: float, baseline: float) -> bool:
+    """Respect signal semantics when only one direction represents degradation."""
     s = signal.lower()
-    if "pos_horiz_accuracy" in s or "pos_vert_accuracy" in s or "test_ratio" in s:
+    if "test_ratio" in s:
+        # PX4 EKF innovation test ratios are normalized against the acceptance gate.
+        # Values >1 indicate the innovation has exceeded the acceptable test limit.
+        return value > 1.0
+    if "pos_horiz_accuracy" in s or "pos_vert_accuracy" in s:
         return value > baseline
     if "tracking_error" in s:
         return abs(value) > abs(baseline)
@@ -51,21 +62,28 @@ def _direction_is_material(signal: str, value: float, baseline: float) -> bool:
 
 
 def _magnitude_floor(signal: str, center: float) -> float:
+    """Prevent near-zero baselines and ordinary actuator jitter from exploding scores."""
     s = signal.lower()
     base = max(1e-6, abs(center) * 0.005)
-    if "actuator_motors.control" in s:
+    if "actuator_motors" in s and ".control" in s:
         return max(base, 0.005)
-    if "actuator_outputs.output" in s:
+    if "actuator_outputs" in s and ".output" in s:
         return max(base, abs(center) * 0.05, 5.0)
     return base
 
 
 def _is_measured_actuation_root(signal: str) -> bool:
+    """Command outputs are evidence, not direct proof of an actuator failure."""
     s = signal.lower()
-    return "actuator_motors.control" not in s and "actuator_outputs.output" not in s
+    if "actuator_motors" in s and ".control" in s:
+        return False
+    if "actuator_outputs" in s and ".output" in s:
+        return False
+    return True
 
 
 def _is_power_root(signal: str) -> bool:
+    """Only direct voltage degradation is eligible as a v0.1 power root."""
     return "voltage" in signal.lower()
 
 
@@ -216,7 +234,7 @@ def build_report(samples: list[Sample], source: str, *, deviations: list[Deviati
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry; command/categorical transitions excluded; degradation direction respected; estimation must precede actuation; actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; v0.1 power roots require voltage degradation; material root requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry only; estimator state/covariance arrays, validity/reset fields, command/categorical transitions, actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; PX4 estimator test ratios become material only above 1.0; v0.1 power roots require voltage degradation; material root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
             "causal_links": "conservative temporal + signal-family heuristic",
