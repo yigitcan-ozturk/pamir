@@ -1,0 +1,86 @@
+{
+  "dataset": "PAMIR reproducible PX4 incident benchmark v0.1",
+  "policy": "Every incident and control in this manifest is a hard CI gate. Sources must be publicly accessible without logs.px4.io. Incident validation requires a material root plus timestamp-ordered downstream telemetry evidence; controls must produce no material failure root.",
+  "cases": [
+    {
+      "id": "github-indoor-crash-2025",
+      "kind": "incident",
+      "download_url": "https://github.com/user-attachments/files/23960520/crashed_log_6_2025-11-23-21-01-00.ulg.txt",
+      "transport": "raw",
+      "sha256": "7ea3869991912d9f2e264b53bebf3afc30e8b6595fd9837d76cf8e24cc7b0179",
+      "source_url": "https://github.com/DroneBlocks/dexi_offboard/issues/3",
+      "known_narrative": "Indoor offboard takeoff attempt drifted diagonally and slammed into a wall; the reporter also observed rapidly degrading position/attitude estimates.",
+      "validation_goal": "Surface upstream estimation degradation before downstream vehicle-motion consequences.",
+      "expected_root_family": "estimation",
+      "required_downstream_families": ["motion"]
+    },
+    {
+      "id": "follow-me-crash-2020",
+      "kind": "incident",
+      "download_url": "https://github.com/PX4/Firmware/files/4938814/16_38_51.zip",
+      "transport": "zip",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/15363",
+      "known_narrative": "After switching an X-Class quadcopter to Follow Me, it climbed rapidly, received a hard yaw/pitch command, lost stability and fell from the sky.",
+      "validation_goal": "Identify a material upstream telemetry deviation that strictly precedes attitude/motion consequences.",
+      "required_downstream_families": ["attitude", "motion"]
+    },
+    {
+      "id": "position-mode-crash-2023",
+      "kind": "incident",
+      "download_url": "https://github.com/PX4/PX4-Autopilot/files/11136977/20230328.zip",
+      "transport": "zip",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/21416",
+      "known_narrative": "Quadcopter crashed in position mode; the report notes a sudden roll/pitch setpoint jump followed shortly by one motor reaching maximum thrust and velocity-controller oscillation.",
+      "validation_goal": "Surface a material root before downstream actuation/attitude/motion instability.",
+      "required_downstream_families": ["motion"]
+    },
+    {
+      "id": "altitude-hold-crash-2022",
+      "kind": "incident",
+      "download_url": "https://github.com/PX4/PX4-Autopilot/files/9257397/log_92_2022-8-3-17-26-48.altitude.crash.on.ground.zip",
+      "transport": "zip",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/20004",
+      "known_narrative": "A coaxial octocopter that flew normally in Stabilized mode developed sudden vibration after switching to altitude-hold and crashed.",
+      "validation_goal": "Find a material root that strictly precedes downstream attitude/motion instability.",
+      "required_downstream_families": ["attitude", "motion"]
+    },
+    {
+      "id": "hexacopter-drop-crash-2021",
+      "kind": "incident",
+      "download_url": "https://github.com/PX4/PX4-Autopilot/files/6616402/log_21_2021-6-3-10-35-52.zip",
+      "transport": "zip",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/17732",
+      "known_narrative": "Hexacopter suddenly dropped from the sky as if power/control stopped; the crash log contains an attitude-control low-stack warning and no normal ground-contact/disarm sequence.",
+      "validation_goal": "Find a material root before the observed loss-of-flight motion consequence.",
+      "required_downstream_families": ["motion"]
+    },
+    {
+      "id": "github-indoor-control-2025",
+      "kind": "control",
+      "download_url": "https://github.com/user-attachments/files/23960519/not_crashed_log_1_2025-11-23-20-26-38.ulg.txt",
+      "transport": "raw",
+      "sha256": "6288e117e86b4e4365f833e55137b5285db12a7f1339063783f7ce76971f26e5",
+      "source_url": "https://github.com/DroneBlocks/dexi_offboard/issues/3",
+      "known_narrative": "Companion public ULog from the same indoor hardware/testing context that did not crash.",
+      "validation_goal": "Healthy/control flight must produce no material failure root."
+    },
+    {
+      "id": "follow-me-control-2020",
+      "kind": "control",
+      "download_url": "https://github.com/PX4/Firmware/files/4938900/log_2_2020-7-9-16-23-10.zip",
+      "transport": "zip",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/15363",
+      "known_narrative": "Reporter-provided example of the same quadcopter completing a normal 10-20 minute autonomous PX4 mission.",
+      "validation_goal": "Known successful flight must produce no material failure root."
+    },
+    {
+      "id": "stabilized-control-2022",
+      "kind": "control",
+      "download_url": "https://github.com/PX4/PX4-Autopilot/files/9257390/log_88_2022-8-3-12-55-10_Stablise.zip",
+      "transport": "zip",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/20004",
+      "known_narrative": "Reporter-provided normal Stabilized-mode flight from the same coaxial octocopter testing context.",
+      "validation_goal": "Known normal flight must produce no material failure root."
+    }
+  ]
+}
