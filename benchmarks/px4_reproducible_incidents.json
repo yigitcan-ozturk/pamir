@@ -15,15 +15,16 @@
       "required_downstream_families": ["motion"]
     },
     {
-      "id": "single-motor-output-zero-crash-2025",
+      "id": "follow-me-crash-2020",
       "kind": "incident",
-      "download_url": "https://github.com/user-attachments/files/22921252/log_264_2025-10-14-09-39-50.zip",
+      "download_url": "https://github.com/PX4/Firmware/files/4938814/16_38_51.zip",
       "transport": "zip",
-      "sha256": "dade88f8c763785e6a7874b5c92b4c7c0221fe1d6673ffe42c28deb80639599f",
-      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/25762",
-      "known_narrative": "A physical quadrotor developed one motor output at zero while the other motors continued operating; the vehicle spun and crashed.",
-      "validation_goal": "Detect an armed actuator-output collapse before the spin/crash motion consequence.",
-      "required_downstream_families": ["motion"]
+      "sha256": "c8dff2e30ab023d062863986e13b587a7d91ebf3140450aa92064c1d5d30ea73",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/15363",
+      "known_narrative": "After switching an X-Class quadcopter to Follow Me, a new position target produced immediate hard yaw/pitch controller commands; the vehicle then lost stability and fell from the sky.",
+      "validation_goal": "Detect a multi-axis rate-command discontinuity that strictly precedes attitude and motion consequences.",
+      "expected_root_family": "control",
+      "required_downstream_families": ["attitude", "motion"]
     },
     {
       "id": "position-mode-crash-2023",
@@ -52,6 +53,7 @@
       "kind": "incident",
       "download_url": "https://github.com/PX4/PX4-Autopilot/files/10093020/log_113_2022-11-25-16-48-06.zip",
       "transport": "zip",
+      "sha256": "656a4333efe0050a687752c18ce4f34a31f9310a3ebc55ac7fe67f8aa6ee9c99",
       "source_url": "https://github.com/PX4/PX4-Autopilot/issues/20670",
       "known_narrative": "After a prior hard landing and compass recalibration, a physical coaxial quad developed uncontrolled yaw on takeoff and would not respond to counter-yaw input.",
       "validation_goal": "Surface a material estimation/control anomaly that precedes the uncontrolled motion consequence.",
