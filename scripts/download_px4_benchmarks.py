@@ -18,6 +18,15 @@ PYULOG_SAMPLE = (
 )
 PYULOG_SAMPLE_SHA256 = "81952e6059bc095717e7911c010e07f85749d6b04d332a5ffc51575a3fd0a558"
 
+# Backward-compatible pins are intentionally retained here as a defense-in-depth
+# layer for callers/tests that validate a known benchmark by label alone. Manifest
+# pins remain authoritative for the expanded reproducible corpus.
+PINNED_SHA256 = {
+    "github-indoor-crash-2025": "7ea3869991912d9f2e264b53bebf3afc30e8b6595fd9837d76cf8e24cc7b0179",
+    "github-indoor-control-2025": "6288e117e86b4e4365f833e55137b5285db12a7f1339063783f7ce76971f26e5",
+    "px4-pyulog-sample": PYULOG_SAMPLE_SHA256,
+}
+
 
 def download(url: str) -> bytes:
     request = Request(url, headers={"User-Agent": "Mozilla/5.0 PAMIR-v0.1-benchmark"})
@@ -29,8 +38,9 @@ def validate_ulog(data: bytes, label: str, expected_sha256: str | None = None) -
     if len(data) < 16 or not data.startswith(b"ULog\x01\x12\x35"):
         raise RuntimeError(f"{label}: response is not a ULog file")
     digest = sha256(data).hexdigest()
-    if expected_sha256 and digest != expected_sha256:
-        raise RuntimeError(f"{label}: SHA-256 mismatch: expected {expected_sha256}, got {digest}")
+    expected = expected_sha256 or PINNED_SHA256.get(label)
+    if expected and digest != expected:
+        raise RuntimeError(f"{label}: SHA-256 mismatch: expected {expected}, got {digest}")
     return data
 
 
@@ -107,7 +117,6 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     reproducible = json.loads(REPRO_MANIFEST.read_text(encoding="utf-8"))
 
-    # These cases are the v0.1 hard gate: any inaccessible/corrupt source fails CI.
     for case in reproducible["cases"]:
         store_required_case(case)
 
@@ -119,8 +128,6 @@ def main() -> None:
     data = validate_ulog(fallback.read_bytes(), "px4-pyulog-sample", PYULOG_SAMPLE_SHA256)
     print(f"verified px4-pyulog-sample sha256={sha256(data).hexdigest()}")
 
-    # Keep the older Flight Review corpus as optional extension. It must never mask
-    # failure of the required GitHub-hosted reproducible corpus.
     blocked = download_legacy_flight_review()
     if blocked:
         print("OPTIONAL Flight Review corpus unavailable from runner: " + ", ".join(blocked))
