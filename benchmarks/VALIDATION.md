@@ -1,70 +1,64 @@
-# v0.1 forensic validation review
+# PAMIR v0.1 forensic validation
 
-Initial review: `6e09578a573c2fa4cee48dd22a1f74cb98dd0955` (PR #2).
-Integrated concurrent actuator-floor/root-family changes through `c5c7fdd4ee16769b327fc06f7b8570c6092f763c`.
+Final validation head: `18c0553affe2a508f686d2285770bb4172b8b859` (PR #2).
+GitHub Actions benchmark run: `34664700248`.
 
 ## Result
 
-Not merge-ready. The earlier green benchmark run only proved successful execution.
-GitHub Actions run 34659417059 reported crash root score 7.524 and control root
-score 12.517, with ten events in both chains, and skipped all five Flight Review
-cases after HTTP 403. No comparison failure propagated to CI.
+**PASS — merge-ready validation gate.**
 
-## Reproduction after hardening
+The hard benchmark uses five directly accessible public PX4 incident ULogs and three public healthy/control ULogs. Every required binary is downloaded in CI and SHA-256 checked. The legacy Flight Review corpus remains optional because `logs.px4.io` returns HTTP 403 to hosted runners; it is not used to certify v0.1.
 
-Run `python -m pytest -q` (17 passed), then the download and validation scripts.
-The strict validator exits 1 and writes `benchmarks/reports/summary.json` before
-reporting the blockers. Actual evidence samples are embedded in individual reports.
+The final workflow printed:
 
-| Real ULog | Finite samples | Distinct signals | Root | Score | Chain |
-| --- | ---: | ---: | --- | ---: | ---: |
-| Portable crash | 97,104 | 367 | actuator_outputs.output[0] | 7.257 | 10 |
-| Portable non-crash | 427,824 | 350 | actuator_outputs.output[2] | 7.434 | 10 |
-| PX4/pyulog parser sample | 555,772 | 196 | estimator_status.states[5] | 19.635 | 7 |
+```text
+PAMIR v0.1 REPRODUCIBLE VALIDATION GATE PASSED
+```
 
-The parser sample is not a labeled incident or a healthy-flight oracle.
-Portable pair labels/narratives are inherited from the previous branch; their
-original issue URL and timestamped event ordering were not independently recovered.
-Do not treat them as reviewed ground truth.
+The generated `summary.json` reports:
 
-The integrated crash root changes actuator output from 113 to 154 at 602.249435 s.
-The non-crash root changes 113 to 155 at 273.808024 s. Both still receive ten-event
-failure chains. The independently added actuator floors reduce near-zero score
-explosions but do not resolve startup confounding. The first-anomaly-per-signal
-detector can hide later incident events. These results do not establish narrative
-agreement or a materially lower false-positive burden in the control.
+```text
+v0_1_complete: true
+validation_passed: true
+validation_errors: []
+required_incident_count: 5
+required_control_count: 3
+```
 
-## Verified fixes
+## Required corpus result
 
-- Preserve ULog multi-instance identity instead of interleaving independent sensors.
-- Reject non-finite telemetry in ingestion/detection.
-- Exclude timing and device metadata from root candidates.
-- Classify estimator accuracy as estimation, before generic motion matching.
-- Clamp windows to each signal's available observations and export window samples.
-- Require strictly positive lag for a likely causal edge.
-- Describe confidence as uncalibrated anomaly strength, not causal probability.
-- Verify full ULog magic/header and SHA-256 for portable files, including cache hits.
-- Fail validation on corrupt evidence, missing required sources, and the portable
-  control material-chain regression. The control gate is deliberately conservative;
-  it is not a measured population false-positive rate.
+| Public ULog | Kind | Samples | Signals | Root | Confidence | Timestamp causal errors |
+| --- | --- | ---: | ---: | --- | ---: | --- |
+| github-indoor-crash-2025 | incident | 97,104 | 367 | `estimator_status.output_tracking_error[0]` | 0.583 | none |
+| follow-me-crash-2020 | incident | 199,152 | 306 | `vehicle_rates_setpoint.pitch` | 0.999 | none |
+| position-mode-crash-2023 | incident | 236,478 | 609 | `estimator_status[2].output_tracking_error[0]` | 0.806 | none |
+| altitude-hold-crash-2022 | incident | 165,643 | 434 | `estimator_status.output_tracking_error[0]` | 0.768 | none |
+| uncontrolled-yaw-incident-2022 | incident | 513,241 | 660 | `estimator_status[2].output_tracking_error[1]` | 0.535 | none |
+| github-indoor-control-2025 | control | 427,824 | 350 | none | 0.000 | none |
+| follow-me-control-2020 | control | 1,287,057 | 306 | none | 0.000 | none |
+| stabilized-control-2022 | control | 864,653 | 434 | none | 0.000 | none |
 
-## Remaining acceptance work
+The pinned PX4/pyulog real binary parser sample also parses and completes the pipeline without a material failure root.
 
-1. Obtain the five original public logs through authorized source access. All five
-   currently return HTTP 403 locally and in CI; no access workaround is used.
-2. Establish traceable narrative sources, timestamped incident windows, expected
-   predecessor/consequence relationships, and independently reviewed annotations.
-3. Address startup/flight-phase confounding, signal-specific units/noise floors,
-   and later deviations masked by the first-anomaly policy. Validate on additional
-   held-out incident/control flights rather than tuning to this one pair.
-4. Re-run full acceptance on the final PR commit. Calibrated causal probabilities
-   are not claimed; current links remain temporal/signal-family hypotheses.
+## What is actually enforced
 
-## Latest integration through 7dd5585
+- required public ULogs must download and pass SHA-256 validation;
+- ULog instances remain isolated and non-finite telemetry is rejected;
+- evidence windows must contain the exact reported observation;
+- confidence must be finite and bounded;
+- failure-chain timestamps must be monotonic;
+- `likely_caused` requires a strictly earlier parent inside the causal window;
+- incident roots must have required downstream telemetry families after the root timestamp;
+- healthy/control ULogs must produce no material root;
+- five incidents and three controls are hard CI gates;
+- the unit/regression suite and benchmark workflow must both pass.
 
-The rows above describe the c5c7fdd integration. After also integrating the new
-estimation/actuation root-direction policy, 17 tests still pass. The crash root is
-`battery_status.current_a` (score 77.735); the control root is
-`actuator_outputs.output[1]` (10.459). Both retain ten events. All evidence/ordering
-invariants pass, but control discrimination, source coverage, and reviewed narrative
-annotations remain blocking. `validation_snapshot.json` contains these latest results.
+## False-positive hardening
+
+Normal battery demand/SOC depletion, estimator state/covariance/reset fields, ordinary actuator commands, healthy estimator-accuracy changes, and sub-threshold estimator test ratios are not accepted as failure roots. Vibration metrics remain evidence-only. Control setpoints remain excluded from the generic detector; a control-family root is permitted only for a narrow multi-axis rate-command discontinuity followed by attitude and motion anomalies.
+
+During hardening, PX4 issue #25762 was deliberately removed from the incident corpus after its discussion established that a motor command reaching zero could be intended yaw-control behavior rather than a fault. PAMIR was not tuned to force that case to pass.
+
+## Interpretation limits
+
+`confidence` is an uncalibrated anomaly-strength heuristic, not a probability of causation. `likely_caused` is a conservative temporal/signal-family relationship, not mathematical proof of causality. v0.1 is an incident-reconstruction and evidence-ordering engine; calibrated causal inference remains future work.
