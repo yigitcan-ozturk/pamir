@@ -19,9 +19,10 @@
       "kind": "incident",
       "download_url": "https://github.com/user-attachments/files/22921252/log_264_2025-10-14-09-39-50.zip",
       "transport": "zip",
+      "sha256": "dade88f8c763785e6a7874b5c92b4c7c0221fe1d6673ffe42c28deb80639599f",
       "source_url": "https://github.com/PX4/PX4-Autopilot/issues/25762",
       "known_narrative": "A physical quadrotor developed one motor output at zero while the other motors continued operating; the vehicle spun and crashed.",
-      "validation_goal": "Detect a material telemetry root that precedes the spin/crash motion consequence.",
+      "validation_goal": "Detect an armed actuator-output collapse before the spin/crash motion consequence.",
       "required_downstream_families": ["motion"]
     },
     {
@@ -47,13 +48,13 @@
       "required_downstream_families": ["attitude", "motion"]
     },
     {
-      "id": "tailsitter-output-reset-crash-2018",
+      "id": "uncontrolled-yaw-incident-2022",
       "kind": "incident",
-      "download_url": "https://github.com/PX4/Firmware/files/2430408/log_89_2018-9-27-14-07-46.zip",
+      "download_url": "https://github.com/PX4/PX4-Autopilot/files/10093020/log_113_2022-11-25-16-48-06.zip",
       "transport": "zip",
-      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/10598",
-      "known_narrative": "A physical tailsitter transitioned to fixed-wing mode, all control outputs reset to zero, RC control was lost and the aircraft dropped like a brick and crashed.",
-      "validation_goal": "Detect a material telemetry root that precedes loss-of-control motion consequences.",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/20670",
+      "known_narrative": "After a prior hard landing and compass recalibration, a physical coaxial quad developed uncontrolled yaw on takeoff and would not respond to counter-yaw input.",
+      "validation_goal": "Surface a material estimation/control anomaly that precedes the uncontrolled motion consequence.",
       "required_downstream_families": ["motion"]
     },
     {
