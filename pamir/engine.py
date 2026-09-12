@@ -79,14 +79,10 @@ def _is_power_root(signal: str) -> bool:
 
 
 def _is_material_estimation_root(deviation: Deviation) -> bool:
-    """Separate detector anomalies from failures material enough to anchor a root.
-
-    PX4 Flight Review considers horizontal accuracy below 1 m and vertical accuracy
-    below 2 m good. Changes inside that healthy range remain recorded as anomalies but
-    cannot anchor a failure chain. EKF test ratios are already filtered at >1.0 during
-    detection, which corresponds to exceeding the innovation acceptance limit.
-    """
+    """Separate detector anomalies from failures material enough to anchor a root."""
     s = deviation.signal.lower()
+    if ".vibe[" in s or s.endswith(".vibe"):
+        return False
     if "pos_horiz_accuracy" in s:
         return deviation.value > 1.0
     if "pos_vert_accuracy" in s:
@@ -243,7 +239,7 @@ def build_report(samples: list[Sample], source: str, *, deviations: list[Deviati
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry only; estimator state/covariance arrays, validity/reset fields, command/categorical transitions, actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; PX4 estimator test ratios become detector anomalies only above 1.0; accuracy changes remain visible as anomalies but cannot root a failure while horizontal/vertical accuracy remains in the <1 m/<2 m healthy region; v0.1 power roots require voltage degradation; material root requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry only; estimator state/covariance arrays, validity/reset fields, command/categorical transitions, actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; PX4 estimator test ratios become detector anomalies only above 1.0; accuracy changes remain visible as anomalies but cannot root a failure while horizontal/vertical accuracy remains in the <1 m/<2 m healthy region; PX4 vibration metrics remain evidence but cannot independently anchor a failure root; v0.1 power roots require voltage degradation; material root requires downstream motion in a multi-family anomaly cluster",
             "evidence_window": "-0.5s/+0.75s",
             "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
             "causal_links": "conservative temporal + signal-family heuristic",
