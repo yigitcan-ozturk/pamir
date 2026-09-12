@@ -1,4 +1,3 @@
-from bisect import bisect_right
 from collections import defaultdict, deque
 from math import exp, isfinite
 from statistics import median
@@ -16,6 +15,8 @@ def _confidence(score: float, threshold: float) -> float:
 
 def _signal_family(signal: str) -> str:
     s = signal.lower()
+    if "vehicle_rates_setpoint" in s or "vehicle_attitude_setpoint" in s:
+        return "control"
     if "estimator" in s or "innovation" in s or "mag" in s:
         return "estimation"
     if "battery" in s or "voltage" in s or "current" in s:
@@ -65,8 +66,6 @@ def _magnitude_floor(signal: str, center: float) -> float:
 
 
 def _is_measured_actuation_root(deviation: Deviation) -> bool:
-    if deviation.reason == "armed_actuator_output_collapse":
-        return True
     s = deviation.signal.lower()
     if "actuator_motors" in s and ".control" in s:
         return False
@@ -97,7 +96,8 @@ def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tup
     transitions = {
         ("power", "actuation"), ("actuation", "attitude"),
         ("attitude", "motion"), ("estimation", "attitude"),
-        ("estimation", "motion"),
+        ("estimation", "motion"), ("control", "attitude"),
+        ("control", "motion"),
     }
     if (_signal_family(parent.signal), _signal_family(child.signal)) in transitions:
         return "likely_caused", parent.signal
@@ -105,10 +105,10 @@ def _relation(parent: Deviation, child: Deviation, causal_window_us: int) -> tup
 
 
 def _select_material_root_index(deviations: list[Deviation], cluster_window_us: int = 3_000_000) -> int | None:
-    core = {"power", "actuation", "attitude", "motion", "estimation"}
+    core = {"power", "actuation", "attitude", "motion", "estimation", "control"}
     for i, deviation in enumerate(deviations):
         family = _signal_family(deviation.signal)
-        if family not in {"power", "actuation", "estimation"}:
+        if family not in {"power", "actuation", "estimation", "control"}:
             continue
         if family == "power" and not _is_power_root(deviation.signal):
             continue
@@ -125,14 +125,20 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
             )
             if recent_actuation:
                 continue
+        if family == "control":
+            if deviation.reason != "multi_axis_rate_command_discontinuity" or deviation.confidence < 0.8:
+                continue
         end = deviation.timestamp_us + cluster_window_us
         families = {
             _signal_family(item.signal)
             for item in deviations[i:]
             if item.timestamp_us <= end
         } & core
-        required_families = 2 if deviation.reason == "armed_actuator_output_collapse" else 3
-        if "motion" in families and len(families) >= required_families:
+        if family == "control":
+            if {"attitude", "motion"}.issubset(families):
+                return i
+            continue
+        if "motion" in families and len(families) >= 3:
             return i
     if deviations:
         first = deviations[0]
@@ -141,70 +147,70 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
     return None
 
 
-def _armed_state_index(series: dict[str, list[Sample]]) -> tuple[list[int], list[float]]:
-    points = series.get("vehicle_status.arming_state", [])
-    return [point.timestamp_us for point in points], [point.value for point in points]
-
-
-def _armed_at(timestamp_us: int, arm_times: list[int], arm_values: list[float]) -> bool:
-    index = bisect_right(arm_times, timestamp_us) - 1
-    return index >= 0 and arm_values[index] == 2.0
-
-
-def _critical_actuator_collapses(
+def _critical_rate_command_discontinuities(
     series: dict[str, list[Sample]],
     *,
     evidence_before_us: int,
     evidence_after_us: int,
 ) -> list[Deviation]:
-    """Find persistent PWM collapses while PX4 still reports the vehicle armed.
+    """Detect a narrow multi-axis rate-command discontinuity.
 
-    This path is intentionally narrow: it does not treat ordinary actuator commands as
-    root proof. It only records a later critical event when a previously active PWM
-    channel falls to its minimum region while the vehicle remains armed.
+    Ordinary setpoint motion is deliberately excluded from the generic detector. This
+    special path only emits a control-family event when at least two of roll/pitch/yaw
+    rate commands make a large robust jump nearly simultaneously. The paired healthy
+    Follow-Me control log is part of the hard benchmark gate against false positives.
     """
-    arm_times, arm_values = _armed_state_index(series)
-    if not arm_times:
-        return []
+    candidates: list[tuple[str, str, Deviation]] = []
+    for axis in ("roll", "pitch", "yaw"):
+        matching = [
+            (signal, points)
+            for signal, points in series.items()
+            if signal.lower() == f"vehicle_rates_setpoint.{axis}"
+        ]
+        for signal, points in matching:
+            history: deque[Sample] = deque()
+            for point in points:
+                cutoff = point.timestamp_us - 10_000_000
+                while history and history[0].timestamp_us < cutoff:
+                    history.popleft()
+                if len(history) >= 30:
+                    values = [h.value for h in history]
+                    center = median(values)
+                    scale = max(1.4826 * _mad(values, center), 0.05)
+                    delta = abs(point.value - center)
+                    score = delta / scale
+                    if delta >= 0.75 and score >= 10.0:
+                        candidates.append((axis, signal, Deviation(
+                            timestamp_us=point.timestamp_us,
+                            signal=signal,
+                            value=point.value,
+                            baseline=center,
+                            score=round(score, 3),
+                            confidence=_confidence(score, 7.0),
+                            evidence_start_us=max(points[0].timestamp_us, point.timestamp_us - evidence_before_us),
+                            evidence_end_us=min(points[-1].timestamp_us, point.timestamp_us + evidence_after_us),
+                            reason="multi_axis_rate_command_discontinuity",
+                        )))
+                        break
+                history.append(point)
+                while len(history) > 250:
+                    history.popleft()
 
-    found = []
-    for signal, points in series.items():
-        s = signal.lower()
-        if "actuator_outputs" not in s or ".output[" not in s or len(points) < 13:
-            continue
-        history: deque[float] = deque(maxlen=20)
-        for index, point in enumerate(points):
-            if len(history) >= 10:
-                center = median(history)
-                drop = center - point.value
-                persistent = (
-                    index + 2 < len(points)
-                    and points[index + 1].value <= 1100.0
-                    and points[index + 2].value <= 1100.0
-                    and points[index + 2].timestamp_us - point.timestamp_us <= 500_000
-                )
-                if (
-                    center >= 1300.0
-                    and point.value <= 1100.0
-                    and drop >= 400.0
-                    and persistent
-                    and _armed_at(point.timestamp_us, arm_times, arm_values)
-                ):
-                    score = max(7.0, drop / 50.0)
-                    found.append(Deviation(
-                        timestamp_us=point.timestamp_us,
-                        signal=signal,
-                        value=point.value,
-                        baseline=center,
-                        score=round(score, 3),
-                        confidence=_confidence(score, 7.0),
-                        evidence_start_us=max(points[0].timestamp_us, point.timestamp_us - evidence_before_us),
-                        evidence_end_us=min(points[-1].timestamp_us, point.timestamp_us + evidence_after_us),
-                        reason="armed_actuator_output_collapse",
-                    ))
-                    break
-            history.append(point.value)
-    return found
+    candidates.sort(key=lambda item: item[2].timestamp_us)
+    for i, (axis, signal, event) in enumerate(candidates):
+        axes = {axis}
+        group = [event]
+        for other_axis, _, other in candidates[i + 1:]:
+            dt = other.timestamp_us - event.timestamp_us
+            if dt > 250_000:
+                break
+            if dt >= 0:
+                axes.add(other_axis)
+                group.append(other)
+        if len(axes) >= 2:
+            strongest = max(group, key=lambda item: item.score)
+            return [strongest]
+    return []
 
 
 def detect_deviations(
@@ -213,7 +219,7 @@ def detect_deviations(
     evidence_before_us: int = 500_000, evidence_after_us: int = 750_000,
     causal_window_us: int = 3_000_000,
 ) -> list[Deviation]:
-    """Detect meaningful deviations plus narrowly-defined later critical collapses."""
+    """Detect meaningful deviations with a rolling robust baseline."""
     series: dict[str, list[Sample]] = defaultdict(list)
     for sample in sorted(samples, key=lambda s: s.timestamp_us):
         if sample.timestamp_us >= 0 and isfinite(sample.value):
@@ -248,7 +254,7 @@ def detect_deviations(
             while len(history) > max_baseline_points:
                 history.popleft()
 
-    raw.extend(_critical_actuator_collapses(
+    raw.extend(_critical_rate_command_discontinuities(
         series,
         evidence_before_us=evidence_before_us,
         evidence_after_us=evidence_after_us,
@@ -311,7 +317,7 @@ def build_report(samples: list[Sample], source: str, *, deviations: list[Deviati
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry only; estimator state/covariance arrays, validity/reset fields, ordinary actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; estimator test ratios require >1.0; accuracy anomalies cannot root while horizontal/vertical accuracy remains <1 m/<2 m; vibration metrics remain evidence only; a later actuator output may root only for a persistent armed PWM collapse from >=1300 to <=1100 with >=400 drop and downstream motion evidence",
+            "root_candidate_policy": "continuous measured telemetry; estimator state/covariance arrays, validity/reset fields, ordinary actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; estimator test ratios require >1.0; accuracy anomalies cannot root while horizontal/vertical accuracy remains <1 m/<2 m; vibration metrics remain evidence only; control commands may root only for a multi-axis rate-command discontinuity followed by attitude and motion anomalies",
             "evidence_window": "-0.5s/+0.75s",
             "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
             "causal_links": "conservative temporal + signal-family heuristic",
