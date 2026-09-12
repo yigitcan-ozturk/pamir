@@ -47,6 +47,8 @@ def validate_report(report: dict, samples: list) -> list[str]:
 
 def _family(signal: str) -> str:
     s = signal.lower()
+    if "vehicle_rates_setpoint" in s or "vehicle_attitude_setpoint" in s:
+        return "control"
     if "estimator" in s or "innovation" in s or "mag" in s:
         return "estimation"
     if "battery" in s or "voltage" in s or "current" in s:
