@@ -7,7 +7,11 @@ from pamir.engine import build_report, _confidence
 from pamir.ingest import load_ulog
 from pamir.model import Sample
 from scripts.download_px4_benchmarks import validate_ulog
-from scripts.validate_px4_benchmarks import validate_report, compare_pair
+from scripts.validate_px4_benchmarks import (
+    validate_report,
+    compare_pair,
+    validate_causal_timestamps,
+)
 
 
 def fixture_report():
@@ -33,6 +37,61 @@ def test_control_false_positive_fails_gate():
     _, report = fixture_report()
     assert compare_pair(report, deepcopy(report))
     assert compare_pair(report, {'root_event': None}) == []
+
+
+def test_timestamp_causal_validation_requires_strict_downstream_order():
+    root = {
+        'timestamp_us': 1_000_000,
+        'signal': 'estimator_status.pos_vert_accuracy',
+        'relation': None,
+        'parent_signal': None,
+    }
+    attitude = {
+        'timestamp_us': 1_500_000,
+        'signal': 'vehicle_attitude.q[0]',
+        'relation': 'likely_caused',
+        'parent_signal': root['signal'],
+    }
+    motion = {
+        'timestamp_us': 2_000_000,
+        'signal': 'vehicle_local_position.z',
+        'relation': 'likely_caused',
+        'parent_signal': attitude['signal'],
+    }
+    report = {'root_event': root, 'failure_chain': [root, attitude, motion]}
+    metadata = {
+        'expected_root_family': 'estimation',
+        'required_downstream_families': ['attitude', 'motion'],
+    }
+    assert validate_causal_timestamps(report, metadata) == []
+
+    reversed_report = deepcopy(report)
+    reversed_report['failure_chain'][1]['timestamp_us'] = 900_000
+    assert validate_causal_timestamps(reversed_report, metadata)
+
+
+def test_healthy_battery_demand_and_soc_depletion_are_not_failure_roots():
+    samples = []
+    for i in range(40):
+        t = i * 100_000
+        samples.extend([
+            Sample(t, 'battery_status.current_a', 2.0),
+            Sample(t, 'battery_status.remaining', 0.90),
+        ])
+    samples.extend([
+        Sample(4_000_000, 'battery_status.current_a', 20.0),
+        Sample(4_000_000, 'battery_status.remaining', 0.82),
+    ])
+    report = build_report(samples, 'healthy-battery')
+    assert report['root_event'] is None
+    assert report['conclusion'] == 'no_deviation_detected'
+
+
+def test_voltage_collapse_remains_eligible_power_root():
+    samples = [Sample(i * 100_000, 'battery.voltage', 12.0) for i in range(40)]
+    samples.append(Sample(4_000_000, 'battery.voltage', 8.0))
+    report = build_report(samples, 'voltage-collapse')
+    assert report['root_event']['signal'] == 'battery.voltage'
 
 
 def test_confidence_is_monotonic_bounded_heuristic():
