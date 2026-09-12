@@ -4,39 +4,20 @@
 
 > **Tell me what failed first — and prove it.**
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/yigitcan-ozturk/pamir/main/docs/pamir-readme-hero.svg" alt="PAMIR v0.1 autonomous incident reconstruction pipeline and validation summary" width="100%" />
-</p>
-
-PAMIR is an offline forensic analysis engine for autonomous-system telemetry. It reconstructs an incident timeline, identifies the **earliest material root event**, and preserves the timestamped evidence showing what happened next.
-
-```text
-PX4 ULog
-   │
-   ▼
-Normalize telemetry
-   │
-   ▼
-Detect material deviations
-   │
-   ▼
-Identify earliest root event
-   │
-   ├──────────────► Evidence window
-   │
-   ▼
-Validate timestamp ordering
-   │
-   ▼
-Reconstruct causal / follow-up chain
-   │
-   ▼
-Evidence-backed JSON incident report
+```mermaid
+flowchart LR
+    A[PX4 ULog] --> B[Normalize telemetry]
+    B --> C[Detect material deviations]
+    C --> D[Identify earliest root event]
+    D --> E[Validate timestamp ordering]
+    E --> F[Reconstruct incident chain]
+    F --> G[Evidence-backed report]
+    D -.-> H[Evidence window]
 ```
 
-## v0.1 — validated baseline
+PAMIR is an offline forensic analysis engine for autonomous-system telemetry. It reconstructs an incident timeline, identifies the **earliest material root event**, and preserves timestamped evidence showing what happened next.
 
-**PAMIR v0.1 has passed its reproducible public validation gate.**
+## v0.1 — validated baseline
 
 | Validation | Result |
 | --- | ---: |
@@ -46,18 +27,14 @@ Evidence-backed JSON incident report
 | Benchmark inputs | **SHA256 pinned** |
 | Operation | **Local / offline** |
 
-The benchmark is a hard CI gate: public logs are downloaded, cryptographically verified, analyzed, and checked for root-event and timestamp invariants. Detailed measured results are in [`benchmarks/VALIDATION.md`](benchmarks/VALIDATION.md).
+Detailed results: [`benchmarks/VALIDATION.md`](benchmarks/VALIDATION.md)
 
-## What PAMIR returns
+## What PAMIR answers
 
-PAMIR is designed to answer four questions:
-
-1. **What failed first?** — the earliest material root event.
-2. **When did it happen?** — the source telemetry timestamp.
-3. **What happened next?** — a strictly timestamp-ordered incident chain.
-4. **What evidence supports it?** — replayable telemetry observations around each deviation.
-
-Conceptually, a report looks like this:
+1. **What failed first?**
+2. **When did it happen?**
+3. **What happened next?**
+4. **What evidence supports the conclusion?**
 
 ```text
 ROOT EVENT
@@ -69,15 +46,7 @@ ROOT EVENT
    └─ followed_by   ─► motion deviation
 ```
 
-The example above illustrates the report structure. Exact benchmark measurements and detected roots are recorded in the validation snapshot rather than hard-coded into the analyzer.
-
-## Why this is different from anomaly detection
-
-An anomaly detector can tell you that a signal looks unusual. PAMIR's v0.1 objective is narrower and harder: determine the **first defensible material event**, then organize downstream evidence without pretending that temporal correlation proves causation.
-
-Root selection is deliberately conservative. Normal battery demand/SOC depletion, estimator state/covariance/reset fields, ordinary actuator commands, healthy estimator-accuracy changes, and sub-threshold estimator test ratios are not accepted as failure roots. Vibration metrics remain evidence-only.
-
-Control setpoints are excluded from the generic detector. A control-family root is permitted only for a narrow multi-axis rate-command discontinuity followed by attitude and motion anomalies.
+`confidence` is an uncalibrated anomaly-strength heuristic, not a probability of causation. `likely_caused` is a conservative evidence-ordering relationship based on timestamp order, temporal proximity, and signal-family transitions.
 
 ## Quick start
 
@@ -86,21 +55,10 @@ python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e .[dev]
 pytest -q
-```
-
-Analyze a real PX4 ULog:
-
-```bash
 pamir analyze path/to/flight.ulg -o pamir-report.json
 ```
 
-Or run the bundled normalized demo:
-
-```bash
-pamir analyze examples/demo.json -o pamir-report.json
-```
-
-## Reproduce the public PX4 benchmark
+## Reproduce the public benchmark
 
 ```bash
 python scripts/download_px4_benchmarks.py
@@ -109,54 +67,22 @@ python scripts/validate_px4_benchmarks.py
 
 The hard v0.1 corpus contains five directly accessible public incident ULogs and three healthy/control ULogs. Required cases and SHA-256 digests are pinned in [`benchmarks/px4_reproducible_incidents.json`](benchmarks/px4_reproducible_incidents.json).
 
-The corpus covers an indoor estimation-degradation crash, a Follow Me controller-command crash, a position-mode crash, an altitude-hold crash, an uncontrolled-yaw incident, and three labeled healthy/control flights.
+## v0.1 forensic method
 
-The older `benchmarks/px4_public_incidents.json` Flight Review corpus remains optional because `logs.px4.io` currently returns HTTP 403 to hosted CI runners. It does not determine v0.1 completion.
+PAMIR evaluates eligible signals against recent telemetry history using a rolling robust median/MAD baseline. Root selection is intentionally conservative and evidence windows preserve the reported observations around each material deviation.
 
-## Forensic method
+The system enforces:
 
-Each eligible signal is evaluated against recent telemetry history using a rolling robust median/MAD baseline. History is limited to 10 seconds and 250 samples, with at least 30 prior observations.
-
-Each detected deviation can carry:
-
-- source signal and timestamp;
-- anomaly-strength confidence;
-- evidence window;
-- signal family;
-- conservative `likely_caused` or `followed_by` relationship.
-
-`likely_caused` requires strict timestamp order, temporal proximity, and a plausible signal-family transition. It is an evidence-organizing relationship, **not a claim of mathematically proven causation**.
-
-`confidence` is an **uncalibrated anomaly-strength heuristic**, not a probability that the proposed cause is correct.
-
-## v0.1 completion gate
-
-v0.1 requires all of the following:
-
-1. five public incident ULogs and the healthy/control corpus download reproducibly;
-2. required binaries pass SHA-256 verification;
-3. every required ULog parses and analyzes without crashing;
-4. every incident produces a material root with required downstream telemetry strictly after the root timestamp;
-5. every healthy/control ULog produces no material failure root;
-6. evidence windows replay the exact reported observations;
-7. causal links satisfy strict temporal-order invariants;
-8. unit/regression tests and the GitHub Actions benchmark both pass.
+- reproducible public inputs;
+- strict timestamp ordering;
+- bounded finite confidence values;
+- evidence windows containing reported observations;
+- required downstream telemetry after incident roots;
+- no material root on the healthy/control corpus.
 
 ## Validation status — 2026-09-12
 
-**v0.1 reproducible validation gate: PASSED.**
-
-Validated benchmark head: `18c0553affe2a508f686d2285770bb4172b8b859`  
-Final documentation head before merge: `c6d0660b85a12a00af4b7445d5a5605ff8953a2d`  
-PR #2 squash-merged to `main`: `0427a6ef30c7a7a50cf71a491d9cbe41fd3f9dd3`
-
-The validated workflow printed:
-
-```text
-PAMIR v0.1 REPRODUCIBLE VALIDATION GATE PASSED
-```
-
-and generated:
+**PAMIR v0.1 REPRODUCIBLE VALIDATION GATE PASSED**
 
 ```text
 v0_1_complete: true
@@ -166,33 +92,14 @@ required_incident_count: 5
 required_control_count: 3
 ```
 
-All five required incidents produced material roots with zero timestamp-causal validation errors. All three healthy/control logs produced `no_deviation_detected` with no material root.
-
-During benchmark hardening, a candidate "single motor output zero" case was deliberately removed after the upstream PX4 discussion established that the observed output could be intended yaw-control behavior rather than a true failure. PAMIR was **not tuned to force a mislabeled benchmark case to pass**.
-
-See [`benchmarks/VALIDATION.md`](benchmarks/VALIDATION.md) and [`benchmarks/validation_snapshot.json`](benchmarks/validation_snapshot.json) for the measured evidence.
-
-## v0.1 scope
-
-- PX4 ULog ingestion
-- normalized telemetry
-- adaptive rolling median/MAD baseline
-- first material root-event analysis
-- confidence / anomaly-strength scoring
-- evidence windows
-- conservative causal/follow-up relations
-- evidence-backed JSON incident report
-- reproducible public benchmark
-- healthy/control false-positive gate
-- timestamp causal validation
-- local/offline operation
+PR #2 was merged to `main` after the benchmark and regression gates passed.
 
 ## Current direction
 
-v0.1 is intentionally frozen as a validated baseline. The immediate priority is **external validation**: additional public ULogs, real flight-test telemetry, methodology review, and evidence-backed incident cases. New feature families should not weaken the existing validation gate.
+v0.1 is frozen as a validated baseline. The immediate priority is **external validation** against additional public ULogs and real-world telemetry, together with methodology review and evidence-backed incident cases.
 
 Technical criticism and additional public PX4 ULogs are welcome.
 
-## Safety boundary
+## Scope boundary
 
-PAMIR focuses on reliability, telemetry analysis, test/measurement, incident reconstruction, and mission assurance. It is not intended for weapon control, targeting, engagement, or autonomous attack functions.
+PAMIR is focused on reliability, telemetry analysis, test/measurement, incident reconstruction, and mission assurance.
