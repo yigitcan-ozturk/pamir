@@ -1,3 +1,4 @@
+from bisect import bisect_right
 from collections import defaultdict, deque
 from math import exp, isfinite
 from statistics import median
@@ -29,7 +30,6 @@ def _signal_family(signal: str) -> str:
 
 
 def _is_root_candidate(signal: str) -> bool:
-    """Return whether a signal is continuous telemetry suitable for anomaly detection."""
     s = signal.lower()
     excluded = (
         "setpoint", "timestamp", "_integral_dt", ".device_id", ".noutputs",
@@ -42,7 +42,6 @@ def _is_root_candidate(signal: str) -> bool:
 
 
 def _direction_is_material(signal: str, value: float, baseline: float) -> bool:
-    """Apply direction/normalized-gate semantics at anomaly-detection time."""
     s = signal.lower()
     if "test_ratio" in s:
         return value > 1.0
@@ -65,8 +64,10 @@ def _magnitude_floor(signal: str, center: float) -> float:
     return base
 
 
-def _is_measured_actuation_root(signal: str) -> bool:
-    s = signal.lower()
+def _is_measured_actuation_root(deviation: Deviation) -> bool:
+    if deviation.reason == "armed_actuator_output_collapse":
+        return True
+    s = deviation.signal.lower()
     if "actuator_motors" in s and ".control" in s:
         return False
     if "actuator_outputs" in s and ".output" in s:
@@ -79,7 +80,6 @@ def _is_power_root(signal: str) -> bool:
 
 
 def _is_material_estimation_root(deviation: Deviation) -> bool:
-    """Separate detector anomalies from failures material enough to anchor a root."""
     s = deviation.signal.lower()
     if ".vibe[" in s or s.endswith(".vibe"):
         return False
@@ -113,7 +113,7 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
         if family == "power" and not _is_power_root(deviation.signal):
             continue
         if family == "actuation":
-            if not _is_measured_actuation_root(deviation.signal) or deviation.confidence < 0.8:
+            if not _is_measured_actuation_root(deviation) or deviation.confidence < 0.8:
                 continue
         if family == "estimation":
             if not _is_material_estimation_root(deviation):
@@ -131,7 +131,8 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
             for item in deviations[i:]
             if item.timestamp_us <= end
         } & core
-        if "motion" in families and len(families) >= 3:
+        required_families = 2 if deviation.reason == "armed_actuator_output_collapse" else 3
+        if "motion" in families and len(families) >= required_families:
             return i
     if deviations:
         first = deviations[0]
@@ -140,13 +141,79 @@ def _select_material_root_index(deviations: list[Deviation], cluster_window_us: 
     return None
 
 
+def _armed_state_index(series: dict[str, list[Sample]]) -> tuple[list[int], list[float]]:
+    points = series.get("vehicle_status.arming_state", [])
+    return [point.timestamp_us for point in points], [point.value for point in points]
+
+
+def _armed_at(timestamp_us: int, arm_times: list[int], arm_values: list[float]) -> bool:
+    index = bisect_right(arm_times, timestamp_us) - 1
+    return index >= 0 and arm_values[index] == 2.0
+
+
+def _critical_actuator_collapses(
+    series: dict[str, list[Sample]],
+    *,
+    evidence_before_us: int,
+    evidence_after_us: int,
+) -> list[Deviation]:
+    """Find persistent PWM collapses while PX4 still reports the vehicle armed.
+
+    This path is intentionally narrow: it does not treat ordinary actuator commands as
+    root proof. It only records a later critical event when a previously active PWM
+    channel falls to its minimum region while the vehicle remains armed.
+    """
+    arm_times, arm_values = _armed_state_index(series)
+    if not arm_times:
+        return []
+
+    found = []
+    for signal, points in series.items():
+        s = signal.lower()
+        if "actuator_outputs" not in s or ".output[" not in s or len(points) < 13:
+            continue
+        history: deque[float] = deque(maxlen=20)
+        for index, point in enumerate(points):
+            if len(history) >= 10:
+                center = median(history)
+                drop = center - point.value
+                persistent = (
+                    index + 2 < len(points)
+                    and points[index + 1].value <= 1100.0
+                    and points[index + 2].value <= 1100.0
+                    and points[index + 2].timestamp_us - point.timestamp_us <= 500_000
+                )
+                if (
+                    center >= 1300.0
+                    and point.value <= 1100.0
+                    and drop >= 400.0
+                    and persistent
+                    and _armed_at(point.timestamp_us, arm_times, arm_values)
+                ):
+                    score = max(7.0, drop / 50.0)
+                    found.append(Deviation(
+                        timestamp_us=point.timestamp_us,
+                        signal=signal,
+                        value=point.value,
+                        baseline=center,
+                        score=round(score, 3),
+                        confidence=_confidence(score, 7.0),
+                        evidence_start_us=max(points[0].timestamp_us, point.timestamp_us - evidence_before_us),
+                        evidence_end_us=min(points[-1].timestamp_us, point.timestamp_us + evidence_after_us),
+                        reason="armed_actuator_output_collapse",
+                    ))
+                    break
+            history.append(point.value)
+    return found
+
+
 def detect_deviations(
     samples: list[Sample], *, threshold: float = 7.0, min_baseline_points: int = 30,
     baseline_window_us: int = 10_000_000, max_baseline_points: int = 250,
     evidence_before_us: int = 500_000, evidence_after_us: int = 750_000,
     causal_window_us: int = 3_000_000,
 ) -> list[Deviation]:
-    """Detect each signal's first meaningful deviation using a rolling robust baseline."""
+    """Detect meaningful deviations plus narrowly-defined later critical collapses."""
     series: dict[str, list[Sample]] = defaultdict(list)
     for sample in sorted(samples, key=lambda s: s.timestamp_us):
         if sample.timestamp_us >= 0 and isfinite(sample.value):
@@ -181,7 +248,13 @@ def detect_deviations(
             while len(history) > max_baseline_points:
                 history.popleft()
 
-    ordered = sorted(raw, key=lambda d: d.timestamp_us)
+    raw.extend(_critical_actuator_collapses(
+        series,
+        evidence_before_us=evidence_before_us,
+        evidence_after_us=evidence_after_us,
+    ))
+
+    ordered = sorted(raw, key=lambda d: (d.timestamp_us, d.signal, d.reason))
     linked: list[Deviation] = []
     for i, deviation in enumerate(ordered):
         if i == 0:
@@ -199,7 +272,6 @@ def detect_deviations(
 
 
 def build_report(samples: list[Sample], source: str, *, deviations: list[Deviation] | None = None) -> dict:
-    """Build a forensic report, optionally reusing a precomputed deviation pass."""
     if deviations is None:
         deviations = detect_deviations(samples)
     root_index = _select_material_root_index(deviations)
@@ -239,7 +311,7 @@ def build_report(samples: list[Sample], source: str, *, deviations: list[Deviati
         "failure_chain": chain,
         "method": {
             "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
-            "root_candidate_policy": "continuous measured telemetry only; estimator state/covariance arrays, validity/reset fields, command/categorical transitions, actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; PX4 estimator test ratios become detector anomalies only above 1.0; accuracy changes remain visible as anomalies but cannot root a failure while horizontal/vertical accuracy remains in the <1 m/<2 m healthy region; PX4 vibration metrics remain evidence but cannot independently anchor a failure root; v0.1 power roots require voltage degradation; material root requires downstream motion in a multi-family anomaly cluster",
+            "root_candidate_policy": "continuous measured telemetry only; estimator state/covariance arrays, validity/reset fields, ordinary actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; estimator test ratios require >1.0; accuracy anomalies cannot root while horizontal/vertical accuracy remains <1 m/<2 m; vibration metrics remain evidence only; a later actuator output may root only for a persistent armed PWM collapse from >=1300 to <=1100 with >=400 drop and downstream motion evidence",
             "evidence_window": "-0.5s/+0.75s",
             "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
             "causal_links": "conservative temporal + signal-family heuristic",
