@@ -18,6 +18,8 @@ PORTABLE_CASES = (
         "kind": "incident",
         "known_narrative": "Indoor offboard takeoff attempt drifted diagonally and crashed into a wall; the public issue reports rapidly degrading position/attitude estimates.",
         "validation_goal": "Surface an upstream estimation degradation before downstream vehicle-motion consequences.",
+        "expected_root_family": "estimation",
+        "required_downstream_families": ["attitude", "motion"],
     },
     {
         "id": "github-indoor-control-2025",
@@ -75,21 +77,50 @@ def _family(signal: str) -> str:
 
 
 def compare_pair(crash: dict, control: dict) -> list[str]:
-    """Semantic gate for the reproducible public incident/control pair."""
+    """Hard incident/control discrimination gate only."""
     errors = []
-    root = crash["root_event"]
-    if root is None:
+    if crash.get("root_event") is None:
         errors.append("incident has no material root")
-    else:
-        if _family(root["signal"]) != "estimation":
-            errors.append("incident root is not upstream estimation degradation")
-        downstream = [event for event in crash["failure_chain"][1:] if event["timestamp_us"] >= root["timestamp_us"]]
-        downstream_families = {_family(event["signal"]) for event in downstream}
-        if not ({"attitude", "motion"} & downstream_families):
-            errors.append("incident root lacks downstream attitude/motion evidence")
-
-    if control["root_event"] is not None:
+    if control.get("root_event") is not None:
         errors.append("non-crash control has a material failure chain")
+    return errors
+
+
+def validate_causal_timestamps(report: dict, metadata: dict) -> list[str]:
+    """Validate predeclared narrative semantics against telemetry timestamps.
+
+    This does not claim calibrated causation. It requires the inferred root to be in the
+    expected family and strictly precede the requested downstream consequences in the
+    actual ULog clock. Any `likely_caused` edge must also be strictly ordered and inside
+    the engine's three-second causal window.
+    """
+    errors = []
+    root = report.get("root_event")
+    if root is None:
+        return ["incident has no timestamped root event"]
+
+    expected_root = metadata.get("expected_root_family")
+    if expected_root and _family(root["signal"]) != expected_root:
+        errors.append(
+            f"root family {_family(root['signal'])} does not match expected {expected_root}"
+        )
+
+    root_t = root["timestamp_us"]
+    downstream = [event for event in report.get("failure_chain", [])[1:] if event["timestamp_us"] > root_t]
+    downstream_families = {_family(event["signal"]) for event in downstream}
+    for required in metadata.get("required_downstream_families", []):
+        if required not in downstream_families:
+            errors.append(f"missing strictly downstream {required} evidence")
+
+    previous = root
+    for event in report.get("failure_chain", [])[1:]:
+        if event["timestamp_us"] < previous["timestamp_us"]:
+            errors.append("failure chain timestamps are not monotonic")
+        if event.get("relation") == "likely_caused":
+            dt = event["timestamp_us"] - previous["timestamp_us"]
+            if not 0 < dt <= 3_000_000:
+                errors.append("likely_caused edge violates strict temporal window")
+        previous = event
     return errors
 
 
@@ -159,16 +190,12 @@ def main() -> None:
         summary.append(summary_row(case["id"], case["kind"], report))
 
     portable_reports = {}
+    portable_metadata = {case["id"]: case for case in PORTABLE_CASES}
     for case in PORTABLE_CASES:
         path = DATA / f"{case['id']}.ulg"
         if not path.exists():
             raise FileNotFoundError(f"missing portable benchmark ULog: {case['id']}")
-        report = analyze(path, {
-            "benchmark_case": case["id"],
-            "benchmark_kind": case["kind"],
-            "known_narrative": case["known_narrative"],
-            "validation_goal": case["validation_goal"],
-        })
+        report = analyze(path, case)
         portable_reports[case["id"]] = report
         errors.extend(report["validation_errors"])
         summary.append(summary_row(case["id"], case["kind"], report))
@@ -187,7 +214,11 @@ def main() -> None:
     crash = portable_reports["github-indoor-crash-2025"]
     control = portable_reports["github-indoor-control-2025"]
     pair_errors = compare_pair(crash, control)
+    causal_errors = validate_causal_timestamps(
+        crash, portable_metadata["github-indoor-crash-2025"]
+    )
     errors.extend(pair_errors)
+    errors.extend(causal_errors)
 
     if args.require_flight_review and missing_flight_review:
         errors.append("required Flight Review cases missing: " + ", ".join(missing_flight_review))
@@ -206,14 +237,15 @@ def main() -> None:
         "v0_1_complete": passed,
         "validation_passed": passed,
         "validation_errors": errors,
-        "narrative_validation": "portable_public_issue_consistency_checked" if not pair_errors else "portable_public_issue_consistency_failed",
+        "timestamp_causal_validation": "passed" if not causal_errors else "failed",
+        "timestamp_causal_errors": causal_errors,
         "validated": summary,
-        "portable_incident_control_complete": not pair_errors,
+        "portable_incident_control_complete": not pair_errors and not causal_errors,
         "portable_control_gate_passed": control["root_event"] is None,
         "portable_comparison": portable_comparison,
         "flight_review_sources_unavailable": missing_flight_review,
         "flight_review_validation_complete": len(missing_flight_review) == 0,
-        "flight_review_note": "Legacy Flight Review cases are retained as an optional extended corpus; external HTTP 403 does not invalidate the reproducible GitHub-hosted v0.1 gate.",
+        "flight_review_note": "Legacy Flight Review cases remain an extended corpus; v0.1 merge gate is moving to five reproducible public incident ULogs hosted on accessible sources.",
     }
     (OUT / "summary.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
