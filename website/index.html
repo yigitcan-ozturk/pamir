@@ -4,222 +4,134 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PAMIR — Evidence-driven validation for autonomous systems</title>
-  <meta name="description" content="PAMIR is an engineering-led validation framework for turning simulation and real-world autonomous-system data into repeatable, measurable evidence." />
+  <meta name="description" content="PAMIR is an engineering-led validation framework for turning real-world autonomous-system data into repeatable, measurable evidence." />
   <meta property="og:title" content="PAMIR — Evidence-driven validation for autonomous systems" />
   <meta property="og:description" content="Repeatable validation. Measurable evidence. Real-world confidence." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://pamir.pamilanga.com/" />
   <link rel="stylesheet" href="/styles.css" />
-
-  <style id="pamir-cinematic-live">
-    .hero{background-image:linear-gradient(90deg,rgba(5,9,12,.98) 0%,rgba(5,9,12,.86) 34%,rgba(5,9,12,.35) 68%,rgba(5,9,12,.10) 100%),linear-gradient(to top,rgba(4,8,10,.46),transparent 45%),url("https://images.unsplash.com/photo-1781847675800-dcb08da56de9?auto=format&fit=crop&q=88&w=2400")!important;background-size:cover!important;background-position:center 44%!important;background-repeat:no-repeat!important}
-    .hero::before{background:radial-gradient(circle at 78% 34%,rgba(255,184,105,.10),transparent 26%)!important;opacity:1!important}
-    .hero-overlay{background:linear-gradient(to right,rgba(4,8,10,.35),transparent 72%),linear-gradient(to top,rgba(3,6,8,.58),transparent 46%)!important}
-    .visual{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;filter:saturate(.9) contrast(1.05);transition:filter .25s ease,transform .25s ease}
-    .visual::after{background:linear-gradient(to top,rgba(2,7,10,.58),transparent 56%),linear-gradient(120deg,rgba(5,9,12,.10),transparent 50%)!important}
-    .visual-uav{background-image:url("https://images.unsplash.com/photo-1781847675800-dcb08da56de9?auto=format&fit=crop&q=84&w=1200")!important}
-    .visual-robotics{background-image:url("https://images.unsplash.com/photo-1665238456957-48788e0a3e16?auto=format&fit=crop&q=84&w=1200")!important}
-    .visual-industrial{background-image:url("https://images.unsplash.com/photo-1665238456957-48788e0a3e16?auto=format&fit=crop&q=84&w=1200&sat=-20")!important;background-position:center 62%!important}
-    .visual-mobility{background-image:url("https://images.unsplash.com/photo-1671017437423-4e74b08cde85?auto=format&fit=crop&q=84&w=1200")!important}
-    .application-card{transition:transform .25s ease}
-    .application-card:hover{transform:translateY(-3px)}
-    .application-card:hover .visual{filter:saturate(1) contrast(1.09)}
-    @media(max-width:700px){.hero{background-position:62% center!important}}
-  </style>
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="PAMIR home">
-      <img src="data:image/png;base64,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" alt="PAMILANGA LTD" width="52" height="56" style="display:block;width:52px;height:56px;object-fit:contain" />
-      <span class="brand-name">PAMIR</span>
-    </a>
-    <nav class="nav">
-      <a href="#technology">Technology</a>
-      <a href="#applications">Applications</a>
-      <a href="#evidence">Validation</a>
-      <a href="#investors">Investors</a>
-      <a href="mailto:pamir@pamilanga.com">Contact</a>
-    </nav>
-    <a class="button button-dark header-cta" href="mailto:pamir@pamilanga.com?subject=PAMIR%20Pilot%20Discussion">Discuss a pilot</a>
-  </header>
+<header class="site-header">
+  <a class="brand" href="#top" aria-label="PAMIR home">
+    <img src="/pamilanga-logo-white.svg" alt="PAMILANGA LTD" class="brand-logo" />
+    <span class="brand-divider"></span>
+    <span class="brand-name">PAMIR</span>
+  </a>
+  <nav class="nav">
+    <a href="#technology">Technology</a>
+    <a href="#applications">Applications</a>
+    <a href="#evidence">Validation</a>
+    <a href="#investors">Investors</a>
+    <a href="mailto:pamir@pamilanga.com">Contact</a>
+  </nav>
+  <a class="button button-ghost header-cta" href="mailto:pamir@pamilanga.com?subject=PAMIR%20Pilot%20Discussion">Discuss a pilot →</a>
+</header>
 
-  <main id="top">
-    <section class="hero">
-      <div class="hero-overlay"></div>
-      <div class="hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">PAMIR</p>
-          <h1>Evidence-driven validation for autonomous systems.</h1>
-          <p class="hero-text">
-            An open, engineering-led framework for turning simulation and real-world data into repeatable validation evidence.
-          </p>
-          <div class="hero-actions">
-            <a class="button button-light" href="#evidence">Explore the evidence</a>
-            <a class="button button-ghost" href="mailto:pamir@pamilanga.com?subject=PAMIR%20Pilot%20Discussion">Discuss a pilot</a>
-          </div>
-          <p class="micro">DATA. VALIDATION. REAL-WORLD IMPACT.</p>
+<main id="top">
+  <section class="hero">
+    <div class="hero-shade"></div>
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow">PAMIR</p>
+        <h1>Evidence-driven validation for autonomous systems.</h1>
+        <p class="hero-text">An engineering-led framework for turning real-world data into repeatable validation evidence.</p>
+        <div class="hero-actions">
+          <a class="button button-light" href="#evidence">Explore the evidence →</a>
+          <a class="button button-ghost" href="mailto:pamir@pamilanga.com?subject=PAMIR%20Pilot%20Discussion">Discuss a pilot</a>
         </div>
-
-        <div class="hero-proof">
-          <div class="proof-card">
-            <span>BASELINE</span>
-            <strong>v0.1.0 frozen and reproducible</strong>
-          </div>
-          <div class="proof-card">
-            <span>EXTERNAL EVIDENCE</span>
-            <strong>3 / 3 clean-log PASS</strong>
-          </div>
-          <div class="proof-card">
-            <span>NEXT</span>
-            <strong>Evidence pack → pilot</strong>
-          </div>
-        </div>
+        <p class="micro">DATA. VALIDATION. REAL-WORLD IMPACT.</p>
       </div>
-    </section>
-
-    <section class="section challenge">
-      <div class="section-index">01</div>
-      <div>
-        <p class="eyebrow dark">The challenge</p>
-        <h2>Autonomous systems are advancing — but proving them is hard.</h2>
-      </div>
-      <p class="section-copy">
-        Development, testing and deployment are often fragmented. PAMIR is being built to connect simulation, real-world logs and repeatable evaluation into one evidence-led validation workflow.
-      </p>
-      <div class="challenge-list">
-        <span>Complex environments</span>
-        <span>Fragmented data</span>
-        <span>Limited validation standards</span>
-        <span>Slow real-world deployment</span>
-      </div>
-    </section>
-
-    <section id="technology" class="section dark-section">
-      <div class="section-index">02</div>
-      <div class="section-heading">
-        <p class="eyebrow">Our approach</p>
-        <h2>From data to real-world confidence.</h2>
-        <p>A modular path that connects controlled testing, real-world data and measurable evidence.</p>
-      </div>
-
-      <div class="pipeline">
-        <article><span>01</span><h3>Simulation</h3><p>Controlled test environments.</p></article>
-        <div class="arrow">→</div>
-        <article><span>02</span><h3>Data</h3><p>Real-world log collection.</p></article>
-        <div class="arrow">→</div>
-        <article><span>03</span><h3>Validation</h3><p>Repeatable benchmark runs.</p></article>
-        <div class="arrow">→</div>
-        <article><span>04</span><h3>Evidence</h3><p>Open and measurable outputs.</p></article>
-        <div class="arrow">→</div>
-        <article><span>05</span><h3>Deployment</h3><p>Confidence for field operations.</p></article>
-      </div>
-    </section>
-
-    <section id="applications" class="section applications">
-      <div class="section-index">03</div>
-      <div class="section-heading">
-        <p class="eyebrow dark">Applications</p>
-        <h2>A wider impact across autonomous systems.</h2>
-      </div>
-
-      <div class="application-grid">
-        <article class="application-card">
-          <div class="visual visual-uav"></div>
-          <h3>UAVs</h3>
-          <p>Aerial systems for inspection, mapping and field operations.</p>
-        </article>
-        <article class="application-card">
-          <div class="visual visual-robotics"></div>
-          <h3>Robotics</h3>
-          <p>Autonomous machines operating in complex environments.</p>
-        </article>
-        <article class="application-card">
-          <div class="visual visual-industrial"></div>
-          <h3>Industrial autonomy</h3>
-          <p>Validation for safety-critical and operational workflows.</p>
-        </article>
-        <article class="application-card">
-          <div class="visual visual-mobility"></div>
-          <h3>Autonomous mobility</h3>
-          <p>Evidence-led testing for mobile autonomous systems.</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="evidence" class="section evidence">
-      <div class="section-index">04</div>
-      <div class="section-heading">
-        <p class="eyebrow dark">Validation / evidence</p>
-        <h2>Transparent. Measurable. Reproducible.</h2>
-        <p>
-          PAMIR publishes only verified outputs from the frozen validation baseline and clearly separates benchmark evidence from supplemental external checks.
-        </p>
-      </div>
-
-      <div class="evidence-panel">
-        <div class="evidence-topbar">
-          <span>PAMIR Evidence Console</span>
-          <span class="status-pill">Verified evidence</span>
-        </div>
-        <div class="metric-grid">
-          <div><span>Frozen baseline</span><strong>v0.1.0</strong></div>
-          <div><span>Hard CI corpus</span><strong>5 incident / 3 control</strong></div>
-          <div><span>External clean-log batch</span><strong>3 / 3 PASS</strong></div>
-          <div><span>Evidence format</span><strong>ULog / benchmark artifacts</strong></div>
-        </div>
-        <div class="chart-placeholder" role="group" aria-label="Verified PAMIR external validation summary">
-          <p><strong>External clean-log validation — 14 Sep 2026</strong></p>
-          <p>Case #010 — PASS · no material root</p>
-          <p>Case #011 — PASS · no material root</p>
-          <p>Case #012 — PASS · 91,052 samples · 475 signals · no material root</p>
-          <p>Batch result: <strong>3 / 3 CLEAN PASS</strong></p>
-          <p>Supplemental evidence only. The frozen v0.1 detection policy, thresholds, required corpus and CI semantics remain unchanged.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section roadmap">
-      <div class="section-index">05</div>
-      <div class="section-heading">
-        <p class="eyebrow dark">Roadmap</p>
-        <h2>Build → validate → evidence → pilot → productise.</h2>
-      </div>
-      <div class="roadmap-line">
-        <div class="roadmap-item complete"><span></span><strong>v0.1</strong><small>Frozen baseline</small></div>
-        <div class="roadmap-item complete"><span></span><strong>Validation gate</strong><small>Reproducible PASS</small></div>
-        <div class="roadmap-item complete"><span></span><strong>External evidence</strong><small>3 / 3 clean-log PASS</small></div>
-        <div class="roadmap-item active"><span></span><strong>Evidence pack</strong><small>Pilot-ready packaging</small></div>
-        <div class="roadmap-item"><span></span><strong>Pilot</strong><small>Field deployment</small></div>
-      </div>
-    </section>
-
-    <section id="investors" class="investor-band">
-      <div>
-        <p class="eyebrow">Investors</p>
-        <h2>Building toward a €250k–€500k pre-seed round.</h2>
-      </div>
-      <p>
-        PAMIR is being prepared for pilot deployment and the next stage of product development. Funding language remains clearly framed as a target until a round is formally opened.
-      </p>
-      <a class="button button-light" href="mailto:pamir@pamilanga.com?subject=PAMIR%20Investor%20Introduction">Investor contact</a>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="footer-brand">
-      <img src="data:image/png;base64,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" alt="PAMILANGA LTD" width="54" height="58" style="display:block;width:54px;height:58px;object-fit:contain" />
-      <span>
-        <strong>PAMIR</strong>
-        <small>An autonomous-systems venture by PAMILANGA LIMITED</small>
-      </span>
+      <aside class="hero-proof" aria-label="PAMIR validation status">
+        <div><span>BASELINE</span><strong>v0.1.0 frozen and reproducible</strong></div>
+        <div><span>EXTERNAL EVIDENCE</span><strong class="green">3 / 3 clean-log PASS</strong></div>
+        <div><span>NEXT</span><strong>Evidence pack → pilot</strong></div>
+      </aside>
     </div>
-    <div class="footer-links">
-      <a href="mailto:pamir@pamilanga.com">pamir@pamilanga.com</a>
-      <a href="https://www.pamilanga.com/">PAMILANGA LIMITED</a>
-    </div>
-    <small>© 2026 PAMILANGA LIMITED. PAMIR.</small>
-  </footer>
+  </section>
 
-  <script src="/script.js"></script>
+  <section id="technology" class="intro">
+    <div class="section-kicker">WHY PAMIR</div>
+    <div class="intro-grid">
+      <h2>Autonomous systems are advancing. Proving them is still hard.</h2>
+      <p>PAMIR connects operational logs, repeatable analysis and transparent evidence so technical teams can move from isolated incidents to defensible validation.</p>
+    </div>
+    <div class="principles">
+      <article><span>01</span><h3>Real-world data</h3><p>Evidence starts with operational logs and traceable artifacts.</p></article>
+      <article><span>02</span><h3>Repeatable validation</h3><p>Frozen baselines and reproducible gates protect the integrity of results.</p></article>
+      <article><span>03</span><h3>Explainable outputs</h3><p>Findings stay grounded in observed signals, timestamps and evidence windows.</p></article>
+    </div>
+  </section>
+
+  <section id="applications" class="applications">
+    <div class="section-head">
+      <div>
+        <p class="section-kicker">APPLICATIONS</p>
+        <h2>From data to real-world capability.</h2>
+      </div>
+      <p>One validation layer across multiple autonomous-system environments.</p>
+    </div>
+    <div class="application-grid">
+      <article class="application-card uav"><div class="card-media"></div><div class="card-copy"><h3>UAV & Aerial Systems</h3><p>Validation for safer and more reliable autonomy in the air.</p><span>→</span></div></article>
+      <article class="application-card robotics"><div class="card-media"></div><div class="card-copy"><h3>Robotics & Field Autonomy</h3><p>Real-world validation for complex, dynamic environments.</p><span>→</span></div></article>
+      <article class="application-card industrial"><div class="card-media"></div><div class="card-copy"><h3>Industrial Autonomy</h3><p>Evidence for safety-critical and operational workflows.</p><span>→</span></div></article>
+      <article class="application-card mobility"><div class="card-media"></div><div class="card-copy"><h3>Mobility & Transportation</h3><p>Evidence-led testing for next-generation autonomous mobility.</p><span>→</span></div></article>
+    </div>
+  </section>
+
+  <section id="evidence" class="evidence">
+    <div class="evidence-copy">
+      <p class="section-kicker">VALIDATION</p>
+      <h2>From logs to confidence.</h2>
+      <p>PAMIR publishes only verified outputs from the frozen validation baseline and clearly separates benchmark evidence from supplemental external checks.</p>
+      <a class="text-link" href="https://github.com/yigitcan-ozturk/pamir" target="_blank" rel="noopener">View technical repository →</a>
+    </div>
+    <div class="metrics">
+      <article><strong>3 / 3</strong><span>CLEAN-LOG PASS</span><small>Supplemental external validation batch</small></article>
+      <article><strong>5 + 3</strong><span>HARD CI CORPUS</span><small>5 incident logs + 3 healthy controls</small></article>
+      <article><strong>v0.1.0</strong><span>FROZEN BASELINE</span><small>Required corpus and CI semantics unchanged</small></article>
+    </div>
+  </section>
+
+  <section class="mission">
+    <div class="mission-shade"></div>
+    <div class="mission-copy">
+      <p class="section-kicker">BUILT FOR</p>
+      <h2>A safer, more autonomous world.</h2>
+      <p>PAMIR supports the development of autonomous systems through evidence, transparency and real-world validation.</p>
+    </div>
+  </section>
+
+  <section id="investors" class="investor-band">
+    <div>
+      <p class="section-kicker">INVESTORS</p>
+      <h2>Building toward a €250k–€500k pre-seed round.</h2>
+      <p>PAMIR is being prepared for pilot deployment and the next stage of product development.</p>
+    </div>
+    <a class="button button-light" href="mailto:pamir@pamilanga.com?subject=PAMIR%20Investor%20Introduction">Investor contact →</a>
+  </section>
+
+  <section class="cta">
+    <div><p class="section-kicker">LET'S BUILD WHAT'S NEXT.</p><h2>Partner with us, test with us, or explore how PAMIR can support your autonomous systems.</h2></div>
+    <a class="button button-ghost" href="mailto:pamir@pamilanga.com?subject=PAMIR%20Pilot%20Discussion">Discuss a pilot →</a>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-brand">
+    <img src="/pamilanga-logo-white.svg" alt="PAMILANGA LTD" />
+    <span>PAMIR</span>
+  </div>
+  <div class="footer-links">
+    <a href="#technology">Technology</a>
+    <a href="#applications">Applications</a>
+    <a href="#evidence">Validation</a>
+    <a href="#investors">Investors</a>
+    <a href="mailto:pamir@pamilanga.com">Contact</a>
+  </div>
+  <div class="footer-meta">DATA. VALIDATION.<br>REAL-WORLD IMPACT.</div>
+</footer>
+
+<script src="/script.js"></script>
 </body>
 </html>
