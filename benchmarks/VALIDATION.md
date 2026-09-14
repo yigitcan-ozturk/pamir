@@ -62,3 +62,29 @@ During hardening, PX4 issue #25762 was deliberately removed from the incident co
 ## Interpretation limits
 
 `confidence` is an uncalibrated anomaly-strength heuristic, not a probability of causation. `likely_caused` is a conservative temporal/signal-family relationship, not mathematical proof of causality. v0.1 is an incident-reconstruction and evidence-ordering engine; calibrated causal inference remains future work.
+
+## External clean-log validation batch - 2026-09-14
+
+Frozen PAMIR v0.1.0 was evaluated against three additional external PX4 ULogs as a false-positive check. These logs are not part of the required v0.1 CI corpus and do not change the frozen benchmark gate.
+
+| Case | Result | Samples | Signals | Material root |
+| --- | --- | ---: | ---: | --- |
+| #010 | PASS | n/a | n/a | none |
+| #011 | PASS | n/a | n/a | none |
+| #012 | PASS | 91,052 | 475 | none |
+
+Case #012 source: `cb7e343b-1db2-407a-8714-647a1acec12d.ulg`.
+
+PAMIR v0.1.0 reported:
+
+```text
+raw_deviation_count: 35
+root_event: null
+first_deviation: null
+failure_chain: []
+conclusion: no_deviation_detected
+```
+
+Batch result: **3 / 3 CLEAN PASS**.
+
+These results are supplemental external validation evidence only. They do not modify the frozen v0.1 detection policy, thresholds, required corpus, or CI pass/fail semantics.
