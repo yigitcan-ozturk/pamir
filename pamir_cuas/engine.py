@@ -60,10 +60,22 @@ def analyze_incident(incident: dict[str, Any]) -> dict[str, Any]:
         if obs.age_ms > STALE_THRESHOLD_MS:
             anomalies.append({"type": "TEMPORAL_STALE_EVIDENCE", "observation_id": obs.observation_id, "source_id": obs.source_id, "age_ms": obs.age_ms})
 
+    # Arrival order is authoritative for reconstruction. If event time moves
+    # backwards within the same track, the later-arriving observation is
+    # temporally inconsistent. Materiality is proven separately by replay.
+    by_track: dict[str, list[Observation]] = {}
+    for obs in observations:
+        if obs.track_id is not None:
+            by_track.setdefault(obs.track_id, []).append(obs)
+    for track_id, track_obs in sorted(by_track.items()):
+        max_event_time = -1
+        for obs in track_obs:
+            if obs.event_time_ms < max_event_time:
+                anomalies.append({"type": "TEMPORAL_OUT_OF_ORDER", "observation_id": obs.observation_id, "source_id": obs.source_id, "track_id": track_id, "event_time_ms": obs.event_time_ms, "previous_max_event_time_ms": max_event_time})
+            max_event_time = max(max_event_time, obs.event_time_ms)
+
     threat_obs = [o for o in observations if o.supports_threat]
     non_threat_obs = [o for o in observations if not o.supports_threat]
-    # Disagreement means contradictory fresh evidence exists. Materiality is not
-    # assumed here; it is established separately by counterfactual replay.
     if threat_obs and non_threat_obs:
         anomalies.append({"type": "SENSOR_DISAGREEMENT", "max_threat_confidence": max(o.confidence for o in threat_obs), "max_non_threat_confidence": max(o.confidence for o in non_threat_obs)})
 
@@ -76,6 +88,7 @@ def analyze_incident(incident: dict[str, Any]) -> dict[str, Any]:
     counterfactuals: list[dict[str, Any]] = []
     causal_findings: list[dict[str, Any]] = []
     stale_ids = {a["observation_id"] for a in anomalies if a["type"] == "TEMPORAL_STALE_EVIDENCE"}
+    out_of_order_ids = {a["observation_id"] for a in anomalies if a["type"] == "TEMPORAL_OUT_OF_ORDER"}
 
     for obs_id in sorted(stale_ids):
         replay_obs = [o for o in observations if o.observation_id != obs_id]
@@ -87,9 +100,19 @@ def analyze_incident(incident: dict[str, Any]) -> dict[str, Any]:
             source = next(o.source_id for o in observations if o.observation_id == obs_id)
             causal_findings.append({"cause": "TEMPORAL_STALE_EVIDENCE", "observation_id": obs_id, "source_id": source, "evidence": "removing the stale observation changes the fused decision"})
 
+    for obs_id in sorted(out_of_order_ids - stale_ids):
+        replay_obs = [o for o in observations if o.observation_id != obs_id]
+        replay_score = _fuse(replay_obs)
+        replay_decision = _decision(replay_score)
+        changed = replay_decision != baseline_decision
+        counterfactuals.append({"kind": "EXCLUDE_OUT_OF_ORDER_EVIDENCE", "excluded_observation_id": obs_id, "score": replay_score, "decision": replay_decision, "changed_outcome": changed})
+        if changed:
+            source = next(o.source_id for o in observations if o.observation_id == obs_id)
+            causal_findings.append({"cause": "TEMPORAL_OUT_OF_ORDER", "observation_id": obs_id, "source_id": source, "evidence": "removing the out-of-order observation changes the fused decision"})
+
     if any(a["type"] == "SENSOR_DISAGREEMENT" for a in anomalies):
         for obs in observations:
-            if obs.observation_id in stale_ids:
+            if obs.observation_id in stale_ids or obs.observation_id in out_of_order_ids:
                 continue
             replay_obs = [o for o in observations if o.observation_id != obs.observation_id]
             replay_score = _fuse(replay_obs)
