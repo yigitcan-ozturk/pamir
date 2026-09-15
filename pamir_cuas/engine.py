@@ -7,7 +7,6 @@ from typing import Any, Iterable
 
 
 STALE_THRESHOLD_MS = 300
-DISAGREEMENT_THRESHOLD = 0.45
 DECISION_THRESHOLD = 0.60
 
 
@@ -63,11 +62,10 @@ def analyze_incident(incident: dict[str, Any]) -> dict[str, Any]:
 
     threat_obs = [o for o in observations if o.supports_threat]
     non_threat_obs = [o for o in observations if not o.supports_threat]
+    # Disagreement means contradictory fresh evidence exists. Materiality is not
+    # assumed here; it is established separately by counterfactual replay.
     if threat_obs and non_threat_obs:
-        max_threat = max(o.confidence for o in threat_obs)
-        max_non_threat = max(o.confidence for o in non_threat_obs)
-        if abs(max_threat - max_non_threat) <= DISAGREEMENT_THRESHOLD:
-            anomalies.append({"type": "SENSOR_DISAGREEMENT", "max_threat_confidence": max_threat, "max_non_threat_confidence": max_non_threat})
+        anomalies.append({"type": "SENSOR_DISAGREEMENT", "max_threat_confidence": max(o.confidence for o in threat_obs), "max_non_threat_confidence": max(o.confidence for o in non_threat_obs)})
 
     outcome = "CORRECT"
     if baseline_decision and not truth.threat_present:
@@ -77,8 +75,8 @@ def analyze_incident(incident: dict[str, Any]) -> dict[str, Any]:
 
     counterfactuals: list[dict[str, Any]] = []
     causal_findings: list[dict[str, Any]] = []
-
     stale_ids = {a["observation_id"] for a in anomalies if a["type"] == "TEMPORAL_STALE_EVIDENCE"}
+
     for obs_id in sorted(stale_ids):
         replay_obs = [o for o in observations if o.observation_id != obs_id]
         replay_score = _fuse(replay_obs)
@@ -89,8 +87,6 @@ def analyze_incident(incident: dict[str, Any]) -> dict[str, Any]:
             source = next(o.source_id for o in observations if o.observation_id == obs_id)
             causal_findings.append({"cause": "TEMPORAL_STALE_EVIDENCE", "observation_id": obs_id, "source_id": source, "evidence": "removing the stale observation changes the fused decision"})
 
-    # CUAS-002: when sensors disagree, test each observation rather than merely
-    # reporting correlation. A finding is causal only if exclusion flips the decision.
     if any(a["type"] == "SENSOR_DISAGREEMENT" for a in anomalies):
         for obs in observations:
             if obs.observation_id in stale_ids:
@@ -103,8 +99,5 @@ def analyze_incident(incident: dict[str, Any]) -> dict[str, Any]:
             if changed:
                 causal_findings.append({"cause": "SENSOR_DISAGREEMENT", "observation_id": obs.observation_id, "source_id": obs.source_id, "evidence": "excluding the disagreeing observation changes the fused decision"})
 
-    evidence_graph = {
-        "nodes": [*[{"id": o.observation_id, "type": "SensorObservation", **asdict(o), "age_ms": o.age_ms} for o in observations], {"id": "fusion:baseline", "type": "FusionDecision", "score": baseline_score}, {"id": "ground_truth", "type": "GroundTruth", "threat_present": truth.threat_present}],
-        "edges": [*[{"from": o.observation_id, "to": "fusion:baseline", "type": "CONTRIBUTED_TO"} for o in observations], {"from": "fusion:baseline", "to": "ground_truth", "type": "COMPARED_WITH"}],
-    }
+    evidence_graph = {"nodes": [*[{"id": o.observation_id, "type": "SensorObservation", **asdict(o), "age_ms": o.age_ms} for o in observations], {"id": "fusion:baseline", "type": "FusionDecision", "score": baseline_score}, {"id": "ground_truth", "type": "GroundTruth", "threat_present": truth.threat_present}], "edges": [*[{"from": o.observation_id, "to": "fusion:baseline", "type": "CONTRIBUTED_TO"} for o in observations], {"from": "fusion:baseline", "to": "ground_truth", "type": "COMPARED_WITH"}]}
     return {"incident_id": incident.get("incident_id", "unknown"), "baseline": {"score": baseline_score, "decision": baseline_decision, "ground_truth": truth.threat_present, "outcome": outcome}, "anomalies": anomalies, "counterfactuals": counterfactuals, "causal_findings": causal_findings, "evidence_graph": evidence_graph, "pass": bool(causal_findings) and outcome in {"FALSE_POSITIVE", "MISSED_DETECTION"}}
