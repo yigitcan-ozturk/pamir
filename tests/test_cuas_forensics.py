@@ -21,18 +21,12 @@ def test_cuas_001_stale_rf_causes_false_positive():
 
 
 def test_cuas_002_disagreeing_sensor_materially_causes_false_positive():
-    """A fresh but contradictory high-confidence observation drives a wrong result.
-
-    The gate requires both disagreement detection and counterfactual evidence that
-    removing the responsible observation changes the decision. This is a forensic
-    validation case, not an operational sensor-fusion algorithm.
-    """
     incident = {
         "incident_id": "CUAS-002",
         "ground_truth": {"threat_present": False},
         "observations": [
-            {"source_id": "radar-A", "observation_id": "radar-002", "event_time_ms": 2000, "ingest_time_ms": 2040, "confidence": 0.25, "supports_threat": False, "track_id": "T-22"},
-            {"source_id": "eo-A", "observation_id": "eo-002", "event_time_ms": 2010, "ingest_time_ms": 2050, "confidence": 0.15, "supports_threat": False, "track_id": "T-22"},
+            {"source_id": "radar-A", "observation_id": "radar-002", "event_time_ms": 2000, "ingest_time_ms": 2040, "confidence": 0.20, "supports_threat": False, "track_id": "T-22"},
+            {"source_id": "eo-A", "observation_id": "eo-002", "event_time_ms": 2010, "ingest_time_ms": 2050, "confidence": 0.10, "supports_threat": False, "track_id": "T-22"},
             {"source_id": "rf-A", "observation_id": "rf-002", "event_time_ms": 2020, "ingest_time_ms": 2060, "confidence": 0.99, "supports_threat": True, "track_id": "T-22"},
         ],
     }
