@@ -1,0 +1,1 @@
+Current branch head is ready for CI result inspection.
