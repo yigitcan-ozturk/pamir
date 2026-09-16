@@ -1,0 +1,1 @@
+Acceptance workflow checkpoint; read GitHub Actions conclusion.
