@@ -1,0 +1,1 @@
+Inspect workflow conclusion for the current branch head.
