@@ -1,0 +1,1 @@
+Next: read the workflow result for the current acceptance head.
