@@ -1,0 +1,1 @@
+The current GitHub Actions conclusion is authoritative for demonstrator readiness.
