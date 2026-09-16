@@ -1,0 +1,1 @@
+Inspect the latest GitHub Actions run for final acceptance.
