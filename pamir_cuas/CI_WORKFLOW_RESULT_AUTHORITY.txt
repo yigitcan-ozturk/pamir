@@ -1,0 +1,1 @@
+Current GitHub Actions conclusion determines demonstrator-ready status.
