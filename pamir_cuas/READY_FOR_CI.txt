@@ -1,0 +1,1 @@
+PAMIR-CUAS final demonstrator acceptance assets are ready for CI verification.
