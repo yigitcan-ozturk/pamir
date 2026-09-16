@@ -1,0 +1,1 @@
+Current branch head is the acceptance candidate to verify.
