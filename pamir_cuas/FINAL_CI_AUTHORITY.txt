@@ -1,0 +1,1 @@
+Current branch-head CI is the final repository-level acceptance authority.
