@@ -1,0 +1,1 @@
+Read GitHub Actions for the current branch head to determine final status.
