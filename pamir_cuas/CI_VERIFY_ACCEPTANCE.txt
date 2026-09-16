@@ -1,0 +1,1 @@
+GitHub Actions result for this branch head determines final acceptance.
