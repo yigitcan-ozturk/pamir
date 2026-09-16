@@ -1,0 +1,1 @@
+Use the current workflow conclusion to decide demonstrator-ready status.
