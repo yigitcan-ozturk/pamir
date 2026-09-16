@@ -1,0 +1,1 @@
+Final definitive acceptance head; verify with GitHub Actions.
