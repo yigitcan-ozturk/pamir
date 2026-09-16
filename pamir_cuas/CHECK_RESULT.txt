@@ -1,0 +1,1 @@
+Check workflow result for final acceptance candidate.
