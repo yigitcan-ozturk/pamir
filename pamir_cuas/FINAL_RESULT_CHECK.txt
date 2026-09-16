@@ -1,0 +1,1 @@
+Final result check: GitHub Actions conclusion on current branch head.
