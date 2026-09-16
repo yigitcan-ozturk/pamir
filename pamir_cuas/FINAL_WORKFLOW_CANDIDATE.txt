@@ -1,0 +1,1 @@
+Final workflow candidate. GitHub Actions success closes the repository gate.
