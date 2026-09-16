@@ -1,0 +1,1 @@
+Current head is the final repository acceptance candidate.
