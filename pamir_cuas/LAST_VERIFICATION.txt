@@ -1,0 +1,1 @@
+Last repository-side verification marker; acceptance now depends on CI.
