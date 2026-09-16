@@ -1,0 +1,1 @@
+Final CI workflow checkpoint; acceptance depends on conclusion.
