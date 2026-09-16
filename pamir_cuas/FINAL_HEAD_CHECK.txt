@@ -1,0 +1,1 @@
+Use GitHub Actions result for this head as the acceptance decision.
