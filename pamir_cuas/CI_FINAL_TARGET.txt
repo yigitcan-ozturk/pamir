@@ -1,0 +1,1 @@
+Final target for GitHub Actions acceptance verification.
