@@ -1,0 +1,1 @@
+PAMIR-CUAS demonstrator acceptance package submitted to branch CI.
