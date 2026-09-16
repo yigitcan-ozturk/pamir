@@ -1,0 +1,1 @@
+Acceptance candidate locked for final CI verification.
