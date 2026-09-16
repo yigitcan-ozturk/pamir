@@ -1,4 +1,4 @@
-from pamir_cuas.adapters.mmaud import associate_nearest_frames, validate_temporal_association
+from pamir_cuas.adapters.mmaud import associate_nearest_frames, temporal_gate_passes
 
 
 def test_r01_mmaud_temporal_association_gate():
@@ -20,12 +20,13 @@ def test_r01_mmaud_temporal_association_gate():
         "1692846888.245318.npy",
     ]
 
-    associations = associate_nearest_frames(ground_truth, radar)
-    result = validate_temporal_association(ground_truth, radar, max_delta_ms=40.0)
+    associations = associate_nearest_frames(
+        ground_truth, radar, max_delta_ms=40.0
+    )
 
     assert len(associations) == len(ground_truth)
     assert associations[0]["radar_file"] == "1692846887.846020.npy"
     assert associations[0]["delta_ms"] < 20.0
     assert max(item["delta_ms"] for item in associations) < 40.0
-    assert result["pass"] is True
-    assert result["matched_ground_truth_frames"] == 3
+    assert temporal_gate_passes(associations) is True
+    assert all(item["within_gate"] for item in associations)
