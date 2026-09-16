@@ -1,0 +1,1 @@
+Acceptance package is submitted for GitHub Actions verification.
