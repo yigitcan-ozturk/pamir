@@ -1,0 +1,1 @@
+Final acceptance authority is the current GitHub Actions conclusion.
