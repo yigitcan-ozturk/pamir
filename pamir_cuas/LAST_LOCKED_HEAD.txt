@@ -1,0 +1,1 @@
+Final acceptance head locked. CI conclusion is authoritative.
