@@ -1,0 +1,1 @@
+Final acceptance head locked. GitHub Actions result is authoritative.
