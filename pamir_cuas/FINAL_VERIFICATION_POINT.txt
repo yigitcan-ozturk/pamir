@@ -1,0 +1,1 @@
+Final verification point: GitHub Actions must pass on this branch head.
