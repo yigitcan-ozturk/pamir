@@ -1,0 +1,1 @@
+Final acceptance result is the GitHub Actions conclusion for the current branch head.
