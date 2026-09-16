@@ -1,0 +1,1 @@
+Final acceptance status follows the workflow result on this head.
