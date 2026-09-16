@@ -1,0 +1,1 @@
+Final CI verification point for the PAMIR-CUAS demonstrator acceptance package.
