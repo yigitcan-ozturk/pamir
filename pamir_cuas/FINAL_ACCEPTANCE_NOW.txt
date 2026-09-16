@@ -1,0 +1,1 @@
+Final acceptance is now determined by the current workflow conclusion.
