@@ -1,0 +1,1 @@
+Verify current branch head; no further repository changes required.
