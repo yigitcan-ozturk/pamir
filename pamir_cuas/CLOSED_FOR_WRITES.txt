@@ -1,0 +1,1 @@
+Acceptance implementation closed for writes; CI result is next.
