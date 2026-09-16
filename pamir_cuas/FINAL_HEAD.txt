@@ -1,0 +1,1 @@
+Final demonstrator acceptance head is determined dynamically by the latest commit on feat/cuas-forensics-prototype and its GitHub Actions result.
