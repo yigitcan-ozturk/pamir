@@ -1,0 +1,1 @@
+Final acceptance requires GitHub Actions success on this branch head.
