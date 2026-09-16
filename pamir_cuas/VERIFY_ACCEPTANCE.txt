@@ -1,0 +1,1 @@
+Verify current head with GitHub Actions. A successful full test run closes the demonstrator gate.
