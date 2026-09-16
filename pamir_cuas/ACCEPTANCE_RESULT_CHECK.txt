@@ -1,0 +1,1 @@
+Acceptance result is the workflow conclusion on this head.
