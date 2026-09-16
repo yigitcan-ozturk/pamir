@@ -1,0 +1,1 @@
+Final CI workflow conclusion is the repository acceptance authority.
