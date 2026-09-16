@@ -1,0 +1,1 @@
+Acceptance decision now rests on the current CI result.
