@@ -3,5 +3,17 @@
   "role": "generalization_holdout_only",
   "policy": "Holdout cases must be public, SHA-256 pinned before first scoring, and must not be used for detector threshold tuning or confidence calibration. Ambiguous labels are review_only and excluded from hard pass/fail scoring.",
   "status": "acquisition_in_progress",
-  "cases": []
+  "cases": [
+    {
+      "id": "px4-26020-vtol-offboard-mission-crash-2025",
+      "kind": "incident",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/26020",
+      "download_url": "https://logs.px4.io/plot_app?log=5c3b168c-9a6d-461b-9a78-c81855c53f61",
+      "ulog_uuid": "5c3b168c-9a6d-461b-9a78-c81855c53f61",
+      "sha256": "bd7cb2321028cdb57740354e40f6c51e6dd3ac5b7bf5cfb8b79e248021ee29d9",
+      "label_rationale": "Public PX4 issue #26020 documents a real Standard VTOL flight that crashed after switching from Offboard back to Mission mode; the issue provides this Flight Review ULog as the crash flight evidence.",
+      "pin_status": "pinned_before_first_scoring",
+      "scoring_status": "not_scored"
+    }
+  ]
 }
