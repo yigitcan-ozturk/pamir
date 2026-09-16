@@ -1,0 +1,1 @@
+Final acceptance status comes from the current GitHub Actions run.
