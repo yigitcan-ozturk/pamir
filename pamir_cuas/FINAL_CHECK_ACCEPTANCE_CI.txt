@@ -1,0 +1,1 @@
+Final acceptance check is the current GitHub Actions conclusion.
