@@ -1,0 +1,1 @@
+Verify the latest branch head using the repository workflow before declaring completion.
