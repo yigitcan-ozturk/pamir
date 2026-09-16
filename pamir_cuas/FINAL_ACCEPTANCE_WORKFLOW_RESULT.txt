@@ -1,0 +1,1 @@
+Final acceptance is determined by the workflow result for the current branch head.
