@@ -71,7 +71,7 @@ def test_end_to_end_demonstrator_is_deterministic_and_auditable():
     report, snapshot, actions, recovery = first
 
     assert report["incident_id"] == "DEMO-ACCEPT-001"
-    assert len(report["evidence_hash"]) == 64
+    assert len(report["sha256"]) == 64
     assert dumps_evidence_report(report) == dumps_evidence_report(second[0])
     assert actions == [
         "ALERT",
