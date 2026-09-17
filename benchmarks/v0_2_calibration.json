@@ -1,0 +1,16 @@
+{
+  "dataset": "PAMIR v0.2 calibration corpus",
+  "role": "calibration_and_regression_only",
+  "policy": "These cases are inherited from the frozen v0.1 public benchmark and may be used to derive or validate confidence calibration. They must never be reused as holdout evidence.",
+  "source_manifest": "benchmarks/px4_reproducible_incidents.json",
+  "case_ids": [
+    "github-indoor-crash-2025",
+    "follow-me-crash-2020",
+    "position-mode-crash-2023",
+    "altitude-hold-crash-2022",
+    "uncontrolled-yaw-incident-2022",
+    "github-indoor-control-2025",
+    "follow-me-control-2020",
+    "stabilized-control-2022"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "dataset": "PAMIR v0.2 holdout acquisition candidates",
+  "role": "pre_pin_candidates_only",
+  "policy": "Entries in this file are not part of the scored holdout corpus. A candidate may move to v0_2_holdout.json only after its exact input is acquired and SHA-256 pinned before first scoring.",
+  "cases": [
+    {
+      "id": "px4-17732-hexacopter-drop-2021",
+      "kind": "review_only",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/17732",
+      "download_url": "https://github.com/PX4/PX4-Autopilot/files/6616402/log_21_2021-6-3-10-35-52.zip",
+      "label_rationale": "Public real-flight drop event with unresolved causal attribution; suitable for independent review but excluded from hard pass/fail scoring unless relabeled from evidence established before PAMIR scoring.",
+      "pin_status": "pending_sha256",
+      "scoring_status": "not_admitted"
+    }
+  ]
+}
