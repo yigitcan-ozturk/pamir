@@ -1,0 +1,1495 @@
+{
+  "evidence": {
+    "estimator_status.output_tracking_error[0]": [
+      {
+        "timestamp_us": 467903573,
+        "value": 0.000845097005367279
+      },
+      {
+        "timestamp_us": 468103568,
+        "value": 0.0015539611922577024
+      },
+      {
+        "timestamp_us": 468303565,
+        "value": 0.002651902846992016
+      },
+      {
+        "timestamp_us": 468503566,
+        "value": 0.003385503776371479
+      },
+      {
+        "timestamp_us": 468703570,
+        "value": 0.0035624357406049967
+      },
+      {
+        "timestamp_us": 468903583,
+        "value": 0.0033524292521178722
+      }
+    ],
+    "estimator_status[1].output_tracking_error[0]": [
+      {
+        "timestamp_us": 468109657,
+        "value": 0.0008535597007721663
+      },
+      {
+        "timestamp_us": 468309656,
+        "value": 0.0017723266500979662
+      },
+      {
+        "timestamp_us": 468509652,
+        "value": 0.002507275901734829
+      },
+      {
+        "timestamp_us": 468709678,
+        "value": 0.0028383820317685604
+      },
+      {
+        "timestamp_us": 468909631,
+        "value": 0.0027792153414338827
+      },
+      {
+        "timestamp_us": 469109699,
+        "value": 0.0023566812742501497
+      }
+    ],
+    "estimator_status[2].output_tracking_error[0]": [
+      {
+        "timestamp_us": 468100826,
+        "value": 0.0015484042232856154
+      },
+      {
+        "timestamp_us": 468310844,
+        "value": 0.001994701800867915
+      },
+      {
+        "timestamp_us": 468510843,
+        "value": 0.002614385914057493
+      },
+      {
+        "timestamp_us": 468710837,
+        "value": 0.002922785934060812
+      },
+      {
+        "timestamp_us": 468910838,
+        "value": 0.002701262943446636
+      },
+      {
+        "timestamp_us": 469110828,
+        "value": 0.0025867228396236897
+      }
+    ],
+    "vehicle_local_position.heading_var": [
+      {
+        "timestamp_us": 468309679,
+        "value": 9.334974311059341e-05
+      },
+      {
+        "timestamp_us": 468409666,
+        "value": 9.204668458551168e-05
+      },
+      {
+        "timestamp_us": 468509686,
+        "value": 9.078303264686838e-05
+      },
+      {
+        "timestamp_us": 468609640,
+        "value": 8.955441444413736e-05
+      },
+      {
+        "timestamp_us": 468709698,
+        "value": 8.916305523598567e-05
+      },
+      {
+        "timestamp_us": 468809666,
+        "value": 8.798260387266055e-05
+      },
+      {
+        "timestamp_us": 468909652,
+        "value": 8.762691868469119e-05
+      },
+      {
+        "timestamp_us": 469009727,
+        "value": 8.651444659335539e-05
+      },
+      {
+        "timestamp_us": 469109720,
+        "value": 8.547829929739237e-05
+      },
+      {
+        "timestamp_us": 469209679,
+        "value": 8.446884748991579e-05
+      },
+      {
+        "timestamp_us": 469309652,
+        "value": 8.422228711424395e-05
+      },
+      {
+        "timestamp_us": 469409687,
+        "value": 8.327555406140164e-05
+      },
+      {
+        "timestamp_us": 469509643,
+        "value": 8.308015094371513e-05
+      }
+    ],
+    "estimator_status[2].pos_vert_accuracy": [
+      {
+        "timestamp_us": 470110830,
+        "value": 0.15787911415100098
+      },
+      {
+        "timestamp_us": 470310831,
+        "value": 0.15836201608181
+      },
+      {
+        "timestamp_us": 470510832,
+        "value": 0.15879864990711212
+      },
+      {
+        "timestamp_us": 470710833,
+        "value": 0.1591757833957672
+      },
+      {
+        "timestamp_us": 470900742,
+        "value": 0.15897014737129211
+      },
+      {
+        "timestamp_us": 471110818,
+        "value": 0.15973620116710663
+      }
+    ],
+    "actuator_motors.control[1]": [
+      {
+        "timestamp_us": 470211656,
+        "value": 0.30273517966270447
+      },
+      {
+        "timestamp_us": 470311620,
+        "value": 0.2714713215827942
+      },
+      {
+        "timestamp_us": 470411658,
+        "value": 0.2917729616165161
+      },
+      {
+        "timestamp_us": 470509161,
+        "value": 0.3302210867404938
+      },
+      {
+        "timestamp_us": 470611676,
+        "value": 0.325675368309021
+      },
+      {
+        "timestamp_us": 470709159,
+        "value": 0.03660859912633896
+      },
+      {
+        "timestamp_us": 470811669,
+        "value": 0.30446356534957886
+      },
+      {
+        "timestamp_us": 470909194,
+        "value": 0.11512070894241333
+      },
+      {
+        "timestamp_us": 471011661,
+        "value": 0.1892615109682083
+      },
+      {
+        "timestamp_us": 471111670,
+        "value": 0.08346381783485413
+      },
+      {
+        "timestamp_us": 471209254,
+        "value": 0.14302924275398254
+      },
+      {
+        "timestamp_us": 471311673,
+        "value": 0.19971811771392822
+      },
+      {
+        "timestamp_us": 471409181,
+        "value": 0.17603936791419983
+      }
+    ],
+    "sensor_combined.accelerometer_m_s2[1]": [
+      {
+        "timestamp_us": 470263666,
+        "value": -0.37238243222236633
+      },
+      {
+        "timestamp_us": 470268637,
+        "value": 0.2948664128780365
+      },
+      {
+        "timestamp_us": 470273639,
+        "value": -0.7102081775665283
+      },
+      {
+        "timestamp_us": 470278666,
+        "value": 1.2891590595245361
+      },
+      {
+        "timestamp_us": 470283666,
+        "value": -0.42206090688705444
+      },
+      {
+        "timestamp_us": 470288637,
+        "value": 0.06728242337703705
+      },
+      {
+        "timestamp_us": 470293669,
+        "value": -0.030798008665442467
+      },
+      {
+        "timestamp_us": 470298638,
+        "value": 0.7186344265937805
+      },
+      {
+        "timestamp_us": 470303639,
+        "value": -0.16659176349639893
+      },
+      {
+        "timestamp_us": 470308668,
+        "value": -0.7363695502281189
+      },
+      {
+        "timestamp_us": 470313639,
+        "value": 1.2903107404708862
+      },
+      {
+        "timestamp_us": 470318668,
+        "value": 0.16876037418842316
+      },
+      {
+        "timestamp_us": 470323667,
+        "value": -0.44532346725463867
+      },
+      {
+        "timestamp_us": 470328638,
+        "value": -0.3031402826309204
+      },
+      {
+        "timestamp_us": 470333639,
+        "value": 0.34267109632492065
+      },
+      {
+        "timestamp_us": 470338667,
+        "value": 0.4062935709953308
+      },
+      {
+        "timestamp_us": 470343638,
+        "value": -0.11790037155151367
+      },
+      {
+        "timestamp_us": 470348637,
+        "value": 0.08834484219551086
+      },
+      {
+        "timestamp_us": 470353672,
+        "value": 0.2533239722251892
+      },
+      {
+        "timestamp_us": 470358638,
+        "value": 0.5478363633155823
+      },
+      {
+        "timestamp_us": 470363638,
+        "value": -0.590180516242981
+      },
+      {
+        "timestamp_us": 470368667,
+        "value": -0.2347448766231537
+      },
+      {
+        "timestamp_us": 470373637,
+        "value": 1.6600184440612793
+      },
+      {
+        "timestamp_us": 470378638,
+        "value": 0.0661073625087738
+      },
+      {
+        "timestamp_us": 470383667,
+        "value": -1.3562804460525513
+      },
+      {
+        "timestamp_us": 470388670,
+        "value": 1.1214282512664795
+      },
+      {
+        "timestamp_us": 470393637,
+        "value": 0.4690563380718231
+      },
+      {
+        "timestamp_us": 470398667,
+        "value": -0.633242130279541
+      },
+      {
+        "timestamp_us": 470403641,
+        "value": -0.17961221933364868
+      },
+      {
+        "timestamp_us": 470408637,
+        "value": 0.6770104765892029
+      },
+      {
+        "timestamp_us": 470413670,
+        "value": 0.6177399158477783
+      },
+      {
+        "timestamp_us": 470418638,
+        "value": -0.34995150566101074
+      },
+      {
+        "timestamp_us": 470423668,
+        "value": -0.5538364052772522
+      },
+      {
+        "timestamp_us": 470428667,
+        "value": 0.5373610258102417
+      },
+      {
+        "timestamp_us": 470433638,
+        "value": 0.8628780245780945
+      },
+      {
+        "timestamp_us": 470438638,
+        "value": -0.8154746890068054
+      },
+      {
+        "timestamp_us": 470443667,
+        "value": 0.4733891487121582
+      },
+      {
+        "timestamp_us": 470448637,
+        "value": 0.6404834985733032
+      },
+      {
+        "timestamp_us": 470453637,
+        "value": -1.5483754873275757
+      },
+      {
+        "timestamp_us": 470458670,
+        "value": 0.7530294060707092
+      },
+      {
+        "timestamp_us": 470463638,
+        "value": 1.0410447120666504
+      },
+      {
+        "timestamp_us": 470468638,
+        "value": -1.8183979988098145
+      },
+      {
+        "timestamp_us": 470473667,
+        "value": 0.6354256868362427
+      },
+      {
+        "timestamp_us": 470478637,
+        "value": 1.0392591953277588
+      },
+      {
+        "timestamp_us": 470483638,
+        "value": -0.8346269726753235
+      },
+      {
+        "timestamp_us": 470488667,
+        "value": 0.10737496614456177
+      },
+      {
+        "timestamp_us": 470493669,
+        "value": -0.2503688335418701
+      },
+      {
+        "timestamp_us": 470498638,
+        "value": -1.4399892091751099
+      },
+      {
+        "timestamp_us": 470503667,
+        "value": 2.270087242126465
+      },
+      {
+        "timestamp_us": 470508638,
+        "value": -0.7153785228729248
+      },
+      {
+        "timestamp_us": 470513637,
+        "value": -1.2036060094833374
+      },
+      {
+        "timestamp_us": 470518668,
+        "value": 0.7002271413803101
+      },
+      {
+        "timestamp_us": 470523639,
+        "value": -0.37065786123275757
+      },
+      {
+        "timestamp_us": 470528668,
+        "value": 0.5052503943443298
+      },
+      {
+        "timestamp_us": 470533667,
+        "value": 0.22224374115467072
+      },
+      {
+        "timestamp_us": 470538638,
+        "value": -1.8500659465789795
+      },
+      {
+        "timestamp_us": 470543639,
+        "value": 0.929753303527832
+      },
+      {
+        "timestamp_us": 470548667,
+        "value": 0.3417356610298157
+      },
+      {
+        "timestamp_us": 470553640,
+        "value": -1.7882578372955322
+      },
+      {
+        "timestamp_us": 470558638,
+        "value": 1.566045880317688
+      },
+      {
+        "timestamp_us": 470563670,
+        "value": -1.6944025754928589
+      },
+      {
+        "timestamp_us": 470568638,
+        "value": 0.792377769947052
+      },
+      {
+        "timestamp_us": 470573637,
+        "value": 0.6972945928573608
+      },
+      {
+        "timestamp_us": 470578667,
+        "value": -1.887107491493225
+      },
+      {
+        "timestamp_us": 470583638,
+        "value": 0.5330187678337097
+      },
+      {
+        "timestamp_us": 470588638,
+        "value": 0.9196382761001587
+      },
+      {
+        "timestamp_us": 470593666,
+        "value": -2.6099166870117188
+      },
+      {
+        "timestamp_us": 470598668,
+        "value": 1.5023540258407593
+      },
+      {
+        "timestamp_us": 470603640,
+        "value": 0.3080601990222931
+      },
+      {
+        "timestamp_us": 470608667,
+        "value": -2.7237722873687744
+      },
+      {
+        "timestamp_us": 470613639,
+        "value": 3.1520235538482666
+      },
+      {
+        "timestamp_us": 470618638,
+        "value": -1.2437905073165894
+      },
+      {
+        "timestamp_us": 470623666,
+        "value": -1.5407602787017822
+      },
+      {
+        "timestamp_us": 470628637,
+        "value": 2.898595094680786
+      },
+      {
+        "timestamp_us": 470633669,
+        "value": -2.5118348598480225
+      },
+      {
+        "timestamp_us": 470638666,
+        "value": 1.5588185787200928
+      },
+      {
+        "timestamp_us": 470643638,
+        "value": -0.31852930784225464
+      },
+      {
+        "timestamp_us": 470648637,
+        "value": -1.2681117057800293
+      },
+      {
+        "timestamp_us": 470653667,
+        "value": 2.0612871646881104
+      },
+      {
+        "timestamp_us": 470658637,
+        "value": -2.4666588306427
+      },
+      {
+        "timestamp_us": 470663638,
+        "value": 1.4307713508605957
+      },
+      {
+        "timestamp_us": 470668670,
+        "value": -0.12571971118450165
+      },
+      {
+        "timestamp_us": 470673638,
+        "value": -1.576136827468872
+      },
+      {
+        "timestamp_us": 470678638,
+        "value": 1.295196771621704
+      },
+      {
+        "timestamp_us": 470683666,
+        "value": -1.3251464366912842
+      },
+      {
+        "timestamp_us": 470688637,
+        "value": 2.237367868423462
+      },
+      {
+        "timestamp_us": 470693637,
+        "value": -4.416111469268799
+      },
+      {
+        "timestamp_us": 470698667,
+        "value": 5.940356731414795
+      },
+      {
+        "timestamp_us": 470703667,
+        "value": -7.960392475128174
+      },
+      {
+        "timestamp_us": 470708637,
+        "value": 8.190759658813477
+      },
+      {
+        "timestamp_us": 470713666,
+        "value": -8.055171966552734
+      },
+      {
+        "timestamp_us": 470718640,
+        "value": 7.854452133178711
+      },
+      {
+        "timestamp_us": 470723639,
+        "value": -5.903286933898926
+      },
+      {
+        "timestamp_us": 470728666,
+        "value": 1.7147011756896973
+      },
+      {
+        "timestamp_us": 470733637,
+        "value": 2.3800477981567383
+      },
+      {
+        "timestamp_us": 470738669,
+        "value": -4.048173427581787
+      },
+      {
+        "timestamp_us": 470743668,
+        "value": 6.199085235595703
+      },
+      {
+        "timestamp_us": 470748638,
+        "value": -7.051928997039795
+      },
+      {
+        "timestamp_us": 470753638,
+        "value": 6.792122840881348
+      },
+      {
+        "timestamp_us": 470758666,
+        "value": -6.988974094390869
+      },
+      {
+        "timestamp_us": 470763638,
+        "value": 9.665972709655762
+      },
+      {
+        "timestamp_us": 470768638,
+        "value": -12.170004844665527
+      },
+      {
+        "timestamp_us": 470773670,
+        "value": 9.937885284423828
+      },
+      {
+        "timestamp_us": 470778637,
+        "value": -9.01766586303711
+      },
+      {
+        "timestamp_us": 470783639,
+        "value": 8.649752616882324
+      },
+      {
+        "timestamp_us": 470788667,
+        "value": -9.869270324707031
+      },
+      {
+        "timestamp_us": 470793639,
+        "value": 9.284988403320312
+      },
+      {
+        "timestamp_us": 470798638,
+        "value": -7.0370988845825195
+      },
+      {
+        "timestamp_us": 470803667,
+        "value": 6.389768123626709
+      },
+      {
+        "timestamp_us": 470808668,
+        "value": -5.938159465789795
+      },
+      {
+        "timestamp_us": 470813638,
+        "value": 5.106802463531494
+      },
+      {
+        "timestamp_us": 470818666,
+        "value": -4.736238479614258
+      },
+      {
+        "timestamp_us": 470823638,
+        "value": 5.322183609008789
+      },
+      {
+        "timestamp_us": 470828638,
+        "value": -6.397251605987549
+      },
+      {
+        "timestamp_us": 470833666,
+        "value": 3.5920255184173584
+      },
+      {
+        "timestamp_us": 470838637,
+        "value": -3.025291919708252
+      },
+      {
+        "timestamp_us": 470843669,
+        "value": 3.1264872550964355
+      },
+      {
+        "timestamp_us": 470848666,
+        "value": -3.3055102825164795
+      },
+      {
+        "timestamp_us": 470853637,
+        "value": 0.7728559374809265
+      },
+      {
+        "timestamp_us": 470858638,
+        "value": 0.5895588994026184
+      },
+      {
+        "timestamp_us": 470863666,
+        "value": -0.9435937404632568
+      },
+      {
+        "timestamp_us": 470868637,
+        "value": 0.42709624767303467
+      },
+      {
+        "timestamp_us": 470873639,
+        "value": -1.848801851272583
+      },
+      {
+        "timestamp_us": 470878670,
+        "value": 3.409669876098633
+      },
+      {
+        "timestamp_us": 470883638,
+        "value": -3.899385929107666
+      },
+      {
+        "timestamp_us": 470888637,
+        "value": 2.683976173400879
+      },
+      {
+        "timestamp_us": 470893667,
+        "value": -4.161065101623535
+      },
+      {
+        "timestamp_us": 470898638,
+        "value": 5.188742637634277
+      },
+      {
+        "timestamp_us": 470903637,
+        "value": -5.082215785980225
+      },
+      {
+        "timestamp_us": 470908668,
+        "value": 2.4102623462677
+      },
+      {
+        "timestamp_us": 470913668,
+        "value": -3.3063595294952393
+      },
+      {
+        "timestamp_us": 470918638,
+        "value": 4.058078289031982
+      },
+      {
+        "timestamp_us": 470923667,
+        "value": -1.9132108688354492
+      },
+      {
+        "timestamp_us": 470928637,
+        "value": -1.0250777006149292
+      },
+      {
+        "timestamp_us": 470933639,
+        "value": 0.6134960055351257
+      },
+      {
+        "timestamp_us": 470938666,
+        "value": -1.9980041980743408
+      },
+      {
+        "timestamp_us": 470943638,
+        "value": 3.9945764541625977
+      },
+      {
+        "timestamp_us": 470948667,
+        "value": -5.0429840087890625
+      },
+      {
+        "timestamp_us": 470953671,
+        "value": 3.661001682281494
+      },
+      {
+        "timestamp_us": 470958636,
+        "value": -4.013891220092773
+      },
+      {
+        "timestamp_us": 470963638,
+        "value": 3.8764991760253906
+      },
+      {
+        "timestamp_us": 470968667,
+        "value": -3.68818998336792
+      },
+      {
+        "timestamp_us": 470973637,
+        "value": 2.1735594272613525
+      },
+      {
+        "timestamp_us": 470978638,
+        "value": -3.3643524646759033
+      },
+      {
+        "timestamp_us": 470983670,
+        "value": 3.1059646606445312
+      },
+      {
+        "timestamp_us": 470988638,
+        "value": -5.539059638977051
+      },
+      {
+        "timestamp_us": 470993637,
+        "value": 8.05284595489502
+      },
+      {
+        "timestamp_us": 470998667,
+        "value": -10.369330406188965
+      },
+      {
+        "timestamp_us": 471003639,
+        "value": 9.87706184387207
+      },
+      {
+        "timestamp_us": 471008638,
+        "value": -10.875885963439941
+      },
+      {
+        "timestamp_us": 471013670,
+        "value": 9.608609199523926
+      },
+      {
+        "timestamp_us": 471018666,
+        "value": -9.125186920166016
+      },
+      {
+        "timestamp_us": 471023638,
+        "value": 6.361865520477295
+      },
+      {
+        "timestamp_us": 471028668,
+        "value": -5.315742492675781
+      },
+      {
+        "timestamp_us": 471033639,
+        "value": 4.462305545806885
+      },
+      {
+        "timestamp_us": 471038636,
+        "value": -4.0870585441589355
+      },
+      {
+        "timestamp_us": 471043668,
+        "value": 1.2323299646377563
+      },
+      {
+        "timestamp_us": 471048638,
+        "value": -0.011445857584476471
+      },
+      {
+        "timestamp_us": 471053669,
+        "value": 0.4781779646873474
+      },
+      {
+        "timestamp_us": 471058667,
+        "value": -0.018756454810500145
+      },
+      {
+        "timestamp_us": 471063637,
+        "value": -1.7285547256469727
+      },
+      {
+        "timestamp_us": 471068637,
+        "value": 2.444187641143799
+      },
+      {
+        "timestamp_us": 471073666,
+        "value": -2.2917699813842773
+      },
+      {
+        "timestamp_us": 471078638,
+        "value": 3.228213310241699
+      },
+      {
+        "timestamp_us": 471083639,
+        "value": -3.4149410724639893
+      },
+      {
+        "timestamp_us": 471088670,
+        "value": 2.0221681594848633
+      },
+      {
+        "timestamp_us": 471093639,
+        "value": -3.1504764556884766
+      },
+      {
+        "timestamp_us": 471098637,
+        "value": 4.049432277679443
+      },
+      {
+        "timestamp_us": 471103669,
+        "value": -2.6362807750701904
+      },
+      {
+        "timestamp_us": 471108637,
+        "value": 0.7384458780288696
+      },
+      {
+        "timestamp_us": 471113641,
+        "value": -1.7162455320358276
+      },
+      {
+        "timestamp_us": 471118667,
+        "value": 2.4599106311798096
+      },
+      {
+        "timestamp_us": 471123668,
+        "value": -1.9446330070495605
+      },
+      {
+        "timestamp_us": 471128637,
+        "value": 0.8191918730735779
+      },
+      {
+        "timestamp_us": 471133667,
+        "value": -1.833344578742981
+      },
+      {
+        "timestamp_us": 471138638,
+        "value": 2.120354413986206
+      },
+      {
+        "timestamp_us": 471143637,
+        "value": -0.4146306812763214
+      },
+      {
+        "timestamp_us": 471148668,
+        "value": 0.2786734998226166
+      },
+      {
+        "timestamp_us": 471153638,
+        "value": -1.3988287448883057
+      },
+      {
+        "timestamp_us": 471158669,
+        "value": 1.5777662992477417
+      },
+      {
+        "timestamp_us": 471163668,
+        "value": 0.0955125242471695
+      },
+      {
+        "timestamp_us": 471168638,
+        "value": -2.5226891040802
+      },
+      {
+        "timestamp_us": 471173637,
+        "value": 3.5054829120635986
+      },
+      {
+        "timestamp_us": 471178667,
+        "value": -3.2694451808929443
+      },
+      {
+        "timestamp_us": 471183639,
+        "value": 4.079789161682129
+      },
+      {
+        "timestamp_us": 471188638,
+        "value": -6.565081596374512
+      },
+      {
+        "timestamp_us": 471193672,
+        "value": 5.653621196746826
+      },
+      {
+        "timestamp_us": 471198637,
+        "value": -3.339268445968628
+      },
+      {
+        "timestamp_us": 471203639,
+        "value": 3.872789144515991
+      },
+      {
+        "timestamp_us": 471208667,
+        "value": -3.421046733856201
+      },
+      {
+        "timestamp_us": 471213638,
+        "value": 1.804381012916565
+      },
+      {
+        "timestamp_us": 471218638,
+        "value": 1.8248995542526245
+      },
+      {
+        "timestamp_us": 471223666,
+        "value": -1.998453140258789
+      },
+      {
+        "timestamp_us": 471228668,
+        "value": 0.8757378458976746
+      },
+      {
+        "timestamp_us": 471233637,
+        "value": -1.35352623462677
+      },
+      {
+        "timestamp_us": 471238668,
+        "value": 3.881664991378784
+      },
+      {
+        "timestamp_us": 471243639,
+        "value": -4.469620704650879
+      },
+      {
+        "timestamp_us": 471248638,
+        "value": 1.3139101266860962
+      },
+      {
+        "timestamp_us": 471253666,
+        "value": 0.8721452951431274
+      },
+      {
+        "timestamp_us": 471258638,
+        "value": -0.6546620726585388
+      },
+      {
+        "timestamp_us": 471263669,
+        "value": 0.5084267258644104
+      },
+      {
+        "timestamp_us": 471268666,
+        "value": -1.4149885177612305
+      },
+      {
+        "timestamp_us": 471273639,
+        "value": 2.150385856628418
+      },
+      {
+        "timestamp_us": 471278638,
+        "value": -1.4129241704940796
+      },
+      {
+        "timestamp_us": 471283667,
+        "value": 1.4949806928634644
+      },
+      {
+        "timestamp_us": 471288637,
+        "value": -0.5815884470939636
+      },
+      {
+        "timestamp_us": 471293638,
+        "value": 0.36148083209991455
+      },
+      {
+        "timestamp_us": 471298672,
+        "value": -1.4522291421890259
+      },
+      {
+        "timestamp_us": 471303640,
+        "value": 2.5547542572021484
+      },
+      {
+        "timestamp_us": 471308639,
+        "value": -1.7401481866836548
+      },
+      {
+        "timestamp_us": 471313668,
+        "value": 4.284869194030762
+      },
+      {
+        "timestamp_us": 471318639,
+        "value": -7.036510467529297
+      },
+      {
+        "timestamp_us": 471323638,
+        "value": 6.947656154632568
+      },
+      {
+        "timestamp_us": 471328666,
+        "value": -4.291062831878662
+      },
+      {
+        "timestamp_us": 471333668,
+        "value": 4.716841697692871
+      },
+      {
+        "timestamp_us": 471338637,
+        "value": -5.3565192222595215
+      },
+      {
+        "timestamp_us": 471343668,
+        "value": 4.340602874755859
+      },
+      {
+        "timestamp_us": 471348638,
+        "value": -2.0976672172546387
+      },
+      {
+        "timestamp_us": 471353638,
+        "value": 1.9272810220718384
+      },
+      {
+        "timestamp_us": 471358666,
+        "value": -2.60245680809021
+      },
+      {
+        "timestamp_us": 471363637,
+        "value": 4.025749206542969
+      },
+      {
+        "timestamp_us": 471368668,
+        "value": -3.817676544189453
+      },
+      {
+        "timestamp_us": 471373666,
+        "value": 4.156120777130127
+      },
+      {
+        "timestamp_us": 471378637,
+        "value": -4.7714924812316895
+      },
+      {
+        "timestamp_us": 471383639,
+        "value": 5.491634368896484
+      },
+      {
+        "timestamp_us": 471388667,
+        "value": -3.0499608516693115
+      },
+      {
+        "timestamp_us": 471393640,
+        "value": 2.4184868335723877
+      },
+      {
+        "timestamp_us": 471398638,
+        "value": -2.6905877590179443
+      },
+      {
+        "timestamp_us": 471403671,
+        "value": 3.8243918418884277
+      },
+      {
+        "timestamp_us": 471408638,
+        "value": 0.3269349932670593
+      },
+      {
+        "timestamp_us": 471413637,
+        "value": -1.113349199295044
+      },
+      {
+        "timestamp_us": 471418667,
+        "value": 0.5835355520248413
+      },
+      {
+        "timestamp_us": 471423637,
+        "value": 1.0072886943817139
+      },
+      {
+        "timestamp_us": 471428637,
+        "value": 1.5919625759124756
+      },
+      {
+        "timestamp_us": 471433666,
+        "value": -0.9728209972381592
+      },
+      {
+        "timestamp_us": 471438668,
+        "value": 1.2543195486068726
+      },
+      {
+        "timestamp_us": 471443638,
+        "value": 0.5279263257980347
+      },
+      {
+        "timestamp_us": 471448667,
+        "value": 2.738212823867798
+      },
+      {
+        "timestamp_us": 471453638,
+        "value": -2.342522621154785
+      },
+      {
+        "timestamp_us": 471458637,
+        "value": 1.5282046794891357
+      },
+      {
+        "timestamp_us": 471463666,
+        "value": 0.39059337973594666
+      },
+      {
+        "timestamp_us": 471468637,
+        "value": 3.3261935710906982
+      },
+      {
+        "timestamp_us": 471473667,
+        "value": -2.9972422122955322
+      },
+      {
+        "timestamp_us": 471478666,
+        "value": 3.589128255844116
+      },
+      {
+        "timestamp_us": 471483640,
+        "value": -1.809027075767517
+      },
+      {
+        "timestamp_us": 471488637,
+        "value": 4.410590648651123
+      },
+      {
+        "timestamp_us": 471493667,
+        "value": -4.611710071563721
+      },
+      {
+        "timestamp_us": 471498637,
+        "value": 6.543806076049805
+      },
+      {
+        "timestamp_us": 471503638,
+        "value": -5.488765239715576
+      },
+      {
+        "timestamp_us": 471508663,
+        "value": 9.14869499206543
+      }
+    ],
+    "estimator_status[2].pos_horiz_accuracy": [
+      {
+        "timestamp_us": 472110824,
+        "value": 0.1658661812543869
+      },
+      {
+        "timestamp_us": 472300830,
+        "value": 0.16740719974040985
+      },
+      {
+        "timestamp_us": 472510831,
+        "value": 0.17307355999946594
+      },
+      {
+        "timestamp_us": 472710822,
+        "value": 0.1784345805644989
+      },
+      {
+        "timestamp_us": 472910825,
+        "value": 0.18390290439128876
+      },
+      {
+        "timestamp_us": 473110830,
+        "value": 0.18932873010635376
+      }
+    ],
+    "actuator_motors.control[4]": [
+      {
+        "timestamp_us": 472011672,
+        "value": 0.9499999284744263
+      },
+      {
+        "timestamp_us": 472109210,
+        "value": 0.9499999284744263
+      },
+      {
+        "timestamp_us": 472211769,
+        "value": 0.9499999284744263
+      },
+      {
+        "timestamp_us": 472309170,
+        "value": 0.9499999284744263
+      },
+      {
+        "timestamp_us": 472411559,
+        "value": 0.9369966387748718
+      },
+      {
+        "timestamp_us": 472511528,
+        "value": 0.9013768434524536
+      },
+      {
+        "timestamp_us": 472609068,
+        "value": 0.8498075604438782
+      },
+      {
+        "timestamp_us": 472711556,
+        "value": 0.7740201354026794
+      },
+      {
+        "timestamp_us": 472809063,
+        "value": 0.6782813668251038
+      },
+      {
+        "timestamp_us": 472911559,
+        "value": 0.5625645518302917
+      },
+      {
+        "timestamp_us": 473011558,
+        "value": 0.4268118739128113
+      },
+      {
+        "timestamp_us": 473111570,
+        "value": 0.2709454298019409
+      },
+      {
+        "timestamp_us": 473211533,
+        "value": 0.15201517939567566
+      }
+    ],
+    "estimator_status.pos_vert_accuracy": [
+      {
+        "timestamp_us": 472103566,
+        "value": 0.1598457247018814
+      },
+      {
+        "timestamp_us": 472303578,
+        "value": 0.16084575653076172
+      },
+      {
+        "timestamp_us": 472513584,
+        "value": 0.1633998453617096
+      },
+      {
+        "timestamp_us": 472703597,
+        "value": 0.16484276950359344
+      },
+      {
+        "timestamp_us": 472903558,
+        "value": 0.16671612858772278
+      },
+      {
+        "timestamp_us": 473103566,
+        "value": 0.16841094195842743
+      }
+    ]
+  },
+  "pamir_version": "0.1.0",
+  "source": "C:\\Users\\pamilanga ltd\\Downloads\\5c3b168c-9a6d-461b-9a78-c81855c53f61.ulg",
+  "sample_count": 1204593,
+  "signals_analyzed": 483,
+  "raw_deviation_count": 77,
+  "root_event": {
+    "timestamp_us": 468303565,
+    "signal": "estimator_status.output_tracking_error[0]",
+    "value": 0.002651902846992016,
+    "baseline": 0.00040124470251612365,
+    "score": 8.733,
+    "confidence": 0.719,
+    "evidence_start_us": 467803565,
+    "evidence_end_us": 469053565,
+    "reason": "rolling_robust_baseline_deviation",
+    "relation": null,
+    "parent_signal": null
+  },
+  "first_deviation": {
+    "timestamp_us": 468303565,
+    "signal": "estimator_status.output_tracking_error[0]",
+    "value": 0.002651902846992016,
+    "baseline": 0.00040124470251612365,
+    "score": 8.733,
+    "confidence": 0.719,
+    "evidence_start_us": 467803565,
+    "evidence_end_us": 469053565,
+    "reason": "rolling_robust_baseline_deviation",
+    "relation": null,
+    "parent_signal": null
+  },
+  "failure_chain": [
+    {
+      "timestamp_us": 468303565,
+      "signal": "estimator_status.output_tracking_error[0]",
+      "value": 0.002651902846992016,
+      "baseline": 0.00040124470251612365,
+      "score": 8.733,
+      "confidence": 0.719,
+      "evidence_start_us": 467803565,
+      "evidence_end_us": 469053565,
+      "reason": "rolling_robust_baseline_deviation",
+      "relation": null,
+      "parent_signal": null
+    },
+    {
+      "timestamp_us": 468509652,
+      "signal": "estimator_status[1].output_tracking_error[0]",
+      "value": 0.002507275901734829,
+      "baseline": 0.00043583413935266435,
+      "score": 10.205,
+      "confidence": 0.828,
+      "evidence_start_us": 468009652,
+      "evidence_end_us": 469259652,
+      "reason": "rolling_robust_baseline_deviation",
+      "relation": "followed_by",
+      "parent_signal": "estimator_status.output_tracking_error[0]"
+    },
+    {
+      "timestamp_us": 468510843,
+      "signal": "estimator_status[2].output_tracking_error[0]",
+      "value": 0.002614385914057493,
+      "baseline": 0.0004290450888220221,
+      "score": 7.552,
+      "confidence": 0.584,
+      "evidence_start_us": 468010843,
+      "evidence_end_us": 469260843,
+      "reason": "rolling_robust_baseline_deviation",
+      "relation": "followed_by",
+      "parent_signal": "estimator_status[1].output_tracking_error[0]"
+    },
+    {
+      "timestamp_us": 468809666,
+      "signal": "vehicle_local_position.heading_var",
+      "value": 8.798260387266055e-05,
+      "baseline": 0.00010046802344731987,
+      "score": 7.56,
+      "confidence": 0.585,
+      "evidence_start_us": 468309666,
+      "evidence_end_us": 469559666,
+      "reason": "rolling_robust_baseline_deviation",
+      "relation": "likely_caused",
+      "parent_signal": "estimator_status[2].output_tracking_error[0]"
+    },
+    {
+      "timestamp_us": 470510832,
+      "signal": "estimator_status[2].pos_vert_accuracy",
+      "value": 0.15879864990711212,
+      "baseline": 0.15263473987579346,
+      "score": 7.88,
+      "confidence": 0.627,
+      "evidence_start_us": 470010832,
+      "evidence_end_us": 471260832,
+      "reason": "rolling_robust_baseline_deviation",
+      "relation": "followed_by",
+      "parent_signal": "vehicle_local_position.heading_var"
+    },
+    {
+      "timestamp_us": 470709159,
+      "signal": "actuator_motors.control[1]",
+      "value": 0.03660859912633896,
+      "baseline": 0.5791066884994507,
+      "score": 7.915,
+      "confidence": 0.631,
+      "evidence_start_us": 470209159,
+      "evidence_end_us": 471459159,
+      "reason": "rolling_robust_baseline_deviation",
+      "relation": "followed_by",
+      "parent_signal": "estimator_status[2].pos_vert_accuracy"
+    },
+    {
+      "timestamp_us": 470763638,
+      "signal": "sensor_combined.accelerometer_m_s2[1]",
+      "value": 9.665972709655762,
+      "baseline": 0.1373521238565445,
+      "score": 7.585,
+      "confidence": 0.589,
+      "evidence_start_us": 470263638,
+      "evidence_end_us": 471513638,
+      "reason": "rolling_robust_baseline_deviation",
+      "relation": "followed_by",
+      "parent_signal": "actuator_motors.control[1]"
+    },
+    {
+      "timestamp_us": 472510831,
+      "signal": "estimator_status[2].pos_horiz_accuracy",
+      "value": 0.17307355999946594,
+      "baseline": 0.16555064916610718,
+      "score": 9.088,
+      "confidence": 0.751,
+      "evidence_start_us": 472010831,
+      "evidence_end_us": 473260831,
+      "reason": "rolling_robust_baseline_deviation",
+      "relation": "followed_by",
+      "parent_signal": "sensor_combined.accelerometer_m_s2[1]"
+    },
+    {
+      "timestamp_us": 472511528,
+      "signal": "actuator_motors.control[4]",
+      "value": 0.9013768434524536,
+      "baseline": 0.9499999284744263,
+      "score": 9.725,
+      "confidence": 0.798,
+      "evidence_start_us": 472011528,
+      "evidence_end_us": 473261528,
+      "reason": "rolling_robust_baseline_deviation",
+      "relation": "followed_by",
+      "parent_signal": "estimator_status[2].pos_horiz_accuracy"
+    },
+    {
+      "timestamp_us": 472513584,
+      "signal": "estimator_status.pos_vert_accuracy",
+      "value": 0.1633998453617096,
+      "baseline": 0.15268541872501373,
+      "score": 8.123,
+      "confidence": 0.656,
+      "evidence_start_us": 472013584,
+      "evidence_end_us": 473263584,
+      "reason": "rolling_robust_baseline_deviation",
+      "relation": "followed_by",
+      "parent_signal": "actuator_motors.control[4]"
+    }
+  ],
+  "method": {
+    "baseline": "rolling median/MAD (10s, capped at 250 prior samples per signal; threshold 7.0; actuator noise floors)",
+    "root_candidate_policy": "continuous measured telemetry; estimator state/covariance arrays, validity/reset fields, ordinary actuator commands, raw current demand and normal SOC depletion are evidence rather than root proof; estimator test ratios require >1.0; accuracy anomalies cannot root while horizontal/vertical accuracy remains <1 m/<2 m; vibration metrics remain evidence only; control commands may root only for a multi-axis rate-command discontinuity followed by attitude and motion anomalies",
+    "evidence_window": "-0.5s/+0.75s",
+    "confidence": "uncalibrated anomaly-strength heuristic; not probability of causation",
+    "causal_links": "conservative temporal + signal-family heuristic"
+  },
+  "conclusion": "deviation_detected"
+}
