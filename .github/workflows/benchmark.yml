@@ -106,7 +106,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Discover current Flight Review candidates
-        run: python scripts/discover_flight_review.py --limit 25
+        run: python scripts/discover_flight_review.py --limit 50 --require-narrative
       - name: Upload discovery snapshot
         uses: actions/upload-artifact@v4
         with:
