@@ -6,7 +6,7 @@ ULogs, verifies a pinned SHA256 when present, and executes frozen PAMIR twice.
 A missing hash is discovery-only and never becomes accepted evidence.
 """
 from __future__ import annotations
-import argparse, hashlib, json, subprocess, sys, urllib.request
+import argparse, gzip, hashlib, json, subprocess, sys, urllib.request
 from pathlib import Path
 
 DBINFO="https://review.px4.io/dbinfo"
@@ -18,8 +18,12 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 def resolve(uuid: str) -> str:
-    with urllib.request.urlopen(DBINFO, timeout=60) as r:
-        rows=json.load(r)
+    req=urllib.request.Request(DBINFO, headers={"User-Agent":"PAMIR-field-validation/1","Accept-Encoding":"gzip"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        payload=r.read()
+        if r.headers.get("Content-Encoding","").lower()=="gzip" or payload[:2]==b"\\x1f\\x8b":
+            payload=gzip.decompress(payload)
+        rows=json.loads(payload.decode("utf-8"))
     for row in rows:
         if row.get("log_id")==uuid and row.get("download_url"):
             return row["download_url"]
