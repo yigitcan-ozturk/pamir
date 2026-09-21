@@ -29,3 +29,49 @@ jobs:
           name: pamir-px4-benchmark-reports
           path: benchmarks/reports/
           if-no-files-found: ignore
+
+
+  field-validation-fv-a001:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/field-validation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e .
+      - name: Resolve FV-A001 from PX4 Flight Review
+        run: |
+          mkdir -p field-validation/runtime
+          curl --fail --location --retry 3 --compressed -o field-validation/runtime/dbinfo.json https://review.px4.io/dbinfo
+          python - <<'PY' > field-validation/runtime/source-url.txt
+          import json
+          uuid="d8852605-ac7e-46fa-bbff-8fd977b24f0e"
+          rows=json.load(open("field-validation/runtime/dbinfo.json", encoding="utf-8"))
+          for row in rows:
+              if row.get("log_id") == uuid and row.get("download_url"):
+                  print(row["download_url"])
+                  raise SystemExit(0)
+          raise SystemExit("FV-A001 UUID/download_url not found")
+          PY
+          curl --fail --location --retry 3 --compressed -o field-validation/runtime/input.ulg "$(cat field-validation/runtime/source-url.txt)"
+      - name: Verify FV-A001 pinned SHA256
+        run: echo "292cf51d34b9b1373a0208fd8c6585839625b0bede8f33b9043dc07fe7bc52db  field-validation/runtime/input.ulg" | sha256sum --check -
+      - name: Frozen PAMIR replay 1
+        run: pamir analyze field-validation/runtime/input.ulg -o field-validation/runtime/report-1.json
+      - name: Frozen PAMIR replay 2
+        run: pamir analyze field-validation/runtime/input.ulg -o field-validation/runtime/report-2.json
+      - name: Determinism gate
+        run: cmp field-validation/runtime/report-1.json field-validation/runtime/report-2.json
+      - name: Upload FV-A001 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pamir-field-validation-FV-A001
+          path: |
+            field-validation/runtime/source-url.txt
+            field-validation/runtime/report-1.json
+            field-validation/runtime/report-2.json
+          if-no-files-found: ignore
