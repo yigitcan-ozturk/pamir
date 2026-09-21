@@ -21,7 +21,7 @@ def load_rows():
 
 def main():
     ap=argparse.ArgumentParser()
-    ap.add_argument("--limit",type=int,default=25)
+    ap.add_argument("--limit",type=int,default=25)\n    ap.add_argument("--require-narrative",action="store_true")
     ap.add_argument("--output",default="field-validation/runtime/discovery/current-index.json")
     args=ap.parse_args()
     rows=load_rows()
