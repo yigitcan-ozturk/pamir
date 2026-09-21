@@ -4,5 +4,28 @@
   "target_real_flights": 50,
   "synthetic_allowed": false,
   "baseline": "PAMIR v0.1.0 frozen",
-  "cases": []
+  "cases": [
+    {
+      "case_id": "FV-A001",
+      "source_project": "PX4/PX4-Autopilot",
+      "source_url": "https://github.com/PX4/PX4-Autopilot/issues/27013",
+      "flight_review_uuid": "d8852605-ac7e-46fa-bbff-8fd977b24f0e",
+      "license": "pending provenance confirmation",
+      "original_filename": "d8852605-ac7e-46fa-bbff-8fd977b24f0e.ulg",
+      "sha256": "292cf51d34b9b1373a0208fd8c6585839625b0bede8f33b9043dc07fe7bc52db",
+      "size_bytes": 63767614,
+      "classification": "incident",
+      "primary_family": "sensor_anomaly",
+      "secondary_family": "attitude_control",
+      "narrative_basis": "PX4 issue #27013 reports altitude spikes and near-crash behavior during a real fixed-wing autonomous flight.",
+      "acceptance_status": "candidate",
+      "acceptance_reason": "Binary retrieved and SHA256 pinned; ULog parse/telemetry sufficiency and licensing provenance still require validation before promotion.",
+      "pamir_version": "0.1.0-frozen",
+      "pamir_root_event": null,
+      "pamir_root_timestamp": null,
+      "pamir_conclusion": "not_run",
+      "reproducibility_status": "not_run",
+      "notes": "User-supplied original ULog binary. Hash computed from 63,767,614-byte uploaded file. Do not score until remaining acceptance gates pass."
+    }
+  ]
 }
