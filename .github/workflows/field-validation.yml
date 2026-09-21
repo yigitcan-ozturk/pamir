@@ -1,0 +1,55 @@
+name: field-validation-replay
+
+on:
+  workflow_dispatch:
+    inputs:
+      case_id:
+        description: "Field-validation case ID"
+        required: true
+        default: "FV-A001"
+      ulog_url:
+        description: "Direct public URL to the original .ulg binary"
+        required: true
+      expected_sha256:
+        description: "Pinned SHA256 of the original binary"
+        required: true
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: field-validation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e .
+      - name: Download immutable source ULog
+        env:
+          ULOG_URL: ${{ inputs.ulog_url }}
+        run: |
+          mkdir -p field-validation/runtime
+          curl --fail --location --retry 3 --output field-validation/runtime/input.ulg "$ULOG_URL"
+      - name: Verify pinned SHA256 before analysis
+        env:
+          EXPECTED_SHA256: ${{ inputs.expected_sha256 }}
+        run: |
+          echo "$EXPECTED_SHA256  field-validation/runtime/input.ulg" | sha256sum --check -
+      - name: Frozen PAMIR v0.1 replay run 1
+        run: pamir analyze field-validation/runtime/input.ulg -o field-validation/runtime/report-1.json
+      - name: Frozen PAMIR v0.1 replay run 2
+        run: pamir analyze field-validation/runtime/input.ulg -o field-validation/runtime/report-2.json
+      - name: Determinism gate
+        run: cmp field-validation/runtime/report-1.json field-validation/runtime/report-2.json
+      - name: Upload field-validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pamir-field-validation-${{ inputs.case_id }}
+          path: |
+            field-validation/runtime/report-1.json
+            field-validation/runtime/report-2.json
+          if-no-files-found: ignore
