@@ -97,3 +97,19 @@ jobs:
           path: field-validation/runtime/batch/
           if-no-files-found: ignore
 
+  field-validation-discovery:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/field-validation'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Discover current Flight Review candidates
+        run: python scripts/discover_flight_review.py --limit 25
+      - name: Upload discovery snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: pamir-flight-review-discovery
+          path: field-validation/runtime/discovery/current-index.json
+
