@@ -1,0 +1,8 @@
+{
+  "dataset": "PAMIR Field Validation Corpus v1",
+  "status": "collecting",
+  "target_real_flights": 50,
+  "synthetic_allowed": false,
+  "baseline": "PAMIR v0.1.0 frozen",
+  "cases": []
+}
