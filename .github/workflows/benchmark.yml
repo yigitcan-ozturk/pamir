@@ -100,7 +100,10 @@ jobs:
               if row.get("log_id") == uuid and row.get("download_url"):
                   print(row["download_url"])
                   raise SystemExit(0)
-          raise SystemExit("FV-A002 UUID/download_url not found")
+          # Historical Flight Review entries may no longer appear in /dbinfo.
+          # Issue #9260 independently pins the UUID, so use PX4's canonical CDN
+          # object path as a provenance-preserving fallback.
+          print(f"https://cdn.logs.px4.io/{uuid}.ulg")
           PY
           curl --fail --location --retry 3 --compressed -o field-validation/runtime/FV-A002/input.ulg "$(cat field-validation/runtime/FV-A002/source-url.txt)"
           sha256sum field-validation/runtime/FV-A002/input.ulg | tee field-validation/runtime/FV-A002/input.sha256
