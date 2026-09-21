@@ -10,7 +10,7 @@
       "source_project": "PX4/PX4-Autopilot",
       "source_url": "https://github.com/PX4/PX4-Autopilot/issues/27013",
       "flight_review_uuid": "d8852605-ac7e-46fa-bbff-8fd977b24f0e",
-      "license": "pending provenance confirmation",
+      "license": "CC-BY PX4",
       "original_filename": "d8852605-ac7e-46fa-bbff-8fd977b24f0e.ulg",
       "sha256": "292cf51d34b9b1373a0208fd8c6585839625b0bede8f33b9043dc07fe7bc52db",
       "size_bytes": 63767614,
@@ -18,8 +18,8 @@
       "primary_family": "sensor_anomaly",
       "secondary_family": "attitude_control",
       "narrative_basis": "PX4 issue #27013 reports altitude spikes and near-crash behavior during a real fixed-wing autonomous flight.",
-      "acceptance_status": "candidate",
-      "acceptance_reason": "Original binary retrieved and SHA256 pinned; pinned PAMIR environment parsed 5,857,043 samples across 409 signals; two frozen v0.1 replays produced byte-identical reports. Licensing provenance remains pending, so corpus acceptance is not yet promoted.",
+      "acceptance_status": "accepted",
+      "acceptance_reason": "Accepted: real public PX4 Flight Review ULog; original binary retrievable and SHA256 pinned; PX4 documents Flight Review public logs as CC-BY PX4; pinned PAMIR environment parsed sufficient telemetry; narrative classification is independent of PAMIR output; two frozen v0.1 replays produced byte-identical reports.",
       "pamir_version": "0.1.0-frozen",
       "pamir_root_event": "battery_status.voltage_prediction",
       "pamir_root_timestamp": 190472820,
@@ -37,7 +37,9 @@
       "reproducibility_runs": 2,
       "report_sha256": "c0df62c9868bbe002bc8f1eed6b5d43f05fad691fb7426e413d84205f724a299",
       "github_actions_run": 35588437899,
-      "evidence_artifact_id": 10633930014
+      "evidence_artifact_id": 10633930014,
+      "license_source": "PX4 Guide — Statistical Flight Log Analysis / Flight Review Public Logs",
+      "license_source_url": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical"
     }
   ]
 }
