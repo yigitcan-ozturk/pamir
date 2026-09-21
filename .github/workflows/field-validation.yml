@@ -7,12 +7,14 @@ on:
         description: "Field-validation case ID"
         required: true
         default: "FV-A001"
-      ulog_url:
-        description: "Direct public URL to the original .ulg binary"
+      flight_review_uuid:
+        description: "PX4 Flight Review UUID"
         required: true
+        default: "d8852605-ac7e-46fa-bbff-8fd977b24f0e"
       expected_sha256:
         description: "Pinned SHA256 of the original binary"
         required: true
+        default: "292cf51d34b9b1373a0208fd8c6585839625b0bede8f33b9043dc07fe7bc52db"
 
 jobs:
   replay:
@@ -27,17 +29,30 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: pip install -e .
-      - name: Download immutable source ULog
+      - name: Resolve PX4 source and download immutable ULog
         env:
-          ULOG_URL: ${{ inputs.ulog_url }}
+          LOG_UUID: ${{ inputs.flight_review_uuid }}
         run: |
           mkdir -p field-validation/runtime
-          curl --fail --location --retry 3 --output field-validation/runtime/input.ulg "$ULOG_URL"
+          curl --fail --location --retry 3 --compressed -o field-validation/runtime/dbinfo.json https://review.px4.io/dbinfo
+          python - "$LOG_UUID" <<'PY' > field-validation/runtime/source-url.txt
+          import json, sys
+          uuid=sys.argv[1]
+          rows=json.load(open("field-validation/runtime/dbinfo.json", encoding="utf-8"))
+          for row in rows:
+              if row.get("log_id") == uuid:
+                  url=row.get("download_url", "")
+                  if url:
+                      print(url)
+                      raise SystemExit(0)
+          raise SystemExit("Flight Review UUID/download_url not found")
+          PY
+          ULOG_URL="$(cat field-validation/runtime/source-url.txt)"
+          curl --fail --location --retry 3 --compressed --output field-validation/runtime/input.ulg "$ULOG_URL"
       - name: Verify pinned SHA256 before analysis
         env:
           EXPECTED_SHA256: ${{ inputs.expected_sha256 }}
-        run: |
-          echo "$EXPECTED_SHA256  field-validation/runtime/input.ulg" | sha256sum --check -
+        run: echo "$EXPECTED_SHA256  field-validation/runtime/input.ulg" | sha256sum --check -
       - name: Frozen PAMIR v0.1 replay run 1
         run: pamir analyze field-validation/runtime/input.ulg -o field-validation/runtime/report-1.json
       - name: Frozen PAMIR v0.1 replay run 2
@@ -50,6 +65,7 @@ jobs:
         with:
           name: pamir-field-validation-${{ inputs.case_id }}
           path: |
+            field-validation/runtime/source-url.txt
             field-validation/runtime/report-1.json
             field-validation/runtime/report-2.json
           if-no-files-found: ignore
