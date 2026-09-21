@@ -124,3 +124,24 @@ jobs:
             field-validation/runtime/FV-A002/report-1.json
             field-validation/runtime/FV-A002/report-2.json
           if-no-files-found: ignore
+
+  field-validation-batch:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/field-validation'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e .
+      - name: Run field-validation batch
+        run: python scripts/field_validation_batch.py --case FV-A003
+      - name: Upload field-validation batch evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pamir-field-validation-batch
+          path: field-validation/runtime/batch/
+          if-no-files-found: ignore
+
