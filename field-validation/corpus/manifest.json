@@ -98,17 +98,19 @@
       "flight_review_uuid": "60f0a65f-fea3-46cc-b8db-23ac20adb24c",
       "license": "CC-BY PX4",
       "original_filename": "60f0a65f-fea3-46cc-b8db-23ac20adb24c.ulg",
-      "sha256": null,
+      "sha256": "91687f6888721f46a9507788a2d47f0ee8f2027c00e4556120003edece869f2b",
       "classification": "healthy_control",
       "primary_family": "other",
       "narrative_basis": "Public Flight Review narrative reports a real board-support validation flight with takeoff, stable flight, landing and disarm.",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval and SHA256 pinning before frozen PAMIR replay.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35678837774 and SHA256 pinned. Pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "pamir_version": "0.1.0-frozen",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending"
+      "reproducibility_status": "pending",
+      "size_bytes": 8219119,
+      "download_url": "https://cdn.logs.px4.io/60f0a65f-fea3-46cc-b8db-23ac20adb24c.ulg"
     },
     {
       "case_id": "FV-B002",
@@ -117,17 +119,19 @@
       "flight_review_uuid": "ef5d183f-b402-4f59-9f45-d83aed560f08",
       "license": "CC-BY PX4",
       "original_filename": "ef5d183f-b402-4f59-9f45-d83aed560f08.ulg",
-      "sha256": null,
+      "sha256": "cf85cb9ef2b36744492a9043b46331136965edf337ea3bb277e07b6b9e0236ad",
       "classification": "unknown",
       "primary_family": "attitude_control",
       "narrative_basis": "Public Flight Review metadata reports a ROS error/setpoint concern; classification remains unknown until source telemetry and evidence sufficiency are reviewed.",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning and independent evidence-sufficiency review.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35678837774 and SHA256 pinned. Pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "pamir_version": "0.1.0-frozen",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending"
+      "reproducibility_status": "pending",
+      "size_bytes": 1070611,
+      "download_url": "https://cdn.logs.px4.io/ef5d183f-b402-4f59-9f45-d83aed560f08.ulg"
     }
   ]
 }
