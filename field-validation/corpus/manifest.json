@@ -90,6 +90,44 @@
       "reproducibility_status": "pending",
       "license_source": "PX4 Guide — Statistical Flight Log Analysis / Flight Review Public Logs",
       "license_source_url": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical"
+    },
+    {
+      "case_id": "FV-B001",
+      "source_project": "PX4 Flight Review",
+      "source_url": "https://review.px4.io",
+      "flight_review_uuid": "60f0a65f-fea3-46cc-b8db-23ac20adb24c",
+      "license": "CC-BY PX4",
+      "original_filename": "60f0a65f-fea3-46cc-b8db-23ac20adb24c.ulg",
+      "sha256": null,
+      "classification": "healthy_control",
+      "primary_family": "other",
+      "narrative_basis": "Public Flight Review narrative reports a real board-support validation flight with takeoff, stable flight, landing and disarm.",
+      "acceptance_status": "candidate",
+      "acceptance_reason": "Pending original ULog retrieval and SHA256 pinning before frozen PAMIR replay.",
+      "pamir_version": "0.1.0-frozen",
+      "pamir_root_event": null,
+      "pamir_root_timestamp": null,
+      "pamir_conclusion": null,
+      "reproducibility_status": "pending"
+    },
+    {
+      "case_id": "FV-B002",
+      "source_project": "PX4 Flight Review",
+      "source_url": "https://review.px4.io",
+      "flight_review_uuid": "ef5d183f-b402-4f59-9f45-d83aed560f08",
+      "license": "CC-BY PX4",
+      "original_filename": "ef5d183f-b402-4f59-9f45-d83aed560f08.ulg",
+      "sha256": null,
+      "classification": "unknown",
+      "primary_family": "attitude_control",
+      "narrative_basis": "Public Flight Review metadata reports a ROS error/setpoint concern; classification remains unknown until source telemetry and evidence sufficiency are reviewed.",
+      "acceptance_status": "candidate",
+      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning and independent evidence-sufficiency review.",
+      "pamir_version": "0.1.0-frozen",
+      "pamir_root_event": null,
+      "pamir_root_timestamp": null,
+      "pamir_conclusion": null,
+      "reproducibility_status": "pending"
     }
   ]
 }
