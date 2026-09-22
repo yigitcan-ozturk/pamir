@@ -33,12 +33,14 @@ def main():
         if args.require_narrative:
             desc=str(row.get("description") or "").strip()
             feedback=str(row.get("feedback") or "").strip()
-            feedback_missing=(not feedback or feedback.lower()=="none given")
+            feedback_clean=" ".join(feedback.split())
+            feedback_missing=(not feedback_clean or feedback_clean.lower()=="none given")
             generic_descriptions={"qgroundcontrol session",""}
             low_information=feedback_missing and (
                 desc.lower() in generic_descriptions
                 or len(desc) < 12
-                or desc.lower() in {"one","godess","proto 3","stationarytest","11"}
+                or desc.lower() in {"one","godess","proto 3","stationarytest","11","ground control"}
+                or (feedback_missing and desc.lower().startswith("kz"))
             )
             synthetic_hint=any(token in (desc+" "+feedback).lower() for token in ("sitl","simulation","sim ","gazebo"))
             desk_hint="desk test" in (desc+" "+feedback).lower()
