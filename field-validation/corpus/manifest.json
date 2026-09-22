@@ -233,7 +233,8 @@
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
-      "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class."
+      "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class.",
+      "flight_review_uuid": "1d3d3372-69a3-4178-beb0-9a094e955b4e"
     },
     {
       "case_id": "FV-C002",
@@ -255,7 +256,8 @@
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
-      "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class."
+      "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class.",
+      "flight_review_uuid": "1ea906e2-d87a-4273-881f-be050e3425c1"
     },
     {
       "case_id": "FV-C003",
@@ -277,7 +279,8 @@
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
-      "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class."
+      "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class.",
+      "flight_review_uuid": "28085387-cec7-4d69-818d-08ddfb30c7a8"
     },
     {
       "case_id": "FV-C004",
@@ -299,7 +302,8 @@
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
-      "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class."
+      "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class.",
+      "flight_review_uuid": "f9c0a662-e02d-4899-aee6-91c52f1983e3"
     },
     {
       "case_id": "FV-C005",
@@ -321,7 +325,8 @@
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
-      "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class."
+      "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class.",
+      "flight_review_uuid": "fecd92af-d6a1-4a13-b037-f9dbb19cb75f"
     }
   ]
 }
