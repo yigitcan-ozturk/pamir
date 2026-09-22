@@ -33,8 +33,16 @@ def main():
         if args.require_narrative:
             desc=str(row.get("description") or "").strip()
             feedback=str(row.get("feedback") or "").strip()
-            generic=(not feedback or feedback.lower()=="none given") and desc.lower() in {"qgroundcontrol session",""}
-            if generic:
+            feedback_missing=(not feedback or feedback.lower()=="none given")
+            generic_descriptions={"qgroundcontrol session",""}
+            low_information=feedback_missing and (
+                desc.lower() in generic_descriptions
+                or len(desc) < 12
+                or desc.lower() in {"one","godess","proto 3","stationarytest","11"}
+            )
+            synthetic_hint=any(token in (desc+" "+feedback).lower() for token in ("sitl","simulation","sim ","gazebo"))
+            desk_hint="desk test" in (desc+" "+feedback).lower()
+            if low_information or synthetic_hint or desk_hint:
                 continue
         usable.append({k:row.get(k) for k in (
             "log_id","download_url","description","feedback","type","airframe",
