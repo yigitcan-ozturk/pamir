@@ -156,17 +156,19 @@
       "flight_review_uuid": "92927d73-ab85-4f89-ba1a-d27d8f0f16c9",
       "license": "CC-BY PX4",
       "original_filename": "92927d73-ab85-4f89-ba1a-d27d8f0f16c9.ulg",
-      "sha256": null,
+      "sha256": "595cd7a0b4addc12912e4d0ba3f7090fc8c2ea1572022dd1dd201208d3c8869d",
       "classification": "unknown",
       "primary_family": "other",
       "narrative_basis": "Flight-plan metadata describes a takeoff/landing mission.",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Acquisition only. Pending original ULog retrieval, SHA256 pinning and verification that telemetry represents a real flight before scoring.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35690230433 and SHA256 pinned; pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "pamir_version": "0.1.0-frozen",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending"
+      "reproducibility_status": "pending",
+      "download_url": "https://cdn.logs.px4.io/92927d73-ab85-4f89-ba1a-d27d8f0f16c9.ulg",
+      "size_bytes": 27994066
     },
     {
       "case_id": "FV-B004",
@@ -175,17 +177,19 @@
       "flight_review_uuid": "05331af8-4ebb-4f11-8f00-2ab84fa4891a",
       "license": "CC-BY PX4",
       "original_filename": "05331af8-4ebb-4f11-8f00-2ab84fa4891a.ulg",
-      "sha256": null,
+      "sha256": "5a321b04c4575b960009e6c987e6b30716c0c5be1163bd2e46a4a9e9c9e16060",
       "classification": "unknown",
       "primary_family": "other",
       "narrative_basis": "Flight-plan metadata describes a C-turn trajectory.",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Acquisition only. Pending original ULog retrieval, SHA256 pinning and verification that telemetry represents a real flight before scoring.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35690230433 and SHA256 pinned; pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "pamir_version": "0.1.0-frozen",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending"
+      "reproducibility_status": "pending",
+      "download_url": "https://cdn.logs.px4.io/05331af8-4ebb-4f11-8f00-2ab84fa4891a.ulg",
+      "size_bytes": 31796698
     }
   ]
 }
