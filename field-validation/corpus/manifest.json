@@ -221,12 +221,12 @@
       "license": "CC-BY PX4",
       "license_source_url": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical",
       "original_filename": "1d3d3372-69a3-4178-beb0-9a094e955b4e.ulg",
-      "sha256": null,
+      "sha256": "817597ca9b1b9835d9608abbeb53dee16326f6350cae0003e8b39e2d59a38134",
       "classification": "unknown",
       "primary_family": "other",
       "narrative_basis": "Takeoff/landing Vx15 mph mission metadata",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Batch C acquisition candidate; classification remains unknown pending source pinning and telemetry/evidence review.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35694063523 and SHA256 pinned; pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "predeclared_acceptance_criteria": "Original public ULog retrievable; SHA256 pinned; real-flight telemetry sufficient; independent classification/evidence question retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
@@ -234,7 +234,8 @@
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
       "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class.",
-      "flight_review_uuid": "1d3d3372-69a3-4178-beb0-9a094e955b4e"
+      "flight_review_uuid": "1d3d3372-69a3-4178-beb0-9a094e955b4e",
+      "size_bytes": 31102692
     },
     {
       "case_id": "FV-C002",
@@ -244,12 +245,12 @@
       "license": "CC-BY PX4",
       "license_source_url": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical",
       "original_filename": "1ea906e2-d87a-4273-881f-be050e3425c1.ulg",
-      "sha256": null,
+      "sha256": "b1348bffc0e4a81f340879a4e3a429d8abee48c4fa09a18ce5f8e63ddd13b4fd",
       "classification": "unknown",
       "primary_family": "other",
       "narrative_basis": "Takeoff/landing Vx10 mph H2_200 mission metadata",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Batch C acquisition candidate; classification remains unknown pending source pinning and telemetry/evidence review.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35694063523 and SHA256 pinned; pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "predeclared_acceptance_criteria": "Original public ULog retrievable; SHA256 pinned; real-flight telemetry sufficient; independent classification/evidence question retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
@@ -257,7 +258,8 @@
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
       "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class.",
-      "flight_review_uuid": "1ea906e2-d87a-4273-881f-be050e3425c1"
+      "flight_review_uuid": "1ea906e2-d87a-4273-881f-be050e3425c1",
+      "size_bytes": 37489375
     },
     {
       "case_id": "FV-C003",
@@ -267,12 +269,12 @@
       "license": "CC-BY PX4",
       "license_source_url": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical",
       "original_filename": "28085387-cec7-4d69-818d-08ddfb30c7a8.ulg",
-      "sha256": null,
+      "sha256": "decd3dba9c9ce50acb87e7a621b99a2f4c301ecc64339caa42971b329bc314f2",
       "classification": "unknown",
       "primary_family": "other",
       "narrative_basis": "C-turn Vx10 mph R15m mission metadata",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Batch C acquisition candidate; classification remains unknown pending source pinning and telemetry/evidence review.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35694063523 and SHA256 pinned; pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "predeclared_acceptance_criteria": "Original public ULog retrievable; SHA256 pinned; real-flight telemetry sufficient; independent classification/evidence question retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
@@ -280,7 +282,8 @@
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
       "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class.",
-      "flight_review_uuid": "28085387-cec7-4d69-818d-08ddfb30c7a8"
+      "flight_review_uuid": "28085387-cec7-4d69-818d-08ddfb30c7a8",
+      "size_bytes": 17635484
     },
     {
       "case_id": "FV-C004",
@@ -290,12 +293,12 @@
       "license": "CC-BY PX4",
       "license_source_url": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical",
       "original_filename": "f9c0a662-e02d-4899-aee6-91c52f1983e3.ulg",
-      "sha256": null,
+      "sha256": "1640af136b0f80fc7307168b8930cbdc8c93a0608efa0e1eabe18c88d863ff19",
       "classification": "unknown",
       "primary_family": "other",
       "narrative_basis": "C-turn Vx10 mph R5m mission metadata",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Batch C acquisition candidate; classification remains unknown pending source pinning and telemetry/evidence review.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35694063523 and SHA256 pinned; pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "predeclared_acceptance_criteria": "Original public ULog retrievable; SHA256 pinned; real-flight telemetry sufficient; independent classification/evidence question retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
@@ -303,7 +306,8 @@
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
       "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class.",
-      "flight_review_uuid": "f9c0a662-e02d-4899-aee6-91c52f1983e3"
+      "flight_review_uuid": "f9c0a662-e02d-4899-aee6-91c52f1983e3",
+      "size_bytes": 37429840
     },
     {
       "case_id": "FV-C005",
@@ -313,12 +317,12 @@
       "license": "CC-BY PX4",
       "license_source_url": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical",
       "original_filename": "fecd92af-d6a1-4a13-b037-f9dbb19cb75f.ulg",
-      "sha256": null,
+      "sha256": "2da5c83f315dc1bfd1fc077540e9767a6584219fe38e0043d9db791edd89456e",
       "classification": "unknown",
       "primary_family": "other",
       "narrative_basis": "C-turn Vx10 mph R20m mission metadata",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Batch C acquisition candidate; classification remains unknown pending source pinning and telemetry/evidence review.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35694063523 and SHA256 pinned; pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "predeclared_acceptance_criteria": "Original public ULog retrievable; SHA256 pinned; real-flight telemetry sufficient; independent classification/evidence question retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
@@ -326,7 +330,8 @@
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
       "notes": "Selected from Flight Review discovery index; PAMIR output must not manufacture the ground-truth class.",
-      "flight_review_uuid": "fecd92af-d6a1-4a13-b037-f9dbb19cb75f"
+      "flight_review_uuid": "fecd92af-d6a1-4a13-b037-f9dbb19cb75f",
+      "size_bytes": 32618743
     }
   ]
 }
