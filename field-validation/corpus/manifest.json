@@ -148,6 +148,44 @@
       "report_sha256": "f3ecb6cd12e4f678f3514fd6afb3adb4d61aaacbce37ee9bc3dee4cefdc6fbbd",
       "github_actions_run": 35679677867,
       "notes": "Independent classification remains unknown. PAMIR root is the first qualifying frozen-v0.1 deviation, not proof that the estimator signal caused the reported ROS/setpoint concern; confidence is an uncalibrated anomaly-strength heuristic."
+    },
+    {
+      "case_id": "FV-B003",
+      "source_project": "PX4 Flight Review",
+      "source_url": "https://review.px4.io",
+      "flight_review_uuid": "92927d73-ab85-4f89-ba1a-d27d8f0f16c9",
+      "license": "CC-BY PX4",
+      "original_filename": "92927d73-ab85-4f89-ba1a-d27d8f0f16c9.ulg",
+      "sha256": null,
+      "classification": "unknown",
+      "primary_family": "other",
+      "narrative_basis": "Flight-plan metadata describes a takeoff/landing mission.",
+      "acceptance_status": "candidate",
+      "acceptance_reason": "Acquisition only. Pending original ULog retrieval, SHA256 pinning and verification that telemetry represents a real flight before scoring.",
+      "pamir_version": "0.1.0-frozen",
+      "pamir_root_event": null,
+      "pamir_root_timestamp": null,
+      "pamir_conclusion": null,
+      "reproducibility_status": "pending"
+    },
+    {
+      "case_id": "FV-B004",
+      "source_project": "PX4 Flight Review",
+      "source_url": "https://review.px4.io",
+      "flight_review_uuid": "05331af8-4ebb-4f11-8f00-2ab84fa4891a",
+      "license": "CC-BY PX4",
+      "original_filename": "05331af8-4ebb-4f11-8f00-2ab84fa4891a.ulg",
+      "sha256": null,
+      "classification": "unknown",
+      "primary_family": "other",
+      "narrative_basis": "Flight-plan metadata describes a C-turn trajectory.",
+      "acceptance_status": "candidate",
+      "acceptance_reason": "Acquisition only. Pending original ULog retrieval, SHA256 pinning and verification that telemetry represents a real flight before scoring.",
+      "pamir_version": "0.1.0-frozen",
+      "pamir_root_event": null,
+      "pamir_root_timestamp": null,
+      "pamir_conclusion": null,
+      "reproducibility_status": "pending"
     }
   ]
 }
