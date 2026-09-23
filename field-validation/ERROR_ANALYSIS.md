@@ -52,3 +52,18 @@ Observed false-root signals were not confined to one family: `estimator_innovati
 After Batch G, the accepted corpus contains 28 / 50 real flights: 4 incident, 16 healthy controls and 8 unknown. Eight of the 16 accepted healthy controls produce a material root, giving a corpus-level observed false-root rate of 50.0%. All 28 accepted cases are deterministic `pass_exact` replays.
 
 The independent PASS labels remain unchanged. No frozen v0.1.0 threshold or detection rule is modified.
+
+## Batch H cross-platform replication
+
+Batch H tested four PX4 v1.16 release flights on a Holybro S500 / Pixhawk 4 platform, independently recorded as PASS before PAMIR scoring. All four ULogs were SHA256-pinned and produced byte-identical two-run replays in GitHub Actions run 35857703608.
+
+- Healthy controls tested: 4
+- False roots: 2 (FV-H002, FV-H003)
+- Batch H false-root rate: 2 / 4 = 50.0%
+- No-root controls: FV-H001, FV-H004
+- H002 root: `estimator_status[1].output_tracking_error[0]`
+- H003 root: `estimator_status.output_tracking_error[1]`
+
+After Batch H, the accepted corpus contains 32 / 50 real flights: 4 incident, 20 healthy controls and 8 unknown. Ten of the 20 accepted healthy controls produce a material root, giving an observed healthy-control false-root rate of 50.0%. All 32 accepted cases are deterministic `pass_exact` replays.
+
+Batch H reproduces the 50% healthy-control false-root observation on a different release series and hardware configuration. This is evidence of a current v0.1 calibration/generalisation limitation; it does not by itself establish a single causal mechanism. Frozen v0.1 remains unchanged.
