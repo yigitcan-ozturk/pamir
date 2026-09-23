@@ -37,3 +37,18 @@ No v0.1.0 threshold, detection policy, frozen benchmark case, Evidence Pack arte
 3. Run a predeclared threshold-sensitivity experiment only in the external field-validation harness.
 4. Report whether candidate calibration rules reduce false roots and what incident sensitivity they trade away.
 5. Keep any proposed calibration in a separate development lane until independently validated.
+
+## Batch G independent replication
+
+Batch G added eight PX4 v1.18 release-test flights explicitly marked PASS before PAMIR scoring. All eight original ULogs were SHA256-pinned and all eight produced byte-identical two-run replays in GitHub Actions run 35841073946.
+
+- Healthy controls tested: 8
+- False roots: 4 (FV-G001, FV-G002, FV-G003, FV-G008)
+- Batch G false-root rate: 4 / 8 = 50.0%
+- No-root controls: FV-G004, FV-G005, FV-G006, FV-G007
+
+Observed false-root signals were not confined to one family: `estimator_innovations.ev_vpos`, `battery_status.voltage_v`, `estimator_status[2].output_tracking_error[1]`, and `estimator_status[1].output_tracking_error[1]`. Therefore the current evidence does not support treating the issue as only an output-tracking-error phenomenon.
+
+After Batch G, the accepted corpus contains 28 / 50 real flights: 4 incident, 16 healthy controls and 8 unknown. Eight of the 16 accepted healthy controls produce a material root, giving a corpus-level observed false-root rate of 50.0%. All 28 accepted cases are deterministic `pass_exact` replays.
+
+The independent PASS labels remain unchanged. No frozen v0.1.0 threshold or detection rule is modified.
