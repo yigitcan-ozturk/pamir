@@ -1582,15 +1582,16 @@
       "classification": "incident",
       "primary_family": "sensor_anomaly",
       "narrative_basis": "VOXL2 PX4 1.17 Beta real flight; issue reports severe height-estimate instability with sudden drops/crashes or unsafe climbs while using barometer.",
-      "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning, telemetry sufficiency check and deterministic replay.",
+      "acceptance_status": "quarantined",
+      "acceptance_reason": "Original UUID is not present in current PX4 Flight Review dbinfo as verified by GitHub Actions run 35893380481; source unavailable under corpus acquisition rules. No substitute or alternate telemetry format used.",
       "predeclared_acceptance_criteria": "Original public real-flight ULog retrievable; SHA256 pinned; telemetry sufficient for the declared incident question; independent PX4 issue narrative retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending",
-      "notes": "Incident label derives from source report; PAMIR output must not manufacture or strengthen causal ground truth."
+      "reproducibility_status": "not_run_source_unavailable",
+      "notes": "Incident label derives from source report; PAMIR output must not manufacture or strengthen causal ground truth. Historical issue narrative retained, but case excluded from scoring because the original ULog cannot currently be acquired and SHA256-pinned.",
+      "acquisition_run": 35893380481
     },
     {
       "case_id": "FV-L002",
@@ -1605,15 +1606,16 @@
       "classification": "incident",
       "primary_family": "sensor_anomaly",
       "narrative_basis": "Second affected VOXL2 PX4 1.17 Beta real flight from the same issue reporting severe barometer-associated height-estimate instability.",
-      "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning, telemetry sufficiency check and deterministic replay.",
+      "acceptance_status": "quarantined",
+      "acceptance_reason": "Original UUID is not present in current PX4 Flight Review dbinfo as verified by GitHub Actions run 35893380481; source unavailable under corpus acquisition rules. No substitute or alternate telemetry format used.",
       "predeclared_acceptance_criteria": "Original public real-flight ULog retrievable; SHA256 pinned; telemetry sufficient for the declared incident question; independent PX4 issue narrative retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending",
-      "notes": "Incident label derives from source report; PAMIR output must not manufacture or strengthen causal ground truth."
+      "reproducibility_status": "not_run_source_unavailable",
+      "notes": "Incident label derives from source report; PAMIR output must not manufacture or strengthen causal ground truth. Historical issue narrative retained, but case excluded from scoring because the original ULog cannot currently be acquired and SHA256-pinned.",
+      "acquisition_run": 35893380481
     },
     {
       "case_id": "FV-L003",
@@ -1628,15 +1630,16 @@
       "classification": "incident",
       "primary_family": "sensor_anomaly",
       "narrative_basis": "Third affected VOXL2 PX4 1.17 Beta real flight from the reported crash/altitude-instability set.",
-      "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning, telemetry sufficiency check and deterministic replay.",
+      "acceptance_status": "quarantined",
+      "acceptance_reason": "Original UUID is not present in current PX4 Flight Review dbinfo as verified by GitHub Actions run 35893380481; source unavailable under corpus acquisition rules. No substitute or alternate telemetry format used.",
       "predeclared_acceptance_criteria": "Original public real-flight ULog retrievable; SHA256 pinned; telemetry sufficient for the declared incident question; independent PX4 issue narrative retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending",
-      "notes": "Incident label derives from source report; PAMIR output must not manufacture or strengthen causal ground truth."
+      "reproducibility_status": "not_run_source_unavailable",
+      "notes": "Incident label derives from source report; PAMIR output must not manufacture or strengthen causal ground truth. Historical issue narrative retained, but case excluded from scoring because the original ULog cannot currently be acquired and SHA256-pinned.",
+      "acquisition_run": 35893380481
     },
     {
       "case_id": "FV-L004",
@@ -1651,15 +1654,16 @@
       "classification": "incident",
       "primary_family": "sensor_anomaly",
       "narrative_basis": "Fourth affected VOXL2 PX4 1.17 Beta real flight from the reported crash/altitude-instability set.",
-      "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning, telemetry sufficiency check and deterministic replay.",
+      "acceptance_status": "quarantined",
+      "acceptance_reason": "Original UUID is not present in current PX4 Flight Review dbinfo as verified by GitHub Actions run 35893380481; source unavailable under corpus acquisition rules. No substitute or alternate telemetry format used.",
       "predeclared_acceptance_criteria": "Original public real-flight ULog retrievable; SHA256 pinned; telemetry sufficient for the declared incident question; independent PX4 issue narrative retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending",
-      "notes": "Incident label derives from source report; PAMIR output must not manufacture or strengthen causal ground truth."
+      "reproducibility_status": "not_run_source_unavailable",
+      "notes": "Incident label derives from source report; PAMIR output must not manufacture or strengthen causal ground truth. Historical issue narrative retained, but case excluded from scoring because the original ULog cannot currently be acquired and SHA256-pinned.",
+      "acquisition_run": 35893380481
     },
     {
       "case_id": "FV-L005",
@@ -1674,15 +1678,16 @@
       "classification": "incident",
       "primary_family": "attitude_control",
       "narrative_basis": "Real ModalAI Flight Core/VOXL flight; issue reports sudden maximum pitch/roll behaviour requiring emergency recovery/landing, associated by reporter with VIO/EV data.",
-      "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning, telemetry sufficiency check and deterministic replay.",
+      "acceptance_status": "quarantined",
+      "acceptance_reason": "Original UUID is not present in current PX4 Flight Review dbinfo as verified by GitHub Actions run 35893380481; source unavailable under corpus acquisition rules. No substitute or alternate telemetry format used.",
       "predeclared_acceptance_criteria": "Original public real-flight ULog retrievable; SHA256 pinned; telemetry sufficient for the declared incident question; independent PX4 issue narrative retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending",
-      "notes": "Incident label derives from source report; PAMIR output must not manufacture or strengthen causal ground truth."
+      "reproducibility_status": "not_run_source_unavailable",
+      "notes": "Incident label derives from source report; PAMIR output must not manufacture or strengthen causal ground truth. Historical issue narrative retained, but case excluded from scoring because the original ULog cannot currently be acquired and SHA256-pinned.",
+      "acquisition_run": 35893380481
     }
   ]
 }
