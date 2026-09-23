@@ -485,15 +485,16 @@
       "classification": "incident",
       "primary_family": "ekf_gps",
       "narrative_basis": "Hexacopter crash; issue reports sudden ~6 m downward fused-altitude shift associated with GPS altitude/EKF vertical-position behaviour.",
-      "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning, telemetry sufficiency check and deterministic replay.",
+      "acceptance_status": "quarantined",
+      "acceptance_reason": "Flight Review UUID not present in current dbinfo in CI run 35819241818; source unavailable for reproducible acquisition.",
       "predeclared_acceptance_criteria": "Original public ULog retrievable; SHA256 pinned; real-flight telemetry sufficient for the declared evidence question; independent issue narrative retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending",
-      "notes": "PAMIR output must not manufacture or strengthen the independent source classification."
+      "reproducibility_status": "not_run_source_unavailable",
+      "notes": "PAMIR output must not manufacture or strengthen the independent source classification.",
+      "github_actions_acquisition_run": 35819241818
     },
     {
       "case_id": "FV-E002",
@@ -508,15 +509,16 @@
       "classification": "unknown",
       "primary_family": "power_battery",
       "narrative_basis": "Real-flight battery/failsafe investigation; issue reports battery alert at 37% despite BAT_LOW_THR=20% and unexpected RTL threshold behaviour.",
-      "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning, telemetry sufficiency check and deterministic replay.",
+      "acceptance_status": "quarantined",
+      "acceptance_reason": "Flight Review UUID not present in current dbinfo in CI run 35819241818; source unavailable for reproducible acquisition.",
       "predeclared_acceptance_criteria": "Original public ULog retrievable; SHA256 pinned; real-flight telemetry sufficient for the declared evidence question; independent issue narrative retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending",
-      "notes": "PAMIR output must not manufacture or strengthen the independent source classification."
+      "reproducibility_status": "not_run_source_unavailable",
+      "notes": "PAMIR output must not manufacture or strengthen the independent source classification.",
+      "github_actions_acquisition_run": 35819241818
     },
     {
       "case_id": "FV-E003",
@@ -527,19 +529,21 @@
       "license": "CC-BY PX4",
       "license_source": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical",
       "original_filename": "92d762a8-ff74-45be-9eda-cd2e459290e5.ulg",
-      "sha256": null,
+      "sha256": "9af186410043af07642d265ee32808591d64b03b11daa62a03dde0ed3084cb48",
       "classification": "incident",
       "primary_family": "propulsion_motor",
       "narrative_basis": "Flight issue reports runtime COM_SPOOLUP_TIME change caused immediate thrust loss in Stabilized mode.",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning, telemetry sufficiency check and deterministic replay.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35819241818 and SHA256 pinned; pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "predeclared_acceptance_criteria": "Original public ULog retrievable; SHA256 pinned; real-flight telemetry sufficient for the declared evidence question; independent issue narrative retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
-      "notes": "PAMIR output must not manufacture or strengthen the independent source classification."
+      "notes": "PAMIR output must not manufacture or strengthen the independent source classification.",
+      "size_bytes": 5880212,
+      "github_actions_acquisition_run": 35819241818
     },
     {
       "case_id": "FV-E004",
@@ -550,19 +554,21 @@
       "license": "CC-BY PX4",
       "license_source": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical",
       "original_filename": "981755b0-07e9-4742-a1b3-d30453a35aa9.ulg",
-      "sha256": null,
+      "sha256": "888914a04044e2bc8c7ac1bd3d4dd94523d31a7ab4e1ce969ab5045d63a0aa24",
       "classification": "incident",
       "primary_family": "attitude_control",
       "narrative_basis": "Quad switched to AUTO.LAND and crashed from 3–4 m; issue reports landing setpoint changed to origin.",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning, telemetry sufficiency check and deterministic replay.",
+      "acceptance_reason": "Original public ULog retrieved in CI run 35819241818 and SHA256 pinned; pending telemetry sufficiency and deterministic frozen v0.1 replay.",
       "predeclared_acceptance_criteria": "Original public ULog retrievable; SHA256 pinned; real-flight telemetry sufficient for the declared evidence question; independent issue narrative retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
       "reproducibility_status": "pending",
-      "notes": "PAMIR output must not manufacture or strengthen the independent source classification."
+      "notes": "PAMIR output must not manufacture or strengthen the independent source classification.",
+      "size_bytes": 3179653,
+      "github_actions_acquisition_run": 35819241818
     },
     {
       "case_id": "FV-E005",
@@ -577,15 +583,16 @@
       "classification": "unknown",
       "primary_family": "failsafe",
       "narrative_basis": "Rover real log investigating offboard-loss failsafe continuing on the last setpoint instead of stopping.",
-      "acceptance_status": "candidate",
-      "acceptance_reason": "Pending original ULog retrieval, SHA256 pinning, telemetry sufficiency check and deterministic replay.",
+      "acceptance_status": "quarantined",
+      "acceptance_reason": "Flight Review UUID not present in current dbinfo in CI run 35819241818; source unavailable for reproducible acquisition.",
       "predeclared_acceptance_criteria": "Original public ULog retrievable; SHA256 pinned; real-flight telemetry sufficient for the declared evidence question; independent issue narrative retained before PAMIR scoring.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending",
-      "notes": "PAMIR output must not manufacture or strengthen the independent source classification."
+      "reproducibility_status": "not_run_source_unavailable",
+      "notes": "PAMIR output must not manufacture or strengthen the independent source classification.",
+      "github_actions_acquisition_run": 35819241818
     }
   ]
 }
