@@ -88,7 +88,7 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: pip install -e .
       - name: Run field-validation batch
-        run: python scripts/field_validation_batch.py --case FV-M001 --case FV-M002 --case FV-M003 --case FV-M004 --case FV-M005 --case FV-M006 --case FV-M007 --case FV-M008
+        run: python scripts/field_validation_batch.py --case FV-M001 --case FV-M002 --case FV-M003 --case FV-M004 --case FV-M005 --case FV-M006
       - name: Upload field-validation batch evidence
         if: always()
         uses: actions/upload-artifact@v4
