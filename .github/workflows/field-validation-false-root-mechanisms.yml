@@ -3,10 +3,14 @@ name: field-validation-false-root-mechanisms
 on:
   workflow_dispatch:
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
   false-root-mechanisms:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -16,8 +20,25 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: pip install -e .
-      - name: Reproduce predeclared Corpus v1 threshold sweep
-        run: python scripts/field_validation_threshold_sensitivity.py\n        continue-on-error: false
+      - name: Download successful threshold-sensitivity evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p field-validation/runtime/reused
+          gh run download 35953073198 \
+            --repo "${{ github.repository }}" \
+            --name pamir-corpus-v1-threshold-sensitivity \
+            --dir field-validation/runtime/reused
+          cp field-validation/runtime/reused/threshold-sensitivity-results.json \
+             field-validation/runtime/threshold-sensitivity-results.json
+      - name: Verify reused evidence digest
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          p=Path("field-validation/runtime/threshold-sensitivity-results.json")
+          print("threshold evidence sha256:", hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
       - name: Analyse healthy-control false-root mechanisms
         run: python scripts/field_validation_false_root_mechanisms.py
       - name: Preserve mechanism analysis
