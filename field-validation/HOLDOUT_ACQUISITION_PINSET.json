@@ -93,6 +93,13 @@
       "classification": "healthy_control",
       "sha256": "07af9a3670159b5f40a7d2d105421453d82353f021f1cea7a92a46a8e28468d7",
       "size_bytes": 2534319
+    },
+    {
+      "case_id": "H6-001",
+      "flight_review_uuid": "5c3b168c-9a6d-461b-9a78-c81855c53f61",
+      "classification": "incident",
+      "sha256": "bd7cb2321028cdb57740354e40f6c51e6dd3ac5b7bf5cfb8b79e248021ee29d9",
+      "size_bytes": 9890306
     }
   ]
 }
