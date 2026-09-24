@@ -16,7 +16,7 @@ def db():
   if r.headers.get("Content-Encoding","").lower()=="gzip" or b[:2]==b"\x1f\x8b": b=gzip.decompress(b)
  return {str(x.get("log_id")):x for x in json.loads(b.decode()) if x.get("log_id")}
 def main():
- rows=re.findall(r"\| (H5-\d+) \| #(\d+) \| ([0-9a-f-]{36}) \| (healthy_control|incident|unknown) \|",REGISTER.read_text())
+ rows=[(cid,"0",uid,label) for cid,uid,label in re.findall(r"\| (H5-\d+) \| ([0-9a-f-]{36}) \| (healthy_control|incident|unknown) \|",REGISTER.read_text())]
  corpus=json.loads(CORPUS.read_text()); used_uuid={str(c.get("flight_review_uuid")) for c in corpus["cases"] if c.get("flight_review_uuid")}; used_sha={str(c.get("sha256")).lower() for c in corpus["cases"] if c.get("sha256")}; idx=db(); OUT.mkdir(parents=True,exist_ok=True); results=[]
  for cid,issue,uid,label in rows:
   r={"case_id":cid,"issue":int(issue),"flight_review_uuid":uid,"classification":label,"pamir_scored":False,"corpus_uuid_duplicate":uid in used_uuid}
