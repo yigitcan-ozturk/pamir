@@ -1926,19 +1926,21 @@
       "license": "CC-BY PX4",
       "license_source": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical",
       "original_filename": "66b5cda6-e172-40ed-8dc7-02b55a72d6e0.ulg",
-      "sha256": null,
+      "sha256": "4655233bad316ec0187e1e788ff125d577bee216dc18629069a54e706c949733",
       "classification": "healthy_control",
       "primary_family": "other",
       "narrative_basis": "Holybro X500 V2/Pixhawk 6XRT, PX4 v1.18 alpha1; Full Autonomous Mission explicitly PASS (Flight 2).",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Pending current Flight Review retrieval, SHA256 pinning and deterministic replay.",
+      "acceptance_reason": "Original ULog retrieved and SHA256 pinned in run 35949200807; deterministic replay pending.",
       "predeclared_acceptance_criteria": "Original public real-flight ULog retrievable; SHA256 pinned; explicit PASS source narrative retained independently; telemetry parses under pinned PAMIR environment; two replay reports byte-identical.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending",
-      "notes": "Healthy-control label derives from explicit PX4 release-test PASS, not PAMIR output."
+      "reproducibility_status": "pending_replay",
+      "notes": "Healthy-control label derives from explicit PX4 release-test PASS, not PAMIR output.",
+      "size_bytes": 4732787,
+      "acquisition_run": 35949200807
     },
     {
       "case_id": "FV-N002",
@@ -1949,19 +1951,21 @@
       "license": "CC-BY PX4",
       "license_source": "https://docs.px4.io/main/en/dev_log/flight_log_analysis_statistical",
       "original_filename": "75df7f5b-d875-4e0c-a2c5-731d66a34ab2.ulg",
-      "sha256": null,
+      "sha256": "e206f031212c1374a5edb6442fcb05365b467be7aeaad87c56707b2b61d287e2",
       "classification": "healthy_control",
       "primary_family": "other",
       "narrative_basis": "Holybro X500 V2/Pixhawk 6XRT, PX4 v1.18 alpha1; Full Autonomous Arm and Take-off explicitly PASS (Flight 1).",
       "acceptance_status": "candidate",
-      "acceptance_reason": "Pending current Flight Review retrieval, SHA256 pinning and deterministic replay.",
+      "acceptance_reason": "Original ULog retrieved and SHA256 pinned in run 35949200807; deterministic replay pending.",
       "predeclared_acceptance_criteria": "Original public real-flight ULog retrievable; SHA256 pinned; explicit PASS source narrative retained independently; telemetry parses under pinned PAMIR environment; two replay reports byte-identical.",
       "pamir_version": "0.1.0",
       "pamir_root_event": null,
       "pamir_root_timestamp": null,
       "pamir_conclusion": null,
-      "reproducibility_status": "pending",
-      "notes": "Healthy-control label derives from explicit PX4 release-test PASS, not PAMIR output."
+      "reproducibility_status": "pending_replay",
+      "notes": "Healthy-control label derives from explicit PX4 release-test PASS, not PAMIR output.",
+      "size_bytes": 3177040,
+      "acquisition_run": 35949200807
     }
   ]
 }
