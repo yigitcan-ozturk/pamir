@@ -67,3 +67,29 @@ Batch H tested four PX4 v1.16 release flights on a Holybro S500 / Pixhawk 4 plat
 After Batch H, the accepted corpus contains 32 / 50 real flights: 4 incident, 20 healthy controls and 8 unknown. Ten of the 20 accepted healthy controls produce a material root, giving an observed healthy-control false-root rate of 50.0%. All 32 accepted cases are deterministic `pass_exact` replays.
 
 Batch H reproduces the 50% healthy-control false-root observation on a different release series and hardware configuration. This is evidence of a current v0.1 calibration/generalisation limitation; it does not by itself establish a single causal mechanism. Frozen v0.1 remains unchanged.
+
+
+## Corpus v1 threshold-sensitivity result
+
+The predeclared external threshold sweep completed successfully in GitHub Actions run 35953073198 over all 50 SHA-pinned Corpus v1 ULogs. Frozen v0.1 source code and its reference threshold remain unchanged.
+
+| Generic threshold | Healthy false roots | Incident roots | Unknown roots |
+| ---: | ---: | ---: | ---: |
+| 5.0 | 26/33 (78.79%) | 3/6 | 10/11 |
+| 6.0 | 21/33 (63.64%) | 3/6 | 11/11 |
+| 7.0 frozen reference | 16/33 (48.48%) | 3/6 | 10/11 |
+| 8.0 | 11/33 (33.33%) | 3/6 | 10/11 |
+| 9.0 | 11/33 (33.33%) | 3/6 | 10/11 |
+| 10.0 | 13/33 (39.39%) | 3/6 | 10/11 |
+
+The sweep establishes that false-root behaviour is threshold-sensitive, but not monotonically so across the full range. Threshold 10.0 reintroduces healthy roots that are absent at 8.0/9.0 in FV-H002 and FV-J001 through FV-J004. Because frozen v0.1 contains multiple detection/root-selection paths, this result must not be interpreted as evidence that simply increasing one global threshold solves calibration.
+
+At threshold 7.0, 15 of 16 healthy-control material roots are in the estimation family and one is power. Repeated output-tracking-error signals dominate, but estimator innovations and magnetic-strength signals are also represented. The evidence therefore supports an estimation-family calibration/generalisation problem more strongly than a single-signal defect.
+
+The incident-root count remains 3/6 at every tested generic threshold. This is descriptive for the six independently labelled incidents in Corpus v1 and is not a causal-accuracy estimate. The small and unbalanced incident set prevents selecting a production threshold from this sweep.
+
+### Decision
+
+- Keep frozen v0.1 at 7.0.
+- Do not promote 8.0 or 9.0 despite lower observed healthy false-root rate.
+- Continue with per-case false-root mechanism analysis, root-family stability, and candidate family-aware calibration in the separate field-validation/development lane.
