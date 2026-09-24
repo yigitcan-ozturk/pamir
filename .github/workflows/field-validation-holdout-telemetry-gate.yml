@@ -1,0 +1,19 @@
+name: field-validation-holdout-telemetry-gate
+on:
+  workflow_dispatch:
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: field-validation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyulog
+      - run: python scripts/field_validation_holdout_telemetry_gate.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pamir-holdout-telemetry-gate
+          path: field-validation/runtime/holdout-telemetry-gate/telemetry-gate-results.json
