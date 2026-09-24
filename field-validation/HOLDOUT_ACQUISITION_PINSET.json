@@ -100,6 +100,34 @@
       "classification": "incident",
       "sha256": "bd7cb2321028cdb57740354e40f6c51e6dd3ac5b7bf5cfb8b79e248021ee29d9",
       "size_bytes": 9890306
+    },
+    {
+      "case_id": "H7-001",
+      "flight_review_uuid": "5d319f61-aae8-4444-b119-27944a2f0dc8",
+      "classification": "incident",
+      "sha256": "8d32afde9f8048809dbf8f00b35727d266c3c33c0b4bc4cc6f0f40d498c38e7f",
+      "size_bytes": 5815659
+    },
+    {
+      "case_id": "H7-002",
+      "flight_review_uuid": "6fdf707b-1d74-4710-964b-6594fed8969c",
+      "classification": "incident",
+      "sha256": "62f160dd4640d5e2b4a3dc19ed48ac2c8f00535d2fdf5aaf150d01e67b013eae",
+      "size_bytes": 6740339
+    },
+    {
+      "case_id": "H7-003",
+      "flight_review_uuid": "c25d5ee4-1531-4dc3-9906-637c52488da4",
+      "classification": "incident",
+      "sha256": "ee19b060bd03d9bdbba4a030758f13e9c7f8795b1206c0c64f604c10c20a7f8e",
+      "size_bytes": 2516621
+    },
+    {
+      "case_id": "H7-006",
+      "flight_review_uuid": "87dde738-3e97-4a19-ac7d-487d99eb6ec8",
+      "classification": "incident",
+      "sha256": "19e7845e457953764bda58a680ca1d03ff35b1e54fb5fd1db8a77c20353d6436",
+      "size_bytes": 706361
     }
   ]
 }
