@@ -1,0 +1,29 @@
+name: field-validation-threshold-sensitivity
+
+on:
+  workflow_dispatch:
+
+jobs:
+  threshold-sensitivity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: field-validation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e .
+      - name: Run predeclared Corpus v1 threshold sweep
+        run: python scripts/field_validation_threshold_sensitivity.py
+      - name: Preserve machine-readable analysis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pamir-corpus-v1-threshold-sensitivity
+          path: |
+            field-validation/runtime/threshold-sensitivity-results.json
+            field-validation/runtime/threshold-sensitivity-summary.md
+          if-no-files-found: error
