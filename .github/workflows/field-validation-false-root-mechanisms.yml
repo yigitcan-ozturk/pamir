@@ -17,7 +17,7 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: pip install -e .
       - name: Reproduce predeclared Corpus v1 threshold sweep
-        run: python scripts/field_validation_threshold_sensitivity.py
+        run: python scripts/field_validation_threshold_sensitivity.py\n        continue-on-error: false
       - name: Analyse healthy-control false-root mechanisms
         run: python scripts/field_validation_false_root_mechanisms.py
       - name: Preserve mechanism analysis
