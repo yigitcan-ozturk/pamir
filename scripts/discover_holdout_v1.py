@@ -23,7 +23,12 @@ def corpus_ids():
 def useful(r):
     text=" ".join(str(r.get(k) or "") for k in ("description","feedback")).strip()
     low=text.lower()
-    if len(text)<12: return False
+    desc=str(r.get("description") or "").strip()
+    feedback=str(r.get("feedback") or "").strip()
+    generic={"","qgroundcontrol session","godess","one","ground control","stationarytest"}
+    feedback_missing=(not feedback or feedback.lower()=="none given")
+    if desc.lower() in generic and feedback_missing: return False
+    if len(text)<20: return False
     if any(x in low for x in ("sitl","simulation","gazebo","desk test")): return False
     return True
 
