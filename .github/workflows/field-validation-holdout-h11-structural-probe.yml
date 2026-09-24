@@ -1,0 +1,19 @@
+name: field-validation-holdout-h11-structural-probe
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: field-validation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyulog
+      - run: python scripts/field_validation_holdout_h11_probe.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pamir-holdout-h11-structural-probe
+          path: field-validation/runtime/holdout-h11-probe/structural-probe.json
