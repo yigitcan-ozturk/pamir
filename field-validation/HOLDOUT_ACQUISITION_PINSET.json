@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Pre-PAMIR immutable acquisition pinset for telemetry sufficiency gate",
+  "pamir_executed": false,
+  "cases": [
+    {
+      "case_id": "H1-006",
+      "flight_review_uuid": "493454d6-f936-4068-b3cd-53738a62e02e",
+      "classification": "incident",
+      "sha256": "5d7476d8b1b9375eb67015ec9e25b38d4c8ecf70b830921e3931df059c6e0ddc",
+      "size_bytes": 2680565
+    },
+    {
+      "case_id": "H2-001",
+      "flight_review_uuid": "2e1ea627-608c-41bb-9ad3-8686562eed61",
+      "classification": "healthy_control",
+      "sha256": "4ba078a7212db02824ec2286cef67629a9dc82f6219d7a190de086b898faf8cd",
+      "size_bytes": 1068659
+    },
+    {
+      "case_id": "H2-002",
+      "flight_review_uuid": "824f1a9b-572a-447f-a816-3c6e484fde13",
+      "classification": "healthy_control",
+      "sha256": "74997628a349347886efb260741cf8788b339c67e0c7a3f95398beba2efc15d0",
+      "size_bytes": 2843628
+    },
+    {
+      "case_id": "H2-003",
+      "flight_review_uuid": "6e3d7215-b65a-4343-8c53-af956e6b5c01",
+      "classification": "healthy_control",
+      "sha256": "14877b548e713d5262fc2c5d00386b525bc798e5a0b779847e2e80c60e8036af",
+      "size_bytes": 2178993
+    },
+    {
+      "case_id": "H2-004",
+      "flight_review_uuid": "1f5dfb99-2953-421e-97a6-51665f902450",
+      "classification": "healthy_control",
+      "sha256": "361b74a583baa2e38f099bdcc2bfa871d7e4daef1e0eaff2f27f1e5650145129",
+      "size_bytes": 947355
+    },
+    {
+      "case_id": "H2-005",
+      "flight_review_uuid": "3727071f-a231-4099-be86-03ad771bc0fb",
+      "classification": "healthy_control",
+      "sha256": "bca5550a1484beed8beffae05b2520e4d83ccd1c213bc113a47f7702e5f52f73",
+      "size_bytes": 1992056
+    },
+    {
+      "case_id": "H2-006",
+      "flight_review_uuid": "de5c8a0a-a96a-48b1-9ab6-b371d9fc182b",
+      "classification": "healthy_control",
+      "sha256": "28821a90853c9caeea08593e693fcb28ff8297e0f79cfa5e0e1bdb625a69d89a",
+      "size_bytes": 2505496
+    },
+    {
+      "case_id": "H2-007",
+      "flight_review_uuid": "ea91f3d5-ca6d-46d6-8bc2-5f9345a1573f",
+      "classification": "healthy_control",
+      "sha256": "e815a0f7bd84f6cc871030c7fbcd3ae8eca413276d47c7df5da9f12057a56d7f",
+      "size_bytes": 693929
+    },
+    {
+      "case_id": "H2-008",
+      "flight_review_uuid": "b783c327-3215-42f1-8815-e3812351e9cd",
+      "classification": "healthy_control",
+      "sha256": "8fea7e07b2f1838b4372525783fd4348ac1d3e3fdfdd916e5ca8b52fc4f2c23a",
+      "size_bytes": 862696
+    },
+    {
+      "case_id": "H2-009",
+      "flight_review_uuid": "9ef3519a-deab-4b55-add2-fc6cf7c46528",
+      "classification": "healthy_control",
+      "sha256": "6973e6e836ba759067aa910094f3351ee0aedf8b74f2dfed343970e6a3a2558d",
+      "size_bytes": 2218848
+    },
+    {
+      "case_id": "H2-010",
+      "flight_review_uuid": "9e406ea0-d62a-4891-bd27-ff9eff0c84ee",
+      "classification": "healthy_control",
+      "sha256": "8c61ef39f018c5ea1eeb08a7e65dcb13f3e2d89b79d3054c94d0ade93ec5a028",
+      "size_bytes": 760078
+    },
+    {
+      "case_id": "H2-011",
+      "flight_review_uuid": "c96f694b-0147-4d83-bd7c-1353c66dcecf",
+      "classification": "healthy_control",
+      "sha256": "0f677f92f391ac6e7b0f3ea8471f8c920d2279779caf46052f360f2d4e1b7144",
+      "size_bytes": 2145737
+    },
+    {
+      "case_id": "H2-012",
+      "flight_review_uuid": "64f7c9f0-d951-48cb-9668-298fac1077db",
+      "classification": "healthy_control",
+      "sha256": "07af9a3670159b5f40a7d2d105421453d82353f021f1cea7a92a46a8e28468d7",
+      "size_bytes": 2534319
+    }
+  ]
+}
