@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "programme": "PAMIR Field Validation",
+  "corpus": "Independent Holdout v1",
+  "status": "collection",
+  "minimum_accepted_cases": 20,
+  "targets": {"healthy_control_min": 10, "incident_min": 6},
+  "exclusions": ["any Corpus v1 flight", "synthetic flight", "missing original ULog", "unverifiable provenance"],
+  "cases": []
+}
