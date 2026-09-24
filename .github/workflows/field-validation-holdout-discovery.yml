@@ -1,0 +1,26 @@
+name: field-validation-holdout-discovery
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: field-validation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Discover narrative-bearing Flight Review candidates
+        run: python scripts/discover_holdout_v1.py --limit 60
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pamir-holdout-v1-discovery
+          path: field-validation/runtime/holdout-v1-discovery.json
+          if-no-files-found: error
