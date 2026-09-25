@@ -1,0 +1,19 @@
+name: field-validation-candidate-selector-v1-freeze
+on:
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: field-validation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: PYTHONPATH=. python scripts/test_candidate_selector_v1.py
+      - run: sha256sum scripts/candidate_selector_v1.py | tee candidate-selector-v1.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pamir-candidate-selector-v1-freeze
+          path: candidate-selector-v1.sha256
