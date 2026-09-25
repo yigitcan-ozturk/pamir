@@ -1,0 +1,19 @@
+name: field-validation-candidate-selector-v1-corpus
+on:
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: field-validation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyulog
+      - run: PYTHONPATH=.:scripts python scripts/field_validation_candidate_selector_v1_corpus.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pamir-candidate-selector-v1-corpus
+          path: field-validation/runtime/candidate-selector-v1-corpus-results.json
