@@ -1,0 +1,21 @@
+name: field-validation-v2-reselection-comparison
+on:
+  workflow_dispatch:
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: field-validation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyulog
+      - run: PYTHONPATH=.:scripts python scripts/field_validation_v2_reselection_comparison.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pamir-v2-reselection-comparison
+          path: field-validation/runtime/v2-reselection-comparison.json
