@@ -1,0 +1,23 @@
+name: field-validation-independent-holdout-v1
+on:
+  workflow_dispatch:
+jobs:
+  evaluate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: field-validation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyulog
+      - run: PYTHONPATH=.:scripts python scripts/field_validation_independent_holdout_v1.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pamir-independent-holdout-v1
+          path: |
+            field-validation/runtime/holdout-v1-evaluation/holdout-results.json
+            field-validation/runtime/holdout-telemetry-gate/telemetry-gate-results.json
