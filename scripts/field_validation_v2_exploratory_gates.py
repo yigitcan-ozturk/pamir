@@ -38,7 +38,7 @@ def main():
   rows.append(dict(case_id=c["case_id"],label=label(c),frozen_root=root.signal if root else None,
    frozen_family=_signal_family(root.signal) if root else None,diagnostics=decisions))
  def n(label,key=None):
-  return sum(x["label"]==label and (x["frozen_root"] if key is None else x["diagnostics"][key]["root_present"]) for x in rows)
+  return sum(1 for x in rows if x["label"]==label and (x["frozen_root"] is not None if key is None else x["diagnostics"][key]["root_present"]))
  summary={"cohort":dict(Counter(x["label"] for x in rows)),
   "frozen":dict(healthy=n("healthy_control"),incident=n("incident"),unknown=n("unknown")),"gates":{}}
  for name in GATES:
