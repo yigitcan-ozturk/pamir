@@ -1,0 +1,26 @@
+name: Evidence OS real PX4 replay (research)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'research/evidence-os/gate01/**'
+      - '.github/workflows/evidence-os-real-replay.yml'
+jobs:
+  pinned-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -e .
+      - name: Download and SHA256-verify pinned public ULogs
+        run: python scripts/download_px4_benchmarks.py
+      - name: Two-process replay for one incident and one control
+        shell: bash
+        run: |
+          python research/evidence-os/gate01/real_ulog_replay.py --ulog benchmarks/data/github-indoor-crash-2025.ulg --sha256 7ea3869991912d9f2e264b53bebf3afc30e8b6595fd9837d76cf8e24cc7b0179
+          python research/evidence-os/gate01/real_ulog_replay.py --ulog benchmarks/data/github-indoor-control-2025.ulg --sha256 6288e117e86b4e4365f833e55137b5285db12a7f1339063783f7ce76971f26e5
